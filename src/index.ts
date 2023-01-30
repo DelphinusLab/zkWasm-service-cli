@@ -1,12 +1,12 @@
 #! /usr/bin/env node
 import fs from "fs";
-import {resolve} from "path";
-import {ZkWasmServiceTaskHelper, ZkWasmServiceImageHelper, ProvingTask, DeployTask} from "zkwasmservicehelper";
+import { resolve } from "path";
+import { ZkWasmServiceTaskHelper, ZkWasmServiceImageHelper, ProvingTask, DeployTask } from "zkwasmservicehelper";
 import formdata from "form-data";
 const yargs = require("yargs");
 
 
-async function addNewWasmImage(resturl:string, path:string, user_addr:string) {
+async function addNewWasmImage(resturl: string, path: string, user_addr: string) {
   let formData = new formdata();
   let fileSelected = fs.readFileSync(path);
   formData.append("image", fileSelected, "arith");
@@ -15,22 +15,45 @@ async function addNewWasmImage(resturl:string, path:string, user_addr:string) {
   await helper.addNewWasmImage(formData);
   console.log("Do addNewWasmImage success!");
 }
-/*
-async function addProvingTask(task) {
 
-  let helper  = new zkWasmHelperFactory.ZkWasmServiceTaskHelper(resturl, "", "");
+async function addProvingTask(
+  resturl: string,
+  user_addr: string,
+  image_md5: string,
+  public_inputs: string,
+  private_inputs: string) {
+  let helper = new ZkWasmServiceTaskHelper(resturl, "", "");
+  let pb_inputs: Array<string> = helper.parseProvingTaskInput(public_inputs);
+  let priv_inputs: Array<string> = helper.parseProvingTaskInput(private_inputs);
+
+  let task: ProvingTask = {
+    user_address: user_addr,
+    md5: image_md5,
+    public_inputs: pb_inputs,
+    private_inputs: priv_inputs
+  };
+
   await helper.addProvingTask(task);
   console.log("Do addProvingTask success!");
-  
-  const response = await this.invokeRequest(
-      "POST",
-      "/prove",
-      JSON.parse(JSON.stringify(task))
-  );
-  console.log("get addProvingTask response:", response.toString());
-  return response;
 }
-*/
+
+async function addDeployTask(
+  resturl: string,
+  user_addr: string,
+  image_md5: string,
+  chain_id: number) {
+  let helper = new ZkWasmServiceTaskHelper(resturl, "", "");
+
+  let task: DeployTask = {
+    user_address: user_addr,
+    md5: image_md5,
+    chain_id: chain_id,
+  };
+
+  await helper.addDeployTask(task);
+  console.log("Do addDeployTask success!");
+}
+
 async function main() {
   yargs.scriptName("zkwasm-service-helper")
     .usage("Usage: npx $0 <command> <options>")
@@ -47,9 +70,9 @@ async function main() {
     })
     .command(
       'addimage',
-      'Add wasm image',
+      'Add wasm image. Example: npx addimage -r "http://127.0.0.1:8080" -p "/home/username/arith.wasm" -u "0x278847f04E166451182dd30E33e09667bA31e6a8"',
       // options for your command
-      function (yargs:any) {
+      function (yargs: any) {
         return yargs.option('p', {
           alias: 'path',
           describe: 'Wasm image path',
@@ -66,21 +89,21 @@ async function main() {
         })
       },
       // Handler for your command
-      async function (argv:any) {
+      async function (argv: any) {
         const absolutePath = resolve(argv.p);
-        console.log("Begin adding image for ", absolutePath, argv.u, argv.r);
+        console.log("Begin adding image for ", absolutePath);
         await addNewWasmImage(argv.r, absolutePath, argv.u);
       }
     )
-    /*.command(
-      'addimage',
-      'Add wasm image',
+    .command(
+      'addprovingtask',
+      'Add proving task\n Example: npx addprovingtask -r \"http://127.0.0.1:8080\" -i \"4CB1FBCCEC0C107C41405FC1FB380799\" -u \"0x278847f04E166451182dd30E33e09667bA31e6a8\"  --public_input "44:i64 32:i64"',
       // options for your command
-      function (yargs) {
-        return yargs.option('p', {
-          alias: 'path',
-          describe: 'Wasm image path',
-          demandOption: "The wasm image path is required",  // Required
+      function (yargs: any) {
+        return yargs.option('i', {
+          alias: 'image',
+          describe: 'image md5',
+          demandOption: "The image md5 is required",  // Required
           type: 'string',
           nargs: 1
         }).option('u', {
@@ -89,16 +112,56 @@ async function main() {
           demandOption: "User address is required",
           type: 'string',
           nargs: 1
-
+        }).option('public_input', {
+          alias: 'public_input',
+          describe: 'public input of the proof, inputs must have format (0x)[0-f]*:(i64|bytes|bytes-packed) and been separated by spaces (eg: 0x12:i64 44:i64 32:i64).',
+          type: 'string',
+          nargs: 1
+        }).option('private_input', {
+          alias: 'private_input',
+          describe: 'private currently not supported',
+          type: 'string',
+          nargs: 1
         })
       },
       // Handler for your command
-      async function (argv) {
-        const absolutePath = resolve(argv.p);
-        console.log("Begin adding image for ", absolutePath, argv.u, argv.r);
-        await addNewWasmImage(argv.r, absolutePath, argv.u);
+      async function (argv: any) {
+        console.log("Begin adding prove task for ", argv.i, argv.public_input);
+        await addProvingTask(argv.r, argv.u, argv.i, 
+          argv.public_input ? argv.public_input : "",
+          argv.priv_input ? argv.priv_input : "");
       }
-    )*/
+    ).command(
+      'adddeploytask',
+      'Add deploy task\n Example: npx adddeploytask -r \"http://127.0.0.1:8080\" -i \"4CB1FBCCEC0C107C41405FC1FB380799\" -u \"0x278847f04E166451182dd30E33e09667bA31e6a8\" -c 5',
+      // options for your command
+      function (yargs: any) {
+        return yargs.option('i', {
+          alias: 'image',
+          describe: 'image md5',
+          demandOption: "The image md5 is required",  // Required
+          type: 'string',
+          nargs: 1
+        }).option('u', {
+          alias: 'address',
+          describe: 'User address which adding the image',
+          demandOption: "User address is required",
+          type: 'string',
+          nargs: 1
+        }).option('c', {
+          alias: 'chain_id',
+          describe: 'chain id of the network to deploy',
+          demandOption: "Network id is required",
+          type: 'number',
+          nargs: 1
+        })
+      },
+      // Handler for your command
+      async function (argv: any) {
+        console.log("Begin adding deploy task for ", argv.i, argv.c);
+        await addDeployTask(argv.r, argv.u, argv.i, argv.c);
+      }
+    )
     .help();
 
   yargs.parse();
