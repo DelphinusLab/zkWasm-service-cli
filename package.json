@@ -1,0 +1,28 @@
+{
+  "name": "zkwasmservicecli",
+  "version": "1.0.0",
+  "private": true,
+  "description": "cli to communicate with zkwasm cloud service",
+  "dependencies": {
+    "form-data": "^4.0.0",
+    "bn.js": "^5.1.1",
+    "zkwasmservicehelper": "git+https://github.com/DelphinusLab/zkWasm-service-helper.git#yym/HybridModule",
+    "yargs": "17.6.2"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "npm run build",
+    "build": "rm -fr dist/* && npx tsc && sh initzkwasmhelper.sh"
+  },
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "devDependencies": {
+    "@types/node": "^18.11.17",
+    "@types/bn.js": "^5.1.1",
+    "typescript": "^4.3.4"
+  },
+  "bin": {
+    "zkwasm-service-cli": "dist/index.js"
+  }
+}
