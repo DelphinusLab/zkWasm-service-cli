@@ -6,13 +6,13 @@
   "dependencies": {
     "form-data": "^4.0.0",
     "bn.js": "^5.1.1",
-    "zkwasmservicehelper": "git+https://github.com/DelphinusLab/zkWasm-service-helper.git#yym/HybridModule",
+    "zkwasm-service-helper": "git+https://github.com/DelphinusLab/zkWasm-service-helper.git#yym/HybridModule",
     "yargs": "17.6.2"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepare": "npm run build",
-    "build": "rm -fr dist/* && npx tsc && sh initzkwasmhelper.sh"
+    "build": "npx tsc && sh initzkwasmhelper.sh"
   },
   "main": "dist/index.js",
   "module": "dist/index.js",
