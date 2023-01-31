@@ -6,7 +6,7 @@
   "dependencies": {
     "form-data": "^4.0.0",
     "bn.js": "^5.1.1",
-    "zkwasm-service-helper": "git+https://github.com/DelphinusLab/zkWasm-service-helper.git#yym/HybridModule",
+    "zkwasm-service-helper": "git+https://github.com/DelphinusLab/zkWasm-service-helper.git",
     "yargs": "17.6.2"
   },
   "scripts": {
