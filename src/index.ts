@@ -1,7 +1,7 @@
 #! /usr/bin/env node
 import fs from "fs";
 import { resolve } from "path";
-import { ZkWasmServiceTaskHelper, ZkWasmServiceImageHelper, ProvingTask, DeployTask } from "zkwasmservicehelper";
+import { ZkWasmServiceTaskHelper, ZkWasmServiceImageHelper, ProvingTask, DeployTask } from "zkwasm-service-helper";
 import formdata from "form-data";
 const yargs = require("yargs");
 
