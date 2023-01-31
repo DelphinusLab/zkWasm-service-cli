@@ -19,7 +19,7 @@
 		"skipLibCheck": true,
 		"strict": true,
 		"traceResolution": false,
-        "module": "commonjs",
+        "module": "CommonJS",
 		"outDir": "dist",
 		"target": "es6",
 		"types": [
