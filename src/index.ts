@@ -1,18 +1,27 @@
 #! /usr/bin/env node
 import fs from "fs";
 import { resolve } from "path";
-import { ZkWasmServiceTaskHelper, ZkWasmServiceImageHelper, ProvingTask, DeployTask } from "zkwasm-service-helper";
+import { ZkWasmServiceTaskHelper, ZkWasmServiceImageHelper, ProvingTask, DeployTask, AddWasmImageTask } from "zkwasm-service-helper";
 import formdata from "form-data";
 const yargs = require("yargs");
 
 
-async function addNewWasmImage(resturl: string, path: string, user_addr: string) {
-  let formData = new formdata();
-  let fileSelected = fs.readFileSync(path);
-  formData.append("image", fileSelected, "arith");
-  formData.append("user_address", user_addr);
+async function addNewWasmImage(resturl: string, absPath: string,
+  user_addr: string, imageName: string,
+  descripton_url: string, avator_url: string,
+  circuit_size: number) {
+  let fileSelected: Buffer = fs.readFileSync(absPath);
+
+  let task: AddWasmImageTask = {
+    name: imageName,
+    image: fileSelected,
+    user_address: user_addr,
+    description_url: descripton_url,
+    avator_url: avator_url,
+    circuit_size: 18
+  }
   let helper = new ZkWasmServiceTaskHelper(resturl, "", "");
-  await helper.addNewWasmImage(formData);
+  await helper.addNewWasmImage(task);
   console.log("Do addNewWasmImage success!");
 }
 
@@ -70,7 +79,7 @@ async function main() {
     })
     .command(
       'addimage',
-      'Add wasm image. Example: npx addimage -r "http://127.0.0.1:8080" -p "/home/username/arith.wasm" -u "0x278847f04E166451182dd30E33e09667bA31e6a8"',
+      'Add wasm image. Example: npx addimage -r "http://127.0.0.1:8080" -p "/home/username/arith.wasm" -u "0x278847f04E166451182dd30E33e09667bA31e6a8" -n "myfirstimage" -d "My First Image" -c 18',
       // options for your command
       function (yargs: any) {
         return yargs.option('p', {
@@ -86,13 +95,33 @@ async function main() {
           type: 'string',
           nargs: 1
 
+        }).option('c', {
+          alias: 'circuit_size',
+          describe: "image's circuits size, if not specified, default is 18",
+          type: "number",
+          nargs: 1
+        })
+        .option('d', {
+          alias: "description",
+          describe: "image's description, if not specifed, will use name",
+          type: "string",
+          nargs: 1
+        })
+        .option('n', {
+          alias: "name",
+          describe: "image's name",
+          demandOption: "Image name is required",
+          type: "string",
+          nargs: 1
         })
       },
       // Handler for your command
       async function (argv: any) {
         const absolutePath = resolve(argv.p);
         console.log("Begin adding image for ", absolutePath);
-        await addNewWasmImage(argv.r, absolutePath, argv.u);
+        let circuit_size:number = argv.c? argv.c : 18;
+        let desc = argv.d ? argv.d : argv.n;
+        await addNewWasmImage(argv.r, absolutePath, argv.u, argv.n, desc, "", circuit_size);
       }
     )
     .command(
@@ -127,7 +156,7 @@ async function main() {
       // Handler for your command
       async function (argv: any) {
         console.log("Begin adding prove task for ", argv.i, argv.public_input);
-        await addProvingTask(argv.r, argv.u, argv.i, 
+        await addProvingTask(argv.r, argv.u, argv.i,
           argv.public_input ? argv.public_input : "",
           argv.priv_input ? argv.priv_input : "");
       }
