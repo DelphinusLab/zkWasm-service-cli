@@ -10,7 +10,7 @@ async function main() {
   yargs.scriptName("zkwasm-service-helper")
     .usage("Usage: npx $0 <command> <options>")
     .example(
-      "npx $0 addimage -r \"http://127.0.0.1:8080\" -p \"/home/username/arith.wasm\" -u \"0x278847f04E166451182dd30E33e09667bA31e6a8\"",
+      "npx $0 addimage -r \"http://127.0.0.1:8080\" -p \"/home/username/arith.wasm\" -u \"0x278847f04E166451182dd30E33e09667bA31e6a8\" -x \"xxxxxxx\" -n \"myfirstimage\" -d \"My First Image\" -c 18",
       "Add wasm image in the specified path to zkwams cloud service."
     )
     .option("r", {
@@ -36,7 +36,7 @@ async function main() {
     })
     .command(
       'addimage',
-      'Add wasm image. Example: npx addimage -r "http://127.0.0.1:8080" -p "/home/username/arith.wasm" -u "0x278847f04E166451182dd30E33e09667bA31e6a8" -priv "xxxxxxx" -n "myfirstimage" -d "My First Image" -c 18',
+      'Add wasm image. Example: npx addimage -r "http://127.0.0.1:8080" -p "/home/username/arith.wasm" -u "0x278847f04E166451182dd30E33e09667bA31e6a8" -x "xxxxxxx" -n "myfirstimage" -d "My First Image" -c 18',
       // options for your command
       function (yargs: any) {
         return yargs.option('p', {
@@ -76,7 +76,7 @@ async function main() {
     )
     .command(
       'addprovingtask',
-      'Add proving task\n Example: npx addprovingtask -r \"http://127.0.0.1:8080\" -i \"4CB1FBCCEC0C107C41405FC1FB380799\" -u \"0x278847f04E166451182dd30E33e09667bA31e6a8\" -priv "xxxxxxx"  --public_input "44:i64 32:i64"',
+      'Add proving task\n Example: npx addprovingtask -r \"http://127.0.0.1:8080\" -i \"4CB1FBCCEC0C107C41405FC1FB380799\" -u \"0x278847f04E166451182dd30E33e09667bA31e6a8\" -x "xxxxxxx"  --public_input "44:i64 32:i64"',
       // options for your command
       function (yargs: any) {
         return yargs.option('i', {
@@ -107,7 +107,7 @@ async function main() {
       }
     ).command(
       'adddeploytask',
-      'Add deploy task\n Example: npx adddeploytask -r \"http://127.0.0.1:8080\" -i \"4CB1FBCCEC0C107C41405FC1FB380799\" -u \"0x278847f04E166451182dd30E33e09667bA31e6a8\" -priv "xxxxxxx" -c 5',
+      'Add deploy task\n Example: npx adddeploytask -r \"http://127.0.0.1:8080\" -i \"4CB1FBCCEC0C107C41405FC1FB380799\" -u \"0x278847f04E166451182dd30E33e09667bA31e6a8\" -x "xxxxxxx" -c 5',
       // options for your command
       function (yargs: any) {
         return yargs.option('i', {
