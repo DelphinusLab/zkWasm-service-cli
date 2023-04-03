@@ -1,67 +1,10 @@
 #! /usr/bin/env node
 import fs from "fs";
 import { resolve } from "path";
-import { ZkWasmServiceTaskHelper, ZkWasmServiceImageHelper, ProvingTask, DeployTask, AddWasmImageTask } from "zkwasm-service-helper";
+import { addNewWasmImage } from "./task";
+import { ZkWasmServiceHelper, WithSignature, ProvingParams, DeployParams, AddImageParams, ZkWasmUtil } from "zkwasm-service-helper";
 import formdata from "form-data";
 const yargs = require("yargs");
-
-
-async function addNewWasmImage(resturl: string, absPath: string,
-  user_addr: string, imageName: string,
-  descripton_url: string, avator_url: string,
-  circuit_size: number) {
-  let fileSelected: Buffer = fs.readFileSync(absPath);
-
-  let task: AddWasmImageTask = {
-    name: imageName,
-    image: fileSelected,
-    user_address: user_addr,
-    description_url: descripton_url,
-    avator_url: avator_url,
-    circuit_size: 18
-  }
-  let helper = new ZkWasmServiceTaskHelper(resturl, "", "");
-  await helper.addNewWasmImage(task);
-  console.log("Do addNewWasmImage success!");
-}
-
-async function addProvingTask(
-  resturl: string,
-  user_addr: string,
-  image_md5: string,
-  public_inputs: string,
-  private_inputs: string) {
-  let helper = new ZkWasmServiceTaskHelper(resturl, "", "");
-  let pb_inputs: Array<string> = helper.parseProvingTaskInput(public_inputs);
-  let priv_inputs: Array<string> = helper.parseProvingTaskInput(private_inputs);
-
-  let task: ProvingTask = {
-    user_address: user_addr,
-    md5: image_md5,
-    public_inputs: pb_inputs,
-    private_inputs: priv_inputs
-  };
-
-  await helper.addProvingTask(task);
-  console.log("Do addProvingTask success!");
-}
-
-async function addDeployTask(
-  resturl: string,
-  user_addr: string,
-  image_md5: string,
-  chain_id: number) {
-  let helper = new ZkWasmServiceTaskHelper(resturl, "", "");
-
-  let task: DeployTask = {
-    user_address: user_addr,
-    md5: image_md5,
-    chain_id: chain_id,
-  };
-
-  await helper.addDeployTask(task);
-  console.log("Do addDeployTask success!");
-}
 
 async function main() {
   yargs.scriptName("zkwasm-service-helper")
@@ -156,9 +99,9 @@ async function main() {
       // Handler for your command
       async function (argv: any) {
         console.log("Begin adding prove task for ", argv.i, argv.public_input);
-        await addProvingTask(argv.r, argv.u, argv.i,
+        /*await addProvingTask(argv.r, argv.u, argv.i,
           argv.public_input ? argv.public_input : "",
-          argv.priv_input ? argv.priv_input : "");
+          argv.priv_input ? argv.priv_input : "");*/
       }
     ).command(
       'adddeploytask',
@@ -188,7 +131,7 @@ async function main() {
       // Handler for your command
       async function (argv: any) {
         console.log("Begin adding deploy task for ", argv.i, argv.c);
-        await addDeployTask(argv.r, argv.u, argv.i, argv.c);
+        //await addDeployTask(argv.r, argv.u, argv.i, argv.c);
       }
     )
     .help();
