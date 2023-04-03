@@ -6,7 +6,7 @@ import { ZkWasmServiceHelper, WithSignature, ProvingParams, DeployParams, AddIma
 export async function addNewWasmImage(resturl: string, absPath: string,
     user_addr: string, imageName: string,
     description_url: string, avator_url: string,
-    circuit_size: number) {
+    circuit_size: number, priv: string) {
     const filename = parse(absPath).base;
     let fileSelected: Buffer = fs.readFileSync(absPath);
 
@@ -25,7 +25,8 @@ export async function addNewWasmImage(resturl: string, absPath: string,
     let msg = ZkWasmUtil.createAddImageSignMessage(info);
     let signature: string;
     try {
-        signature = signMessage(msg);
+        console.log("msg is:", msg);
+        signature = signMessage(msg, priv);
         console.log("signature is:", signature);
     } catch (e: unknown) {
         console.log("sign error: ", e);
@@ -47,7 +48,8 @@ export async function addProvingTask(
     user_addr: string,
     image_md5: string,
     public_inputs: string,
-    private_inputs: string) {
+    private_inputs: string,
+    priv: string) {
     let helper = new ZkWasmServiceHelper(resturl, "", "");
     let pb_inputs: Array<string> = helper.parseProvingTaskInput(public_inputs);
     let priv_inputs: Array<string> = helper.parseProvingTaskInput(private_inputs);
@@ -62,7 +64,7 @@ export async function addProvingTask(
 
     let signature: string;
     try {
-        signature = await signMessage(msgString);
+        signature = await signMessage(msgString, priv);
     } catch (e: unknown) {
         console.log("error signing message", e);
         return;
@@ -77,11 +79,12 @@ export async function addProvingTask(
     console.log("Finish addProvingTask!");
 }
 
-async function addDeployTask(
+export async function addDeployTask(
     resturl: string,
     user_addr: string,
     image_md5: string,
-    chain_id: number) {
+    chain_id: number,
+    priv: string) {
     let helper = new ZkWasmServiceHelper(resturl, "", "");
 
     let info: DeployParams = {
@@ -92,7 +95,7 @@ async function addDeployTask(
     let msgString = ZkWasmUtil.createDeploySignMessage(info);
     let signature: string;
     try {
-        signature = await signMessage(msgString);
+        signature = await signMessage(msgString, priv);
     } catch (e: unknown) {
         console.log("error signing message", e);
         return;
