@@ -34,20 +34,6 @@ async function main() {
       type: "string",
       nargs: 1,
     })
-    .option("u", {
-      alias: "address",
-      describe: "User address which adding the image",
-      demandOption: "User address is required",
-      type: "string",
-      nargs: 1,
-    })
-    .option("x", {
-      alias: "priv",
-      describe: "The priv of user address.",
-      demandOption: "The priv is required for signing message.",
-      type: "string",
-      nargs: 1,
-    })
     .command(
       "addimage",
       'Add wasm image. Example: npx addimage -r "http://127.0.0.1:8080" -p "/home/username/arith.wasm" -u "0x278847f04E166451182dd30E33e09667bA31e6a8" -x "xxxxxxx" -n "myfirstimage" -d "My First Image" -c 18',
@@ -58,6 +44,20 @@ async function main() {
             alias: "path",
             describe: "Wasm image path",
             demandOption: "The wasm image path is required", // Required
+            type: "string",
+            nargs: 1,
+          })
+          .option("u", {
+            alias: "address",
+            describe: "User address which adding the image",
+            demandOption: "User address is required",
+            type: "string",
+            nargs: 1,
+          })
+          .option("x", {
+            alias: "priv",
+            describe: "The priv of user address.",
+            demandOption: "The priv is required for signing message.",
             type: "string",
             nargs: 1,
           })
@@ -112,6 +112,20 @@ async function main() {
             type: "string",
             nargs: 1,
           })
+          .option("u", {
+            alias: "address",
+            describe: "User address which adding the image",
+            demandOption: "User address is required",
+            type: "string",
+            nargs: 1,
+          })
+          .option("x", {
+            alias: "priv",
+            describe: "The priv of user address.",
+            demandOption: "The priv is required for signing message.",
+            type: "string",
+            nargs: 1,
+          })
           .option("public_input", {
             alias: "public_input",
             describe:
@@ -152,6 +166,20 @@ async function main() {
             type: "string",
             nargs: 1,
           })
+          .option("u", {
+            alias: "address",
+            describe: "User address which adding the image",
+            demandOption: "User address is required",
+            type: "string",
+            nargs: 1,
+          })
+          .option("x", {
+            alias: "priv",
+            describe: "The priv of user address.",
+            demandOption: "The priv is required for signing message.",
+            type: "string",
+            nargs: 1,
+          })
           .option("c", {
             alias: "chain_id",
             describe: "chain id of the network to deploy",
@@ -178,9 +206,22 @@ async function main() {
             type: "string",
             nargs: 1,
           })
+          .option("p", {
+            alias: "provider",
+            describe:
+              "Provider to connect to a network. Required to send transaction.",
+            type: "string",
+            nargs: 1,
+          })
+          .option("x", {
+            alias: "priv",
+            describe: "The priv of user address. Required to send transaction",
+            type: "string",
+            nargs: 1,
+          })
           .option("a", {
             alias: "amount",
-            describe: "amount of payment",
+            describe: "amount of payment. Required to send transaction",
             type: "string",
           });
       },
