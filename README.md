@@ -27,7 +27,7 @@ Add a new wasm image.
 
 ### Usage
 
-`npx dist/index.js addimage -r <resturl> -p <path> -u <address> -x <priv> -n <name> [-d <description>] [-c <circuit_size>]`
+`node dist/index.js addimage -r <resturl> -p <path> -u <address> -x <priv> -n <name> [-d <description>] [-c <circuit_size>]`
 
 ### Options
 
@@ -47,7 +47,7 @@ Add proving task.
 
 ### Usage
 
-`npx dist/index.js addprovingtask -r <resturl> -i <image> -u <address> -x <priv> [--public_input <public_input>] [--private_input <private_input>]`
+`node dist/index.js addprovingtask -r <resturl> -i <image> -u <address> -x <priv> [--public_input <public_input>] [--private_input <private_input>]`
 
 ### Options
 
@@ -66,7 +66,7 @@ Adds a deploy task to the zkwasm cloud service.
 
 ### Usage
 
-`npx dist/index.js adddeploytask [options]`
+`node dist/index.js adddeploytask [options]`
 
 ### Options
 
@@ -81,7 +81,7 @@ Adds a deploy task to the zkwasm cloud service.
 - Adds a deploy task:
 
   ```
-  npx dist/index.js adddeploytask -r "http://127.0.0.1:8080" -i "4CB1FBCCEC0C107C41405FC1FB380799" -u "0x278847f04E166451182dd30E33e09667bA31e6a8" -x "xxxxxxx" -c 5
+  node dist/index.js adddeploytask -r "http://127.0.0.1:8080" -i "4CB1FBCCEC0C107C41405FC1FB380799" -u "0x278847f04E166451182dd30E33e09667bA31e6a8" -x "xxxxxxx" -c 5
   ```
 
 ## Command: addpayment
@@ -90,7 +90,7 @@ Add payment.
 
 ### Usage
 
-`npx dist/index.js addpayment -r <resturl> [-t <tx>] [-p <provider>] [-x <priv>] [-a <amount>]`
+`node dist/index.js addpayment -r <resturl> [-t <tx>] [-p <provider>] [-x <priv>] [-a <amount>]`
 
 ### Options
 

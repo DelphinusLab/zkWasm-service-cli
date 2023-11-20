@@ -4,10 +4,13 @@ import { resolve } from "path";
 import {
   addNewWasmImage,
   addProvingTask,
-  addDeployTask,
+  //addDeployTask,
   addNewPayment,
   addPaymentWithTx,
 } from "./task";
+import{
+  queryTask,
+} from "./query";
 import {
   ZkWasmServiceHelper,
   WithSignature,
@@ -21,7 +24,7 @@ const yargs = require("yargs");
 
 async function main() {
   yargs
-    .scriptName("zkwasm-service-helper")
+    .scriptName("zkwasm-service-cli")
     .usage("Usage: npx $0 <command> <options>")
     .example(
       'npx $0 addimage -r "http://127.0.0.1:8080" -p "/home/username/arith.wasm" -u "0x278847f04E166451182dd30E33e09667bA31e6a8" -x "xxxxxxx" -n "myfirstimage" -d "My First Image" -c 18',
@@ -36,7 +39,7 @@ async function main() {
     })
     .command(
       "addimage",
-      'Add wasm image. Example: npx addimage -r "http://127.0.0.1:8080" -p "/home/username/arith.wasm" -u "0x278847f04E166451182dd30E33e09667bA31e6a8" -x "xxxxxxx" -n "myfirstimage" -d "My First Image" -c 18',
+      'Add wasm image. Example: npx $0 addimage -r "http://127.0.0.1:8080" -p "/home/username/arith.wasm" -u "0x278847f04E166451182dd30E33e09667bA31e6a8" -x "xxxxxxx" -n "myfirstimage" -d "My First Image" -c 18',
       // options for your command
       function (yargs: any) {
         return yargs
@@ -101,7 +104,7 @@ async function main() {
     )
     .command(
       "addprovingtask",
-      'Add proving task\n Example: npx addprovingtask -r "http://127.0.0.1:8080" -i "4CB1FBCCEC0C107C41405FC1FB380799" -u "0x278847f04E166451182dd30E33e09667bA31e6a8" -x "xxxxxxx"  --public_input "44:i64 32:i64"',
+      'Add proving task\n Example: npx $0 addprovingtask -r "http://127.0.0.1:8080" -i "4CB1FBCCEC0C107C41405FC1FB380799" -u "0x278847f04E166451182dd30E33e09667bA31e6a8" -x "xxxxxxx"  --public_input "44:i64 32:i64"',
       // options for your command
       function (yargs: any) {
         return yargs
@@ -153,9 +156,9 @@ async function main() {
         );
       }
     )
-    .command(
+    /*.command(
       "adddeploytask",
-      'Add deploy task\n Example: npx adddeploytask -r "http://127.0.0.1:8080" -i "4CB1FBCCEC0C107C41405FC1FB380799" -u "0x278847f04E166451182dd30E33e09667bA31e6a8" -x "xxxxxxx" -c 5',
+      'Add deploy task\n Example: npx $0 adddeploytask -r "http://127.0.0.1:8080" -i "4CB1FBCCEC0C107C41405FC1FB380799" -u "0x278847f04E166451182dd30E33e09667bA31e6a8" -x "xxxxxxx" -c 5',
       // options for your command
       function (yargs: any) {
         return yargs
@@ -193,10 +196,10 @@ async function main() {
         console.log("Begin adding deploy task for ", argv.i, argv.c);
         await addDeployTask(argv.r, argv.u, argv.i, argv.c, argv.priv);
       }
-    )
+    )*/
     .command(
       "addpayment",
-      'Add payment\n Example: npx addpayment -r "http://127.0.0.1:8080" -t "<transactionhash>" \n\n Example new payment: \n npx addpayment -r "http://127.0.0.1:8080" -p "https://goerli.infura.io/v3/xxxxxxx" -u "YOUR_ADDRESS" -x "YOUR_PRIVATE_KEY" -a "0.00001" ',
+      'Add payment\n Example: npx $0 addpayment -r "http://127.0.0.1:8080" -t "<transactionhash>" \n\n Example new payment: \n npx addpayment -r "http://127.0.0.1:8080" -p "https://goerli.infura.io/v3/xxxxxxx" -u "YOUR_ADDRESS" -x "YOUR_PRIVATE_KEY" -a "0.00001" ',
       // options for your command
       function (yargs: any) {
         return yargs
@@ -238,6 +241,24 @@ async function main() {
         await addNewPayment(argv.r, argv.p, argv.a, argv.x);
       }
     )
+    .command(
+      "querytask",
+      'Query task\n Example: node $0 querytask -r "http://127.0.0.1:8080" -t "<transactionid>" ',
+      // options for your command
+      function (yargs: any) {
+        return yargs
+          .option("t", {
+            alias: "tx",
+            describe: "transaction hash",
+            type: "string",
+            nargs: 1,
+          });
+      },
+      async function (argv: any) {
+        console.log("Creating new transaction...");
+        await queryTask(argv.t, argv.r);
+      }
+    )
     .help();
 
   yargs.parse();
@@ -245,7 +266,7 @@ async function main() {
 
 main()
   .then((text) => {
-    console.log("Run success.");
+    console.log("Run success.", text);
   })
   .catch((err) => {
     // Deal with the fact the chain failed

@@ -1,15 +1,13 @@
 import fs from "fs";
 import { ethers } from "ethers";
 import { parse } from "path";
-import { signMessage, askQuestion } from "./util";
+import { askQuestion } from "./util";
 import {
   ZkWasmServiceHelper,
   WithSignature,
   ProvingParams,
-  DeployParams,
   AddImageParams,
   ZkWasmUtil,
-  PaymentParams,
   AppConfig,
 } from "zkwasm-service-helper";
 
@@ -40,7 +38,7 @@ export async function addNewWasmImage(
   let signature: string;
   try {
     console.log("msg is:", msg);
-    signature = signMessage(msg, priv);
+    signature = ZkWasmUtil.signMessage(msg, priv);
     console.log("signature is:", signature);
   } catch (e: unknown) {
     console.log("sign error: ", e);
@@ -52,8 +50,13 @@ export async function addNewWasmImage(
   };
 
   let helper = new ZkWasmServiceHelper(resturl, "", "");
-  await helper.addNewWasmImage(task);
-  console.log("Finish addNewWasmImage!");
+  helper.addNewWasmImage(task).then((res) => {
+    console.log("Add Image Response", res);
+  }).catch((err) => {
+    console.log("Add Image Error", err);
+  }).finally(()=>
+  console.log("Finish addNewWasmImage!")
+  )
 }
 
 export async function addProvingTask(
@@ -78,7 +81,7 @@ export async function addProvingTask(
 
   let signature: string;
   try {
-    signature = await signMessage(msgString, priv);
+    signature = await ZkWasmUtil.signMessage(msgString, priv);
   } catch (e: unknown) {
     console.log("error signing message", e);
     return;
@@ -93,6 +96,7 @@ export async function addProvingTask(
   console.log("Finish addProvingTask!");
 }
 
+/*
 export async function addDeployTask(
   resturl: string,
   user_addr: string,
@@ -110,7 +114,7 @@ export async function addDeployTask(
   let msgString = ZkWasmUtil.createDeploySignMessage(info);
   let signature: string;
   try {
-    signature = await signMessage(msgString, priv);
+    signature = await ZkWasmUtil.signMessage(msgString, priv);
   } catch (e: unknown) {
     console.log("error signing message", e);
     return;
@@ -122,7 +126,7 @@ export async function addDeployTask(
 
   await helper.addDeployTask(task);
   console.log("Finish addDeployTask!");
-}
+}*/
 
 export async function addNewPayment(
   resturl: string,
