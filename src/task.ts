@@ -1,7 +1,7 @@
 import fs from "fs";
 import { ethers } from "ethers";
 import { parse } from "path";
-import { askQuestion } from "./util";
+import { signMessage, askQuestion } from "./util";
 import {
   ZkWasmServiceHelper,
   WithSignature,
@@ -38,7 +38,7 @@ export async function addNewWasmImage(
   let signature: string;
   try {
     console.log("msg is:", msg);
-    signature = ZkWasmUtil.signMessage(msg, priv);
+    signature = signMessage(msg, priv);
     console.log("signature is:", signature);
   } catch (e: unknown) {
     console.log("sign error: ", e);
@@ -68,8 +68,8 @@ export async function addProvingTask(
   priv: string
 ) {
   let helper = new ZkWasmServiceHelper(resturl, "", "");
-  let pb_inputs: Array<string> = helper.parseProvingTaskInput(public_inputs);
-  let priv_inputs: Array<string> = helper.parseProvingTaskInput(private_inputs);
+  let pb_inputs: Array<string> = ZkWasmUtil.validateInputs(public_inputs);
+  let priv_inputs: Array<string> = ZkWasmUtil.validateInputs(private_inputs);
 
   let info: ProvingParams = {
     user_address: user_addr.toLowerCase(),
@@ -81,7 +81,7 @@ export async function addProvingTask(
 
   let signature: string;
   try {
-    signature = await ZkWasmUtil.signMessage(msgString, priv);
+    signature = await signMessage(msgString, priv);
   } catch (e: unknown) {
     console.log("error signing message", e);
     return;
@@ -114,7 +114,7 @@ export async function addDeployTask(
   let msgString = ZkWasmUtil.createDeploySignMessage(info);
   let signature: string;
   try {
-    signature = await ZkWasmUtil.signMessage(msgString, priv);
+    signature = await signMessage(msgString, priv);
   } catch (e: unknown) {
     console.log("error signing message", e);
     return;
