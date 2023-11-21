@@ -1,12 +1,14 @@
 # zkwasm-service-helper CLI Application
 
-The `zkwasm-service-cli` is a command-line interface application that provides functionalities to interact with the `zkwasm` cloud service. This application can be executed using the `npx` command.
+The `zkwasm-service-cli` is a command-line interface application that provides functionalities to interact with the `zkwasm` cloud service. This application can be executed using the `node` command.
 
 ## Usage
 
-The application can be executed using the following command:
+`npm install`
 
-`npx dist/index.js <command> <options>`
+Then the application can be executed using the following command:
+
+`node dist/index.js <command> <options>`
 
 ## Options
 
@@ -104,6 +106,6 @@ The following options are available for the `addpayment` command:
 
 ### Examples
 
-Existing Tx hash - `npx dist/index.js addpayment -r "http://127.0.0.1:8080" -t "<transactionhash>"`
+Existing Tx hash - `node dist/index.js addpayment -r "http://127.0.0.1:8080" -t "<transactionhash>"`
 
-Create a new transaction - `npx dist/index.js addpayment -r "http://127.0.0.1:8080" -p "https://goerli.infura.io/v3/xxxxxxx" -u "YOUR_ADDRESS" -x "YOUR_PRIVATE_KEY" -a "0.00001"`
+Create a new transaction - `node dist/index.js addpayment -r "http://127.0.0.1:8080" -p "https://goerli.infura.io/v3/xxxxxxx" -u "YOUR_ADDRESS" -x "YOUR_PRIVATE_KEY" -a "0.00001"`

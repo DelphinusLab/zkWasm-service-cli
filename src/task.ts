@@ -38,7 +38,7 @@ export async function addNewWasmImage(
   let signature: string;
   try {
     console.log("msg is:", msg);
-    signature = signMessage(msg, priv);
+    signature = await signMessage(msg, priv);
     console.log("signature is:", signature);
   } catch (e: unknown) {
     console.log("sign error: ", e);

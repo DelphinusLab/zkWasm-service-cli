@@ -27,7 +27,7 @@ async function main() {
     .scriptName("zkwasm-service-cli")
     .usage("Usage: npx $0 <command> <options>")
     .example(
-      'npx $0 addimage -r "http://127.0.0.1:8080" -p "/home/username/arith.wasm" -u "0x278847f04E166451182dd30E33e09667bA31e6a8" -x "xxxxxxx" -n "myfirstimage" -d "My First Image" -c 18',
+      'node node dist/index.js addimage -r "http://127.0.0.1:8080" -p "/home/username/arith.wasm" -u "0x278847f04E166451182dd30E33e09667bA31e6a8" -x "xxxxxxx" -n "myfirstimage" -d "My First Image" -c 18',
       "Add wasm image in the specified path to zkwams cloud service."
     )
     .option("r", {
@@ -39,7 +39,7 @@ async function main() {
     })
     .command(
       "addimage",
-      'Add wasm image. Example: npx $0 addimage -r "http://127.0.0.1:8080" -p "/home/username/arith.wasm" -u "0x278847f04E166451182dd30E33e09667bA31e6a8" -x "xxxxxxx" -n "myfirstimage" -d "My First Image" -c 18',
+      'Add wasm image. Example: node dist/index.js addimage -r "http://127.0.0.1:8080" -p "/home/username/arith.wasm" -u "0x278847f04E166451182dd30E33e09667bA31e6a8" -x "xxxxxxx" -n "myfirstimage" -d "My First Image" -c 18',
       // options for your command
       function (yargs: any) {
         return yargs
@@ -104,7 +104,7 @@ async function main() {
     )
     .command(
       "addprovingtask",
-      'Add proving task\n Example: npx $0 addprovingtask -r "http://127.0.0.1:8080" -i "4CB1FBCCEC0C107C41405FC1FB380799" -u "0x278847f04E166451182dd30E33e09667bA31e6a8" -x "xxxxxxx"  --public_input "44:i64 32:i64"',
+      'Add proving task\n Example: node dist/index.js addprovingtask -r "http://127.0.0.1:8080" -i "4CB1FBCCEC0C107C41405FC1FB380799" -u "0x278847f04E166451182dd30E33e09667bA31e6a8" -x "xxxxxxx"  --public_input "44:i64 32:i64"',
       // options for your command
       function (yargs: any) {
         return yargs
@@ -158,7 +158,7 @@ async function main() {
     )
     /*.command(
       "adddeploytask",
-      'Add deploy task\n Example: npx $0 adddeploytask -r "http://127.0.0.1:8080" -i "4CB1FBCCEC0C107C41405FC1FB380799" -u "0x278847f04E166451182dd30E33e09667bA31e6a8" -x "xxxxxxx" -c 5',
+      'Add deploy task\n Example: node dist/index.js adddeploytask -r "http://127.0.0.1:8080" -i "4CB1FBCCEC0C107C41405FC1FB380799" -u "0x278847f04E166451182dd30E33e09667bA31e6a8" -x "xxxxxxx" -c 5',
       // options for your command
       function (yargs: any) {
         return yargs
@@ -199,7 +199,7 @@ async function main() {
     )*/
     .command(
       "addpayment",
-      'Add payment\n Example: npx $0 addpayment -r "http://127.0.0.1:8080" -t "<transactionhash>" \n\n Example new payment: \n npx addpayment -r "http://127.0.0.1:8080" -p "https://goerli.infura.io/v3/xxxxxxx" -u "YOUR_ADDRESS" -x "YOUR_PRIVATE_KEY" -a "0.00001" ',
+      'Add payment\n Example: node dist/index.js addpayment -r "http://127.0.0.1:8080" -t "<transactionhash>" \n\n Example new payment: \n npx addpayment -r "http://127.0.0.1:8080" -p "https://goerli.infura.io/v3/xxxxxxx" -u "YOUR_ADDRESS" -x "YOUR_PRIVATE_KEY" -a "0.00001" ',
       // options for your command
       function (yargs: any) {
         return yargs
@@ -243,7 +243,7 @@ async function main() {
     )
     .command(
       "querytask",
-      'Query task\n Example: node $0 querytask -r "http://127.0.0.1:8080" -t "<transactionid>" ',
+      'Query task\n Example: node dist/index.js querytask -r "http://127.0.0.1:8080" -t "<transactionid>" ',
       // options for your command
       function (yargs: any) {
         return yargs
