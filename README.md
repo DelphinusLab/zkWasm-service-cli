@@ -29,7 +29,7 @@ Add a new wasm image.
 
 ### Usage
 
-`node dist/index.js addimage -r <resturl> -p <path> -u <address> -x <priv> -n <name> [-d <description>] [-c <circuit_size>]`
+`node dist/index.js addimage -r <resturl> -p <path> -u <address> -x <priv> [-n <name>] [-d <description>] [-c <circuit_size>]`
 
 ### Options
 
@@ -39,7 +39,7 @@ The following options are available for the `addimage` command:
 - `-p, --path <path>`: The path to the wasm image. This option is **required**.
 - `-u, --address <address>`: The user address which adding the image. This option is **required**.
 - `-x, --priv <priv>`: The private key of user address. This option is **required** for signing the message.
-- `-n, --name <name>`: The name of the image. This option is **required**.
+- `-n, --name <name>`: The name of the image (legacy and not using). 
 - `-d, --description <description>`: The description of the image. If not specified, the name will be used.
 - `-c, --circuit_size <circuit_size>`: The circuit size of the image. If not specified, the default size is 18.
 

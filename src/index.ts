@@ -39,7 +39,7 @@ async function main() {
     })
     .command(
       "addimage",
-      'Add wasm image. Example: node dist/index.js addimage -r "http://127.0.0.1:8080" -p "/home/username/arith.wasm" -u "0x278847f04E166451182dd30E33e09667bA31e6a8" -x "xxxxxxx" -n "myfirstimage" -d "My First Image" -c 18',
+      'Add wasm image. Example: node dist/index.js addimage -r "http://127.0.0.1:8080" -p "/home/username/arith.wasm" -u "0x278847f04E166451182dd30E33e09667bA31e6a8" -x "xxxxxxx" -d "My First Image" -c 18',
       // options for your command
       function (yargs: any) {
         return yargs
@@ -79,7 +79,6 @@ async function main() {
           .option("n", {
             alias: "name",
             describe: "image's name",
-            demandOption: "Image name is required",
             type: "string",
             nargs: 1,
           });
