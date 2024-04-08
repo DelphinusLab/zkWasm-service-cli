@@ -9,6 +9,8 @@ import {
   AddImageParams,
   ZkWasmUtil,
   AppConfig,
+  ImageMetadataKeys,
+  ImageMetadataValsProvePaymentSrc,
 } from "zkwasm-service-helper";
 
 export async function addNewWasmImage(
@@ -19,10 +21,14 @@ export async function addNewWasmImage(
   description_url: string,
   avator_url: string,
   circuit_size: number,
-  priv: string
+  priv: string,
+  creator_paid_proof: boolean,
 ) {
   const filename = parse(absPath).base;
   let fileSelected: Buffer = fs.readFileSync(absPath);
+
+  const metadata_keys = [ ImageMetadataKeys.ProvePaymentSrc ];
+  const metadata_vals = [ creator_paid_proof ? ImageMetadataValsProvePaymentSrc.CreatorPay : ImageMetadataValsProvePaymentSrc.Default]; 
 
   let md5 = ZkWasmUtil.convertToMd5(new Uint8Array(fileSelected));
   let info: AddImageParams = {
@@ -33,6 +39,8 @@ export async function addNewWasmImage(
     description_url: description_url,
     avator_url: avator_url,
     circuit_size: circuit_size,
+    metadata_keys: metadata_keys,
+    metadata_vals: metadata_vals,
   };
   let msg = ZkWasmUtil.createAddImageSignMessage(info);
   let signature: string;
@@ -65,7 +73,7 @@ export async function addProvingTask(
   image_md5: string,
   public_inputs: string,
   private_inputs: string,
-  priv: string
+  priv: string,
 ) {
   let helper = new ZkWasmServiceHelper(resturl, "", "");
   let pb_inputs: Array<string> = ZkWasmUtil.validateInputs(public_inputs);

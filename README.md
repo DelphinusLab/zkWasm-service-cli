@@ -29,7 +29,7 @@ Add a new wasm image.
 
 ### Usage
 
-`node dist/index.js addimage -r <resturl> -p <path> -u <address> -x <priv> [-n <name>] [-d <description>] [-c <circuit_size>]`
+`node dist/index.js addimage -r <resturl> -p <path> -u <address> -x <priv> [-n <name>] [-d <description>] [-c <circuit_size>] [--creator_paid_proof <true|false>]`
 
 ### Options
 
@@ -42,6 +42,7 @@ The following options are available for the `addimage` command:
 - `-n, --name <name>`: The name of the image (legacy and not using). 
 - `-d, --description <description>`: The description of the image. If not specified, the name will be used.
 - `-c, --circuit_size <circuit_size>`: The circuit size of the image. If not specified, the default size is 18.
+- `--creator_paid_proof <true|false>`: Whether the proving fee is charged to the image creator or not. If not specified, the default is false.
 
 ## Command: addprovingtask
 

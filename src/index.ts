@@ -39,7 +39,7 @@ async function main() {
     })
     .command(
       "addimage",
-      'Add wasm image. Example: node dist/index.js addimage -r "http://127.0.0.1:8080" -p "/home/username/arith.wasm" -u "0x278847f04E166451182dd30E33e09667bA31e6a8" -x "xxxxxxx" -d "My First Image" -c 18',
+      'Add wasm image. Example: node dist/index.js addimage -r "http://127.0.0.1:8080" -p "/home/username/arith.wasm" -u "0x278847f04E166451182dd30E33e09667bA31e6a8" -x "xxxxxxx" -d "My First Image" -c 18 --creator_paid_proof false',
       // options for your command
       function (yargs: any) {
         return yargs
@@ -81,6 +81,13 @@ async function main() {
             describe: "image's name",
             type: "string",
             nargs: 1,
+          })
+          .option("creator_paid_proof", {
+            alias: "creator_paid_proof",
+            describe: "Specify if proofs for this image will be charged to the creator of the image",
+            type: "boolean",
+            nargs: 1,
+            default: false,
           });
       },
       // Handler for your command
@@ -97,7 +104,8 @@ async function main() {
           desc,
           "",
           circuit_size,
-          argv.priv
+          argv.priv,
+          argv.creator_paid_proof,
         );
       }
     )
@@ -151,7 +159,7 @@ async function main() {
           argv.i,
           argv.public_input ? argv.public_input : "",
           argv.priv_input ? argv.priv_input : "",
-          argv.priv
+          argv.priv,
         );
       }
     )
