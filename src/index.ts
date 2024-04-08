@@ -81,6 +81,13 @@ async function main() {
             describe: "image's name",
             type: "string",
             nargs: 1,
+          })
+          .option("creator_paid_proof", {
+            alias: "creator_paid_proof",
+            describe: "Specify if proofs for this image will be charged to the creator of the image",
+            type: "boolean",
+            nargs: 1,
+            default: false,
           });
       },
       // Handler for your command
@@ -97,7 +104,8 @@ async function main() {
           desc,
           "",
           circuit_size,
-          argv.priv
+          argv.priv,
+          argv.creator_paid_proof,
         );
       }
     )
@@ -151,7 +159,7 @@ async function main() {
           argv.i,
           argv.public_input ? argv.public_input : "",
           argv.priv_input ? argv.priv_input : "",
-          argv.priv
+          argv.priv,
         );
       }
     )
