@@ -115,33 +115,29 @@ export async function addProvingTask(
 
 export async function pressureTest(
   resturl: string,
-  absPath: string,
   user_addr: string,
-  imageName: string,
-  description_url: string,
-  avator_url: string,
-  circuit_size: number,
+  image_md5: string,
   priv: string,
-  creator_paid_proof: boolean,
   public_inputs: string,
   private_inputs: string,
   num_prove_tasks : number,
   num_query_tasks : number,
+  task_id : string,
 ) {
-  const res = await addNewWasmImage(
-    resturl,
-    absPath,
-    user_addr,
-    imageName,
-    description_url,
-    avator_url,
-    circuit_size,
-    priv,
-    creator_paid_proof,
-  );
+  // const res = await addNewWasmImage(
+  //   resturl,
+  //   absPath,
+  //   user_addr,
+  //   imageName,
+  //   description_url,
+  //   avator_url,
+  //   circuit_size,
+  //   priv,
+  //   creator_paid_proof,
+  // );
 
-  const image_md5 = res.md5;
-  const task_id = res.id;
+  // const image_md5 = res.md5;
+  // const task_id = res.id;
 
   let tasks = [];
 

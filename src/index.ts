@@ -273,10 +273,10 @@ async function main() {
       // options for your command
       function (yargs: any) {
         return yargs
-          .option("p", {
-            alias: "path",
-            describe: "Wasm image path",
-            demandOption: "The wasm image path is required", // Required
+          .option("i", {
+            alias: "image",
+            describe: "image md5",
+            demandOption: "The image md5 is required", // Required
             type: "string",
             nargs: 1,
           })
@@ -293,32 +293,6 @@ async function main() {
             demandOption: "The priv is required for signing message.",
             type: "string",
             nargs: 1,
-          })
-          .option("c", {
-            alias: "circuit_size",
-            describe: "image's circuits size, if not specified, default is 18",
-            type: "number",
-            nargs: 1,
-            default: 18,
-          })
-          .option("d", {
-            alias: "description",
-            describe: "image's description, if not specifed, will use name",
-            type: "string",
-            nargs: 1,
-          })
-          .option("n", {
-            alias: "name",
-            describe: "image's name",
-            type: "string",
-            nargs: 1,
-          })
-          .option("creator_paid_proof", {
-            alias: "creator_paid_proof",
-            describe: "Specify if proofs for this image will be charged to the creator of the image",
-            type: "boolean",
-            nargs: 1,
-            default: false,
           })
           .option("public_input", {
             alias: "public_input",
@@ -349,27 +323,30 @@ async function main() {
             nargs: 1,
             default: 1
           })
-          ;
+          .option("task_id", {
+            alias: "task_id",
+            describe: "task id to query",
+            type: "string",
+            nargs: 1,
+          });
+          
       },
       // Handler for your command
       async function (argv: any) {
         const absolutePath = resolve(argv.p);
         console.log("Begin adding image for ", absolutePath);
+        console.log("Args are", argv);
         let desc = argv.d ? argv.d : argv.n;
         await pressureTest(
           argv.r,
-          absolutePath,
           argv.u,
-          argv.n,
-          desc,
-          "",
-          argv.c,
+          argv.i,
           argv.priv,
-          argv.creator_paid_proof,
-          argv.public_input ? argv.public_input : "",
-          argv.private_input ? argv.private_input : "",
+          argv.public_input,
+          argv.private_input,
           argv.num_prove_tasks,
           argv.num_query_tasks,
+          argv.task_id,
         );
       }
     )
