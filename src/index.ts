@@ -7,6 +7,7 @@ import {
   //addDeployTask,
   addNewPayment,
   addPaymentWithTx,
+  pressureTest,
 } from "./task";
 import{
   queryTask,
@@ -264,6 +265,112 @@ async function main() {
       async function (argv: any) {
         console.log("Creating new transaction...");
         await queryTask(argv.t, argv.r);
+      }
+    )
+    .command(
+      "pressuretest",
+      'Pressure test. Example: node dist/index.js pressuretest -r "http://127.0.0.1:8080" -p "/home/username/arith.wasm" -u "0x278847f04E166451182dd30E33e09667bA31e6a8" -x "xxxxxxx" -d "My First Image" -c 18 --creator_paid_proof false --public_input "44:i64 32:i64" --num_prove_tasks 20 --num_query_tasks 100',
+      // options for your command
+      function (yargs: any) {
+        return yargs
+          .option("p", {
+            alias: "path",
+            describe: "Wasm image path",
+            demandOption: "The wasm image path is required", // Required
+            type: "string",
+            nargs: 1,
+          })
+          .option("u", {
+            alias: "address",
+            describe: "User address which adding the image",
+            demandOption: "User address is required",
+            type: "string",
+            nargs: 1,
+          })
+          .option("x", {
+            alias: "priv",
+            describe: "The priv of user address.",
+            demandOption: "The priv is required for signing message.",
+            type: "string",
+            nargs: 1,
+          })
+          .option("c", {
+            alias: "circuit_size",
+            describe: "image's circuits size, if not specified, default is 18",
+            type: "number",
+            nargs: 1,
+            default: 18,
+          })
+          .option("d", {
+            alias: "description",
+            describe: "image's description, if not specifed, will use name",
+            type: "string",
+            nargs: 1,
+          })
+          .option("n", {
+            alias: "name",
+            describe: "image's name",
+            type: "string",
+            nargs: 1,
+          })
+          .option("creator_paid_proof", {
+            alias: "creator_paid_proof",
+            describe: "Specify if proofs for this image will be charged to the creator of the image",
+            type: "boolean",
+            nargs: 1,
+            default: false,
+          })
+          .option("public_input", {
+            alias: "public_input",
+            describe:
+              "public input of the proof, inputs must have format (0x)[0-f]*:(i64|bytes|bytes-packed) and been separated by spaces (eg: 0x12:i64 44:i64 32:i64).",
+            type: "string",
+            nargs: 1,
+            default: ""
+          })
+          .option("private_input", {
+            alias: "private_input",
+            describe: "private currently not supported",
+            type: "string",
+            nargs: 1,
+            default: ""
+          })
+          .option("num_prove_tasks", {
+            alias: "num_prove_tasks",
+            describe: "Number of prove tasks to run in pressure test, default is 1",
+            type: "number",
+            nargs: 1,
+            default: 1
+          })
+          .option("num_query_tasks", {
+            alias: "num_query_tasks",
+            describe: "Number of query tasks to run in pressure test, default is 1",
+            type: "number",
+            nargs: 1,
+            default: 1
+          })
+          ;
+      },
+      // Handler for your command
+      async function (argv: any) {
+        const absolutePath = resolve(argv.p);
+        console.log("Begin adding image for ", absolutePath);
+        let desc = argv.d ? argv.d : argv.n;
+        await pressureTest(
+          argv.r,
+          absolutePath,
+          argv.u,
+          argv.n,
+          desc,
+          "",
+          argv.c,
+          argv.priv,
+          argv.creator_paid_proof,
+          argv.public_input ? argv.public_input : "",
+          argv.private_input ? argv.private_input : "",
+          argv.num_prove_tasks,
+          argv.num_query_tasks,
+        );
       }
     )
     .help();

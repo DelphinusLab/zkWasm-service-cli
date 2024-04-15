@@ -13,6 +13,13 @@ import {
   ImageMetadataValsProvePaymentSrc,
 } from "zkwasm-service-helper";
 
+import { queryTask } from "./query";
+
+interface AddNewWasmImageRes {
+  md5 : string,
+  id : string,
+}
+
 export async function addNewWasmImage(
   resturl: string,
   absPath: string,
@@ -23,7 +30,7 @@ export async function addNewWasmImage(
   circuit_size: number,
   priv: string,
   creator_paid_proof: boolean,
-) {
+) : Promise<AddNewWasmImageRes> {
   const filename = parse(absPath).base;
   let fileSelected: Buffer = fs.readFileSync(absPath);
 
@@ -50,7 +57,7 @@ export async function addNewWasmImage(
     console.log("signature is:", signature);
   } catch (e: unknown) {
     console.log("sign error: ", e);
-    return;
+    throw e
   }
   let task: WithSignature<AddImageParams> = {
     ...info,
@@ -58,12 +65,14 @@ export async function addNewWasmImage(
   };
 
   let helper = new ZkWasmServiceHelper(resturl, "", "");
-  helper.addNewWasmImage(task).then((res) => {
+  return helper.addNewWasmImage(task).then((res) => {
     console.log("Add Image Response", res);
+    return res as AddNewWasmImageRes
   }).catch((err) => {
     console.log("Add Image Error", err);
+    throw err
   }).finally(()=>
-  console.log("Finish addNewWasmImage!")
+    console.log("Finish addNewWasmImage!")
   )
 }
 
@@ -102,6 +111,65 @@ export async function addProvingTask(
 
   await helper.addProvingTask(task);
   console.log("Finish addProvingTask!");
+}
+
+export async function pressureTest(
+  resturl: string,
+  absPath: string,
+  user_addr: string,
+  imageName: string,
+  description_url: string,
+  avator_url: string,
+  circuit_size: number,
+  priv: string,
+  creator_paid_proof: boolean,
+  public_inputs: string,
+  private_inputs: string,
+  num_prove_tasks : number,
+  num_query_tasks : number,
+) {
+  const res = await addNewWasmImage(
+    resturl,
+    absPath,
+    user_addr,
+    imageName,
+    description_url,
+    avator_url,
+    circuit_size,
+    priv,
+    creator_paid_proof,
+  );
+
+  const image_md5 = res.md5;
+  const task_id = res.id;
+
+  let tasks = [];
+
+  for (let i = 0; i < num_prove_tasks; i++) {
+    tasks.push(
+      addProvingTask(
+        resturl,
+        user_addr,
+        image_md5,
+        public_inputs,
+        private_inputs,
+        priv
+      )
+    );
+  }
+
+  for (let i = 0; i < num_query_tasks; i++) {
+    tasks.push(
+      queryTask(
+        task_id,
+        resturl,
+      )
+    );
+  }
+
+  const results = await Promise.all(tasks);
+
+  console.log("Number of tasks executed is", results.length);
 }
 
 /*
