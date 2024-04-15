@@ -333,10 +333,7 @@ async function main() {
       },
       // Handler for your command
       async function (argv: any) {
-        const absolutePath = resolve(argv.p);
-        console.log("Begin adding image for ", absolutePath);
-        console.log("Args are", argv);
-        let desc = argv.d ? argv.d : argv.n;
+        console.log("Begin pressure test with args", argv);
         await pressureTest(
           argv.r,
           argv.u,

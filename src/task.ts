@@ -113,6 +113,54 @@ export async function addProvingTask(
   console.log("Finish addProvingTask!");
 }
 
+function sleep(ms: number): Promise<void> {
+  console.log("Sleeping");
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function runProveTasks(
+  resturl: string,
+  user_addr: string,
+  image_md5: string,
+  priv: string,
+  public_inputs: string,
+  private_inputs: string,
+  num_prove_tasks : number,
+  send_rate : number,
+) {
+
+  for (let i = 0; i < num_prove_tasks; i++) {
+    await addProvingTask(
+      resturl,
+      user_addr,
+      image_md5,
+      public_inputs,
+      private_inputs,
+      priv
+    );
+
+    await sleep(send_rate);
+  }
+}
+
+async function runQueryTasks(
+  resturl: string,
+  task_id: string,
+  num_query_tasks : number,
+  send_rate : number,
+) {
+
+  for (let i = 0; i < num_query_tasks; i++) {
+    await queryTask(
+      task_id,
+      resturl,
+      false,
+    );
+
+    await sleep(send_rate);
+  }
+}
+
 export async function pressureTest(
   resturl: string,
   user_addr: string,
@@ -124,48 +172,29 @@ export async function pressureTest(
   num_query_tasks : number,
   task_id : string,
 ) {
-  // const res = await addNewWasmImage(
-  //   resturl,
-  //   absPath,
-  //   user_addr,
-  //   imageName,
-  //   description_url,
-  //   avator_url,
-  //   circuit_size,
-  //   priv,
-  //   creator_paid_proof,
-  // );
 
-  // const image_md5 = res.md5;
-  // const task_id = res.id;
+  const tasks = [
+    runProveTasks(
+      resturl,
+      user_addr,
+      image_md5,
+      priv,
+      public_inputs,
+      private_inputs,
+      num_prove_tasks,
+      1000,
+    ), 
+    runQueryTasks(
+      resturl,
+      task_id,
+      num_query_tasks,
+      100
+    ),
+  ];
 
-  let tasks = [];
+  Promise.all(tasks);
 
-  for (let i = 0; i < num_prove_tasks; i++) {
-    tasks.push(
-      addProvingTask(
-        resturl,
-        user_addr,
-        image_md5,
-        public_inputs,
-        private_inputs,
-        priv
-      )
-    );
-  }
-
-  for (let i = 0; i < num_query_tasks; i++) {
-    tasks.push(
-      queryTask(
-        task_id,
-        resturl,
-      )
-    );
-  }
-
-  const results = await Promise.all(tasks);
-
-  console.log("Number of tasks executed is", results.length);
+  console.log("Finished pressure test");
 }
 
 /*
