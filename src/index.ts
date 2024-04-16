@@ -273,13 +273,6 @@ async function main() {
       // options for your command
       function (yargs: any) {
         return yargs
-          .option("i", {
-            alias: "image",
-            describe: "image md5",
-            demandOption: "The image md5 is required", // Required
-            type: "string",
-            nargs: 1,
-          })
           .option("u", {
             alias: "address",
             describe: "User address which adding the image",
@@ -323,13 +316,6 @@ async function main() {
             nargs: 1,
             default: 1
           })
-          .option("task_id", {
-            alias: "task_id",
-            describe: "task id to query",
-            type: "string",
-            nargs: 1,
-          });
-          
       },
       // Handler for your command
       async function (argv: any) {
@@ -337,13 +323,11 @@ async function main() {
         await pressureTest(
           argv.r,
           argv.u,
-          argv.i,
           argv.priv,
           argv.public_input,
           argv.private_input,
           argv.num_prove_tasks,
           argv.num_query_tasks,
-          argv.task_id,
         );
       }
     )

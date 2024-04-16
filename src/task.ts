@@ -13,7 +13,7 @@ import {
   ImageMetadataValsProvePaymentSrc,
 } from "zkwasm-service-helper";
 
-import { queryTask, getAllUserTasks } from "./query";
+import { queryTask, getAvailableImages } from "./query";
 
 interface AddNewWasmImageRes {
   md5 : string,
@@ -120,80 +120,148 @@ function sleep(ms: number): Promise<void> {
 async function runProveTasks(
   resturl: string,
   user_addr: string,
-  image_md5: string,
+  image_md5s: string[],
   priv: string,
   public_inputs: string,
   private_inputs: string,
   num_prove_tasks : number,
   send_rate : number,
+  in_parallel : boolean
 ) {
 
-  for (let i = 0; i < num_prove_tasks; i++) {
-    await addProvingTask(
-      resturl,
-      user_addr,
-      image_md5,
-      public_inputs,
-      private_inputs,
-      priv
-    );
+  if (!in_parallel) {
 
-    await sleep(send_rate);
+    for (let i = 0; i < num_prove_tasks; i++) {
+      await addProvingTask(
+        resturl,
+        user_addr,
+        image_md5s[i % image_md5s.length],
+        public_inputs,
+        private_inputs,
+        priv
+      );
+
+      await sleep(send_rate);
+    }
+  } else {
+
+    // execute all unique images in parrallel
+
+    let i = 0;
+    while (i < num_prove_tasks) {
+    
+      let tasks = []
+      for (const md5 of image_md5s) {
+        tasks.push(addProvingTask(
+          resturl,
+          user_addr,
+          md5,
+          public_inputs,
+          private_inputs,
+          priv
+        ));
+
+        i++;
+      }
+
+      await Promise.all(tasks);
+      await sleep(send_rate);
+    }
   }
 }
 
 async function runQueryTasks(
   resturl: string,
-  task_id: string,
+  task_ids: string[],
   num_query_tasks : number,
   send_rate : number,
+  in_parallel : boolean,
 ) {
 
-  for (let i = 0; i < num_query_tasks; i++) {
-    await queryTask(
-      task_id,
-      resturl,
-      false,
-    );
+  if (!in_parallel) {
 
-    await sleep(send_rate);
+    for (let i = 0; i < num_query_tasks; i++) {
+      await queryTask(
+        task_ids[i % task_ids.length],
+        resturl,
+        false,
+      );
+
+      await sleep(send_rate);
+    }
+
+  } else {
+
+    // execute all unique images in parrallel
+
+    let i = 0;
+    while (i < num_query_tasks) {
+    
+      let tasks = []
+      for (const task_id of task_ids) {
+        tasks.push(queryTask(
+          task_id,
+          resturl,
+          false,
+        ));
+
+        i++;
+      }
+
+      await Promise.all(tasks);
+      await sleep(send_rate);
+    }
+
+
   }
 }
 
 export async function pressureTest(
   resturl: string,
   user_addr: string,
-  image_md5: string,
   priv: string,
   public_inputs: string,
   private_inputs: string,
   num_prove_tasks : number,
   num_query_tasks : number,
-  task_id : string,
 ) {
 
-  await getAllUserTasks(resturl, user_addr);
+  const images_detail = await getAvailableImages(resturl, user_addr);
+
+  let image_md5s : string[] = [];
+  let task_ids : string[] = [];
+
+  for (const d of images_detail) {
+    if (!image_md5s.find((x) => x == d.md5)) {
+      image_md5s.push(d.md5);
+    }
+    if (!task_ids.find((x) => x == d._id)) {
+      task_ids.push(d._id);
+    }
+  }
 
   const tasks = [
     runProveTasks(
       resturl,
       user_addr,
-      image_md5,
+      image_md5s,
       priv,
       public_inputs,
       private_inputs,
       num_prove_tasks,
       1,
+      true,
     ), 
     runQueryTasks(
       resturl,
-      task_id,
+      task_ids,
       num_query_tasks,
-      1
+      1,
+      true,
     ),
   ];
 
-  Promise.all(tasks);
+  await Promise.all(tasks);
 
   console.log("Finished pressure test");
 }
