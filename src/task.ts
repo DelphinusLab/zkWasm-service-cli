@@ -130,7 +130,6 @@ async function runProveTasks(
 ) {
 
   if (!in_parallel) {
-
     for (let i = 0; i < num_prove_tasks; i++) {
       await addProvingTask(
         resturl,
@@ -144,12 +143,10 @@ async function runProveTasks(
       await sleep(send_rate);
     }
   } else {
-
     // execute all unique images in parrallel
-
+    // TODO: this doesn't work, we get DB error 'failed to deduct credits' even though we have enough credits
     let i = 0;
     while (i < num_prove_tasks) {
-    
       let tasks = []
       for (const md5 of image_md5s) {
         tasks.push(addProvingTask(
@@ -179,7 +176,6 @@ async function runQueryTasks(
 ) {
 
   if (!in_parallel) {
-
     for (let i = 0; i < num_query_tasks; i++) {
       await queryTask(
         task_ids[i % task_ids.length],
@@ -189,30 +185,18 @@ async function runQueryTasks(
 
       await sleep(send_rate);
     }
-
   } else {
-
-    // execute all unique images in parrallel
-
-    let i = 0;
-    while (i < num_query_tasks) {
-    
-      let tasks = []
-      for (const task_id of task_ids) {
-        tasks.push(queryTask(
-          task_id,
-          resturl,
-          false,
-        ));
-
-        i++;
-      }
-
-      await Promise.all(tasks);
-      await sleep(send_rate);
+    // execute all task queries in parrallel
+    let tasks = []
+    for (let i = 0; i < num_query_tasks; i++) {
+      tasks.push(queryTask(
+        task_ids[i % task_ids.length],
+        resturl,
+        false,
+      ));
     }
 
-
+    await Promise.all(tasks);
   }
 }
 
