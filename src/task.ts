@@ -241,7 +241,7 @@ export async function pressureTest(
       task_ids,
       num_query_tasks,
       1,
-      false,
+      true,
     ),
   ];
 

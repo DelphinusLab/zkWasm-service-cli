@@ -16,7 +16,7 @@ export async function queryTask(taskid: string, resturl: string, enable_logs : b
         tasktype: "",
         taskstatus: "",
     };
-    helper.loadTasks(args).then((res) => {
+    helper.loadTasks(args, enable_logs).then((res) => {
         const tasks = res as PaginationResult<Task[]>;
         const task: Task = tasks.data[0];
         let aggregate_proof = ZkWasmUtil.bytesToBN(task.proof);
@@ -48,9 +48,11 @@ export async function queryTask(taskid: string, resturl: string, enable_logs : b
         }
     }).catch((err) => {
         console.log("queryTask Error", err);
-    }).finally(() =>
+    }).finally(() => {
+      if (enable_logs) {
         console.log("Finish queryTask.")
-    );
+      }
+    });
 }
 
 export async function getAvailableImages(resturl: string, user_address : string) : Promise<Task[]> {
@@ -62,7 +64,7 @@ export async function getAvailableImages(resturl: string, user_address : string)
         tasktype: "Setup",
         taskstatus: "Done",
     };
-    return helper.loadTasks(args).then((res) => {
+    return helper.loadTasks(args, false).then((res) => {
       const tasks = res as PaginationResult<Task[]>;
       return tasks.data;
     }).catch((err) => {
