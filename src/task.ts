@@ -235,8 +235,8 @@ export async function pressureTest(
     if (!image_md5s.find((x) => x == d.md5)) {
       image_md5s.push(d.md5);
     }
-    if (!task_ids.find((x) => x == d._id)) {
-      task_ids.push(d._id);
+    if (!task_ids.find((x) => x == d._id["$oid"])) {
+      task_ids.push(d._id["$oid"]);
     }
   }
 
@@ -250,14 +250,14 @@ export async function pressureTest(
       private_inputs,
       num_prove_tasks,
       1,
-      true,
+      false,
     ), 
     runQueryTasks(
       resturl,
       task_ids,
       num_query_tasks,
       1,
-      true,
+      false,
     ),
   ];
 
