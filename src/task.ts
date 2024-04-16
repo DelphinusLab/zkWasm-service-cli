@@ -186,6 +186,7 @@ async function runQueryTasks(
       await sleep(send_rate);
     }
   } else {
+    const start_time = Date.now();
     // execute all task queries in parrallel
     let tasks = []
     for (let i = 0; i < num_query_tasks; i++) {
@@ -196,7 +197,10 @@ async function runQueryTasks(
       ));
     }
 
-    await Promise.all(tasks);
+    await Promise.all(tasks).then((_) => {
+      const duration = Date.now() - start_time;
+      console.log("Time take for queries", duration);
+    });
   }
 }
 
