@@ -13,7 +13,7 @@ import {
   ImageMetadataValsProvePaymentSrc,
 } from "zkwasm-service-helper";
 
-import { queryTask } from "./query";
+import { queryTask, getAllUserTasks } from "./query";
 
 interface AddNewWasmImageRes {
   md5 : string,
@@ -114,7 +114,6 @@ export async function addProvingTask(
 }
 
 function sleep(ms: number): Promise<void> {
-  console.log("Sleeping");
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
@@ -173,6 +172,8 @@ export async function pressureTest(
   task_id : string,
 ) {
 
+  await getAllUserTasks(resturl, user_addr);
+
   const tasks = [
     runProveTasks(
       resturl,
@@ -182,13 +183,13 @@ export async function pressureTest(
       public_inputs,
       private_inputs,
       num_prove_tasks,
-      1000,
+      1,
     ), 
     runQueryTasks(
       resturl,
       task_id,
       num_query_tasks,
-      100
+      1
     ),
   ];
 
