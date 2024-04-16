@@ -117,6 +117,25 @@ function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+
+async function sendIntervaledRequests(
+  tot_ms: number,
+  interval_ms: number,
+  n_req: number,
+  request_fn: (i : number) => Promise<void>
+) {
+    const start_t = Date.now();
+    let req_cnt = 0;
+
+    for (let curr_t = Date.now(); curr_t - start_t < tot_ms && req_cnt < n_req; curr_t = Date.now()) {
+        await request_fn(req_cnt);
+        req_cnt++;
+        await sleep(interval_ms);
+    }
+
+    console.log("Finished sending requests.");
+}
+
 async function runProveTasks(
   resturl: string,
   user_addr: string,
@@ -125,12 +144,11 @@ async function runProveTasks(
   public_inputs: string,
   private_inputs: string,
   num_prove_tasks : number,
-  send_rate : number,
-  in_parallel : boolean
+  interval_ms : number,
+  total_time_ms : number,
 ) {
-
-  if (!in_parallel) {
-    for (let i = 0; i < num_prove_tasks; i++) {
+  sendIntervaledRequests(total_time_ms, interval_ms, num_prove_tasks,
+    async (i : number) => {
       await addProvingTask(
         resturl,
         user_addr,
@@ -139,71 +157,24 @@ async function runProveTasks(
         private_inputs,
         priv
       );
-
-      await sleep(send_rate);
-    }
-  } else {
-    // execute all unique images in parrallel
-    // TODO: this doesn't work, we get DB error 'failed to deduct credits' even though we have enough credits
-    let i = 0;
-    while (i < num_prove_tasks) {
-      let tasks = []
-      for (const md5 of image_md5s) {
-        tasks.push(addProvingTask(
-          resturl,
-          user_addr,
-          md5,
-          public_inputs,
-          private_inputs,
-          priv
-        ));
-
-        i++;
-      }
-
-      await Promise.all(tasks);
-      await sleep(send_rate);
-    }
-  }
-}
-
-async function sendMultiQuery(
-  resturl: string,
-  task_ids: string[],
-  num_query_tasks : number,
-) : Promise<number> {
-    const start_time = Date.now();
-    // execute all task queries in parrallel
-    let tasks = []
-    for (let i = 0; i < num_query_tasks; i++) {
-      tasks.push(queryTask(
-        task_ids[i % task_ids.length],
-        resturl,
-        false,
-      ));
-    }
-
-    await Promise.all(tasks)
-
-    const duration = Date.now() - start_time;
-    return duration
+    });
 }
 
 async function runQueryTasks(
   resturl: string,
   task_ids: string[],
   num_query_tasks : number,
-  send_rate_ms : number,
+  interval_ms : number,
+  total_time_ms : number,
 ) {
-
-  const initial_duration = await sendMultiQuery(resturl, task_ids, num_query_tasks);
-  console.log("initial time taken", initial_duration);
-
-
-  setInterval(async () => {
-    let duration = await sendMultiQuery(resturl, task_ids, num_query_tasks);
-    console.log("time taken", duration);
-  }, send_rate_ms);
+  sendIntervaledRequests(total_time_ms, interval_ms, num_query_tasks,
+    async (i : number) => {
+      await queryTask(
+        task_ids[i % task_ids.length],
+        resturl,
+        false,
+      );
+    });
 }
 
 export async function pressureTest(
@@ -213,7 +184,10 @@ export async function pressureTest(
   public_inputs: string,
   private_inputs: string,
   num_prove_tasks : number,
+  interval_prove_tasks_ms : number,
   num_query_tasks : number,
+  interval_query_tasks_ms : number,
+  total_time_sec : number,
 ) {
 
   const images_detail = await getAvailableImages(resturl, user_addr);
@@ -230,6 +204,19 @@ export async function pressureTest(
     }
   }
 
+  const total_time_ms = total_time_sec * 1000;
+  const total_prove_tasks = num_prove_tasks * Math.floor(total_time_ms/interval_prove_tasks_ms);
+  const total_query_tasks = num_query_tasks * Math.floor(total_time_ms/interval_query_tasks_ms);
+
+  const prove_interval_ms = Math.ceil(interval_prove_tasks_ms/num_prove_tasks);
+  const query_interval_ms = Math.ceil(interval_query_tasks_ms/num_query_tasks);
+
+  console.log("Total_time_ms", total_time_ms);
+  console.log("total_prove_tasks", total_prove_tasks);
+  console.log("total_query_tasks", total_query_tasks);
+  console.log("prove_interval_ms", prove_interval_ms);
+  console.log("query_interval_ms", query_interval_ms);
+
   const tasks = [
     runProveTasks(
       resturl,
@@ -238,15 +225,16 @@ export async function pressureTest(
       priv,
       public_inputs,
       private_inputs,
-      num_prove_tasks,
-      1,
-      false,
+      total_prove_tasks,
+      prove_interval_ms,
+      total_time_ms, 
     ), 
     runQueryTasks(
       resturl,
       task_ids,
-      num_query_tasks,
-      1000,
+      total_query_tasks,
+      query_interval_ms,
+      total_time_ms,
     ),
   ];
 

@@ -269,8 +269,7 @@ async function main() {
     )
     .command(
       "pressuretest",
-      'Pressure test. Example: node dist/index.js pressuretest -r "http://127.0.0.1:8080" -p "/home/username/arith.wasm" -u "0x278847f04E166451182dd30E33e09667bA31e6a8" -x "xxxxxxx" -d "My First Image" -c 18 --creator_paid_proof false --public_input "44:i64 32:i64" --num_prove_tasks 20 --num_query_tasks 100',
-      // options for your command
+      'Pressure test. Example: node dist/index.js pressuretest -r "http://127.0.0.1:8108" -u "0x3552f5E0BFcCF79A87a304e80455b368Af9B56F6" -x "xxxxxxx" --public_input "44:i64 32:i64" --num_prove_tasks 1 --interval_prove_tasks_ms 5000 --num_query_tasks 10 --interval_query_tasks_ms 5000 --total_time_sec 10',
       function (yargs: any) {
         return yargs
           .option("u", {
@@ -304,17 +303,38 @@ async function main() {
           })
           .option("num_prove_tasks", {
             alias: "num_prove_tasks",
-            describe: "Number of prove tasks to run in pressure test, default is 1",
+            describe: "Number of prove tasks to run during a single interval in the pressure test, default is 1",
+            type: "number",
+            nargs: 1,
+            default: 1
+          })
+          .option("interval_prove_tasks_ms", {
+            alias: "interval_prove_tasks_ms",
+            describe: "Interval (msec) in which to run prove tasks during pressure test, default is 5000",
             type: "number",
             nargs: 1,
             default: 1
           })
           .option("num_query_tasks", {
             alias: "num_query_tasks",
-            describe: "Number of query tasks to run in pressure test, default is 1",
+            describe: "Number of query tasks to run during a single interval in the pressure test, default is 1",
             type: "number",
             nargs: 1,
             default: 1
+          })
+          .option("interval_query_tasks_ms", {
+            alias: "interval_query_tasks_ms",
+            describe: "Interval (msec) in which to run query tasks during pressure test, default is 100",
+            type: "number",
+            nargs: 1,
+            default: 100
+          })
+          .option("total_time_sec", {
+            alias: "total_time_sec",
+            describe: "Total time of pressure test (sec), default is 10",
+            type: "number",
+            nargs: 1,
+            default: 10
           })
       },
       // Handler for your command
@@ -327,7 +347,10 @@ async function main() {
           argv.public_input,
           argv.private_input,
           argv.num_prove_tasks,
+          argv.interval_prove_tasks_ms,
           argv.num_query_tasks,
+          argv.interval_query_tasks_ms,
+          argv.total_time_sec,
         );
       }
     )
