@@ -167,25 +167,11 @@ async function runProveTasks(
   }
 }
 
-async function runQueryTasks(
+async function sendMultiQuery(
   resturl: string,
   task_ids: string[],
   num_query_tasks : number,
-  send_rate : number,
-  in_parallel : boolean,
-) {
-
-  if (!in_parallel) {
-    for (let i = 0; i < num_query_tasks; i++) {
-      await queryTask(
-        task_ids[i % task_ids.length],
-        resturl,
-        false,
-      );
-
-      await sleep(send_rate);
-    }
-  } else {
+) : Promise<number> {
     const start_time = Date.now();
     // execute all task queries in parrallel
     let tasks = []
@@ -197,11 +183,27 @@ async function runQueryTasks(
       ));
     }
 
-    await Promise.all(tasks).then((_) => {
-      const duration = Date.now() - start_time;
-      console.log("Time take for queries", duration);
-    });
-  }
+    await Promise.all(tasks)
+
+    const duration = Date.now() - start_time;
+    return duration
+}
+
+async function runQueryTasks(
+  resturl: string,
+  task_ids: string[],
+  num_query_tasks : number,
+  send_rate_ms : number,
+) {
+
+  const initial_duration = await sendMultiQuery(resturl, task_ids, num_query_tasks);
+  console.log("initial time taken", initial_duration);
+
+
+  setInterval(async () => {
+    let duration = await sendMultiQuery(resturl, task_ids, num_query_tasks);
+    console.log("time taken", duration);
+  }, send_rate_ms);
 }
 
 export async function pressureTest(
@@ -244,8 +246,7 @@ export async function pressureTest(
       resturl,
       task_ids,
       num_query_tasks,
-      1,
-      true,
+      1000,
     ),
   ];
 
