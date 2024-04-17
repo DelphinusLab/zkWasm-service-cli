@@ -76,7 +76,7 @@ export async function addProvingTask(
   public_inputs: string,
   private_inputs: string,
   priv: string,
-) {
+) : Promise<boolean> {
   let helper = new ZkWasmServiceHelper(resturl, "", "");
   let pb_inputs: Array<string> = ZkWasmUtil.validateInputs(public_inputs);
   let priv_inputs: Array<string> = ZkWasmUtil.validateInputs(private_inputs);
@@ -94,7 +94,7 @@ export async function addProvingTask(
     signature = await signMessage(msgString, priv);
   } catch (e: unknown) {
     console.log("error signing message", e);
-    return;
+    return false;
   }
 
   let task: WithSignature<ProvingParams> = {
@@ -102,13 +102,13 @@ export async function addProvingTask(
     signature: signature,
   };
 
-  await helper.addProvingTask(task).then((res) => {
+  return await helper.addProvingTask(task).then((res) => {
     console.log("Add Proving task Response", res);
+    return true;
   }).catch((err) => {
     console.log("Add Proving task Error", err);
-  }).finally(()=>
-    console.log("Finish addProvingTask!")
-  )
+    return false;
+  });
 }
 
 function sleep(ms: number): Promise<void> {
@@ -144,10 +144,11 @@ async function runProveTasks(
   num_prove_tasks : number,
   interval_ms : number,
   total_time_ms : number,
-) {
+) : Promise<number> {
+  let n_success = 0;
   sendIntervaledRequests(total_time_ms, interval_ms, num_prove_tasks,
     async (i : number) => {
-      await addProvingTask(
+      const success = await addProvingTask(
         resturl,
         user_addr,
         image_md5s[i % image_md5s.length],
@@ -155,7 +156,12 @@ async function runProveTasks(
         private_inputs,
         priv
       );
-    });
+      if (success) {
+        n_success++;
+      }
+    }
+  );
+  return n_success;
 }
 
 async function runQueryTasks(
@@ -164,15 +170,21 @@ async function runQueryTasks(
   num_query_tasks : number,
   interval_ms : number,
   total_time_ms : number,
-) {
+) : Promise<number> {
+  let n_success = 0;
   sendIntervaledRequests(total_time_ms, interval_ms, num_query_tasks,
     async (i : number) => {
-      await queryTask(
+      const success = await queryTask(
         task_ids[i % task_ids.length],
         resturl,
         false,
       );
-    });
+      if (success) {
+        n_success++;
+      }
+    }
+  );
+  return n_success;
 }
 
 export async function pressureTest(
@@ -236,9 +248,13 @@ export async function pressureTest(
     ),
   ];
 
-  await Promise.all(tasks);
+  let res = await Promise.all(tasks);
 
   console.log("Finished pressure test");
+  console.log("Number of successful prove tasks sent", res[0], "out of", total_prove_tasks);
+  console.log("Prove task success rate", res[0]/total_prove_tasks);
+  console.log("Number of successful query tasks sent", res[1], "out of", total_query_tasks);
+  console.log("Query task success rate", res[1]/total_query_tasks);
 }
 
 /*
