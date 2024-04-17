@@ -15,11 +15,6 @@ import {
 
 import { queryTask, getAvailableImages } from "./query";
 
-interface AddNewWasmImageRes {
-  md5 : string,
-  id : string,
-}
-
 export async function addNewWasmImage(
   resturl: string,
   absPath: string,
@@ -30,7 +25,7 @@ export async function addNewWasmImage(
   circuit_size: number,
   priv: string,
   creator_paid_proof: boolean,
-) : Promise<AddNewWasmImageRes> {
+) {
   const filename = parse(absPath).base;
   let fileSelected: Buffer = fs.readFileSync(absPath);
 
@@ -57,7 +52,7 @@ export async function addNewWasmImage(
     console.log("signature is:", signature);
   } catch (e: unknown) {
     console.log("sign error: ", e);
-    throw e
+    return;
   }
   let task: WithSignature<AddImageParams> = {
     ...info,
@@ -65,12 +60,10 @@ export async function addNewWasmImage(
   };
 
   let helper = new ZkWasmServiceHelper(resturl, "", "");
-  return helper.addNewWasmImage(task).then((res) => {
+  await helper.addNewWasmImage(task).then((res) => {
     console.log("Add Image Response", res);
-    return res as AddNewWasmImageRes
   }).catch((err) => {
     console.log("Add Image Error", err);
-    throw err
   }).finally(()=>
     console.log("Finish addNewWasmImage!")
   )
@@ -109,8 +102,13 @@ export async function addProvingTask(
     signature: signature,
   };
 
-  await helper.addProvingTask(task);
-  console.log("Finish addProvingTask!");
+  await helper.addProvingTask(task).then((res) => {
+    console.log("Add Proving task Response", res);
+  }).catch((err) => {
+    console.log("Add Proving task Error", err);
+  }).finally(()=>
+    console.log("Finish addProvingTask!")
+  )
 }
 
 function sleep(ms: number): Promise<void> {
