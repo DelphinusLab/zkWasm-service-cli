@@ -336,6 +336,13 @@ async function main() {
             nargs: 1,
             default: 10
           })
+          .option("verbose", {
+            alias: "verbose",
+            describe: "Enable verbose logging, default is false.",
+            type: "boolean",
+            nargs: 1,
+            default: false
+          })
       },
       // Handler for your command
       async function (argv: any) {
@@ -351,6 +358,7 @@ async function main() {
           argv.num_query_tasks,
           argv.interval_query_tasks_ms,
           argv.total_time_sec,
+          argv.verbose,
         );
       }
     )

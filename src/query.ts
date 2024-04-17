@@ -8,7 +8,7 @@ import {
 import BN from "bn.js";
 
 export async function queryTask(taskid: string, resturl: string, enable_logs : boolean = true) : Promise<boolean> {
-    let helper = new ZkWasmServiceHelper(resturl, "", "");
+    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
     let args: QueryParams = {
         id: taskid!,
         user_address: "",
@@ -16,7 +16,7 @@ export async function queryTask(taskid: string, resturl: string, enable_logs : b
         tasktype: "",
         taskstatus: "",
     };
-    return helper.loadTasks(args, enable_logs).then((res) => {
+    return helper.loadTasks(args).then((res) => {
       const tasks = res as PaginationResult<Task[]>;
       const task: Task = tasks.data[0];
       let aggregate_proof = ZkWasmUtil.bytesToBN(task.proof);
@@ -55,8 +55,8 @@ export async function queryTask(taskid: string, resturl: string, enable_logs : b
     });
 }
 
-export async function getAvailableImages(resturl: string, user_address : string) : Promise<Task[]> {
-    let helper = new ZkWasmServiceHelper(resturl, "", "");
+export async function getAvailableImages(resturl: string, user_address : string, enable_logs : boolean = true) : Promise<Task[]> {
+    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
     let args: QueryParams = {
         id: "",
         user_address: user_address,
@@ -64,12 +64,14 @@ export async function getAvailableImages(resturl: string, user_address : string)
         tasktype: "Setup",
         taskstatus: "Done",
     };
-    return helper.loadTasks(args, false).then((res) => {
+    return helper.loadTasks(args).then((res) => {
       const tasks = res as PaginationResult<Task[]>;
       return tasks.data;
     }).catch((err) => {
       throw err
-    }).finally(() =>
-      console.log("Finish queryTask.")
-    );
+    }).finally(() => {
+      if (enable_logs) {
+        console.log("Finish queryTask.")
+      }
+    });
 }

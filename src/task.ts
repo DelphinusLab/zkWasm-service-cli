@@ -76,8 +76,9 @@ export async function addProvingTask(
   public_inputs: string,
   private_inputs: string,
   priv: string,
+  enable_logs : boolean = true,
 ) : Promise<boolean> {
-  let helper = new ZkWasmServiceHelper(resturl, "", "");
+  let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
   let pb_inputs: Array<string> = ZkWasmUtil.validateInputs(public_inputs);
   let priv_inputs: Array<string> = ZkWasmUtil.validateInputs(private_inputs);
 
@@ -93,7 +94,9 @@ export async function addProvingTask(
   try {
     signature = await signMessage(msgString, priv);
   } catch (e: unknown) {
-    console.log("error signing message", e);
+    if (enable_logs) {
+      console.log("error signing message", e);
+    }
     return false;
   }
 
@@ -103,10 +106,14 @@ export async function addProvingTask(
   };
 
   return await helper.addProvingTask(task).then((res) => {
-    console.log("Add Proving task Response", res);
+    if (enable_logs) {
+      console.log("Add Proving task Response", res);
+    }
     return true;
   }).catch((err) => {
-    console.log("Add Proving task Error", err);
+    if (enable_logs) {
+      console.log("Add Proving task Error", err);
+    }
     return false;
   });
 }
@@ -120,7 +127,8 @@ async function sendIntervaledRequests(
   tot_ms: number,
   interval_ms: number,
   n_req: number,
-  request_fn: (i : number) => Promise<void>
+  request_fn: (i : number) => Promise<void>,
+  finish_fn : () => void,
 ) {
     const start_t = Date.now();
     let req_cnt = 0;
@@ -131,7 +139,7 @@ async function sendIntervaledRequests(
         await sleep(interval_ms);
     }
 
-    console.log("Finished sending requests.");
+    finish_fn();
 }
 
 async function runProveTasks(
@@ -144,7 +152,19 @@ async function runProveTasks(
   num_prove_tasks : number,
   interval_ms : number,
   total_time_ms : number,
-) : Promise<number> {
+  original_interval_ms : number,
+  enable_logs : boolean,
+) {
+  let interval_succ_cnt = 0;
+  let interval_fail_cnt = 0;
+  let secs = 0;
+  const interval_id = setInterval(() => {
+    console.log("Prove: t =", secs, "\tsucc =", interval_succ_cnt, "\tfail = ", interval_fail_cnt);
+    interval_succ_cnt = 0;
+    interval_fail_cnt = 0;
+    secs++;
+  }, original_interval_ms);
+
   let n_success = 0;
   sendIntervaledRequests(total_time_ms, interval_ms, num_prove_tasks,
     async (i : number) => {
@@ -154,14 +174,26 @@ async function runProveTasks(
         image_md5s[i % image_md5s.length],
         public_inputs,
         private_inputs,
-        priv
+        priv,
+        enable_logs,
       );
       if (success) {
         n_success++;
+        interval_succ_cnt++;
+      } else {
+        interval_fail_cnt++;
       }
+    },
+    () => {
+      console.log("\n");
+      console.log("-".repeat(72));
+      console.log("Finished sending prove requests, cumulative stats:");
+      console.log("\tNumber of successful prove tasks sent", n_success, "out of", num_prove_tasks);
+      console.log("\tProve task success rate", n_success/num_prove_tasks * 100, "%");
+
+      clearInterval(interval_id);
     }
   );
-  return n_success;
 }
 
 async function runQueryTasks(
@@ -170,21 +202,44 @@ async function runQueryTasks(
   num_query_tasks : number,
   interval_ms : number,
   total_time_ms : number,
-) : Promise<number> {
+  original_interval_ms : number,
+  enable_logs : boolean,
+) {
+  let interval_succ_cnt = 0;
+  let interval_fail_cnt = 0;
+  let secs = 0;
+  const interval_id = setInterval(() => {
+    console.log("Query: t =", secs, "\tsucc =", interval_succ_cnt, "\tfail = ", interval_fail_cnt);
+    interval_succ_cnt = 0;
+    interval_fail_cnt = 0;
+    secs++;
+  }, original_interval_ms);
+
   let n_success = 0;
   sendIntervaledRequests(total_time_ms, interval_ms, num_query_tasks,
     async (i : number) => {
       const success = await queryTask(
         task_ids[i % task_ids.length],
         resturl,
-        false,
+        enable_logs,
       );
       if (success) {
         n_success++;
+        interval_succ_cnt++;
+      } else {
+        interval_fail_cnt++;
       }
+    },
+    () => {
+      console.log("\n");
+      console.log("-".repeat(72));
+      console.log("Finished sending query requests, cumulative stats:");
+      console.log("\tNumber of successful query tasks sent", n_success, "out of", num_query_tasks);
+      console.log("\tQuery task success rate", n_success/num_query_tasks * 100, "%");
+
+      clearInterval(interval_id);
     }
   );
-  return n_success;
 }
 
 export async function pressureTest(
@@ -198,9 +253,9 @@ export async function pressureTest(
   num_query_tasks : number,
   interval_query_tasks_ms : number,
   total_time_sec : number,
+  enable_logs : boolean,
 ) {
-
-  const images_detail = await getAvailableImages(resturl, user_addr);
+  const images_detail = await getAvailableImages(resturl, user_addr, false);
 
   let image_md5s : string[] = [];
   let task_ids : string[] = [];
@@ -227,6 +282,13 @@ export async function pressureTest(
   console.log("prove_interval_ms", prove_interval_ms);
   console.log("query_interval_ms", query_interval_ms);
 
+  console.log("-".repeat(72));
+  console.log("Prove target:\tsucc =", num_prove_tasks, "\tper", interval_prove_tasks_ms, "ms");
+  console.log("Query target:\tsucc =", num_query_tasks, "\tper", interval_query_tasks_ms, "ms");
+  console.log("-".repeat(72));
+  console.log("Interval stats:");
+  console.log("-".repeat(72));
+
   const tasks = [
     runProveTasks(
       resturl,
@@ -238,6 +300,8 @@ export async function pressureTest(
       total_prove_tasks,
       prove_interval_ms,
       total_time_ms, 
+      interval_prove_tasks_ms,
+      enable_logs,
     ), 
     runQueryTasks(
       resturl,
@@ -245,16 +309,12 @@ export async function pressureTest(
       total_query_tasks,
       query_interval_ms,
       total_time_ms,
+      interval_query_tasks_ms,
+      enable_logs,
     ),
   ];
 
-  let res = await Promise.all(tasks);
-
-  console.log("Finished pressure test");
-  console.log("Number of successful prove tasks sent", res[0], "out of", total_prove_tasks);
-  console.log("Prove task success rate", res[0]/total_prove_tasks);
-  console.log("Number of successful query tasks sent", res[1], "out of", total_query_tasks);
-  console.log("Query task success rate", res[1]/total_query_tasks);
+  await Promise.all(tasks);
 }
 
 /*
