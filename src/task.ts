@@ -13,7 +13,7 @@ import {
   ImageMetadataValsProvePaymentSrc,
 } from "zkwasm-service-helper";
 
-import { queryTask, getAvailableImages } from "./query";
+import { queryTask, getAvailableImages, queryImage, queryUser, queryConfig, queryTxHistory, queryStatistics, queryDispositHistory, queryUserSubscription } from "./query";
 
 export async function addNewWasmImage(
   resturl: string,
@@ -198,6 +198,8 @@ async function runProveTasks(
 
 async function runQueryTasks(
   resturl: string,
+  user_address: string,
+  image_md5s: string[],
   task_ids: string[],
   num_query_tasks : number,
   interval_ms : number,
@@ -218,11 +220,16 @@ async function runQueryTasks(
   let n_success = 0;
   sendIntervaledRequests(total_time_ms, interval_ms, num_query_tasks,
     async (i : number) => {
-      const success = await queryTask(
-        task_ids[i % task_ids.length],
-        resturl,
-        enable_logs,
-      );
+
+      const query_fn = getRandomQuery(image_md5s, task_ids, resturl, user_address, enable_logs);
+
+      const success = await query_fn();
+
+     // queryTask(
+     //   task_ids[i % task_ids.length],
+     //   resturl,
+     //   enable_logs,
+     // );
       if (success) {
         n_success++;
         interval_succ_cnt++;
@@ -242,19 +249,10 @@ async function runQueryTasks(
   );
 }
 
-export async function pressureTest(
+async function getMd5sAndTaskIds(
   resturl: string,
   user_addr: string,
-  priv: string,
-  public_inputs: string,
-  private_inputs: string,
-  num_prove_tasks : number,
-  interval_prove_tasks_ms : number,
-  num_query_tasks : number,
-  interval_query_tasks_ms : number,
-  total_time_sec : number,
-  enable_logs : boolean,
-) {
+) : Promise<[string[], string[]]> {
   const images_detail = await getAvailableImages(resturl, user_addr, false);
 
   let image_md5s : string[] = [];
@@ -269,6 +267,52 @@ export async function pressureTest(
     }
   }
 
+  return [image_md5s, task_ids];
+}
+
+function getRandomIndex(min: number, max: number): number {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function getRandomQuery(
+  image_md5s : string[],
+  task_ids : string[],
+  resturl: string,
+  user_addr: string,
+  enable_logs : boolean,
+) : () => Promise<boolean> {
+
+  let tid = getRandomIndex(0, task_ids.length);
+
+  const fn_list = [
+    () => queryTask(task_ids[tid], resturl, enable_logs),
+    () => queryImage(image_md5s[tid], resturl, enable_logs),
+    () => queryUser(user_addr, resturl, enable_logs),
+    () => queryUserSubscription(user_addr, resturl, enable_logs),
+    () => queryTxHistory(user_addr, resturl, enable_logs),
+    () => queryDispositHistory(user_addr, resturl, enable_logs),
+    () => queryConfig(resturl, enable_logs),
+    () => queryStatistics(resturl, enable_logs),
+  ];
+
+  let idx = getRandomIndex(0, fn_list.length);
+
+  return fn_list[idx];
+}
+
+export async function pressureTest(
+  resturl: string,
+  user_addr: string,
+  priv: string,
+  public_inputs: string,
+  private_inputs: string,
+  num_prove_tasks : number,
+  interval_prove_tasks_ms : number,
+  num_query_tasks : number,
+  interval_query_tasks_ms : number,
+  total_time_sec : number,
+  enable_logs : boolean,
+) {
   const total_time_ms = total_time_sec * 1000;
   const total_prove_tasks = num_prove_tasks * Math.floor(total_time_ms/interval_prove_tasks_ms);
   const total_query_tasks = num_query_tasks * Math.floor(total_time_ms/interval_query_tasks_ms);
@@ -289,6 +333,8 @@ export async function pressureTest(
   console.log("Interval stats:");
   console.log("-".repeat(72));
 
+  const [image_md5s, task_ids] = await getMd5sAndTaskIds(resturl, user_addr);
+
   const tasks = [
     runProveTasks(
       resturl,
@@ -305,6 +351,8 @@ export async function pressureTest(
     ), 
     runQueryTasks(
       resturl,
+      user_addr,
+      image_md5s,
       task_ids,
       total_query_tasks,
       query_interval_ms,

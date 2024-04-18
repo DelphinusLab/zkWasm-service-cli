@@ -2,6 +2,8 @@ import {
     ZkWasmServiceHelper,
     ZkWasmUtil,
     QueryParams,
+    UserQueryParams,
+    TxHistoryQueryParams,
     PaginationResult,
     Task,
 } from "zkwasm-service-helper";
@@ -50,6 +52,123 @@ export async function queryTask(taskid: string, resturl: string, enable_logs : b
     }).catch((err) => {
       if (enable_logs) {
         console.log("queryTask Error", err);
+      }
+      return false;
+    });
+}
+
+export async function queryImage(md5: string, resturl: string, enable_logs : boolean = true) : Promise<boolean> {
+    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
+    return helper.queryImage(md5).then((res) => {
+      if (enable_logs) {
+        console.log("queryImage Success", res);
+      }
+      return true;
+    }).catch((err) => {
+      if (enable_logs) {
+        console.log("queryTask Error", err);
+      }
+      return false;
+    });
+}
+
+export async function queryUser(user_address: string, resturl: string, enable_logs : boolean = true) : Promise<boolean> {
+    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
+    let args: UserQueryParams = {
+        user_address: user_address,
+    };
+    return helper.queryUser(args).then((res) => {
+      if (enable_logs) {
+        console.log("queryUser Success", res);
+      }
+      return true;
+    }).catch((err) => {
+      if (enable_logs) {
+        console.log("queryUser Error", err);
+      }
+      return false;
+    });
+}
+
+export async function queryUserSubscription(user_address: string, resturl: string, enable_logs : boolean = true) : Promise<boolean> {
+    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
+    let args: UserQueryParams = {
+        user_address: user_address,
+    };
+    return helper.queryUserSubscription(args).then((res) => {
+      if (enable_logs) {
+        console.log("queryUserSubscription Success", res);
+      }
+      return true;
+    }).catch((err) => {
+      if (enable_logs) {
+        console.log("queryUserSubscription Error", err);
+      }
+      return false;
+    });
+}
+
+export async function queryTxHistory(user_address: string, resturl: string, enable_logs : boolean = true) : Promise<boolean> {
+    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
+    let args: TxHistoryQueryParams = {
+        user_address: user_address,
+    };
+    return helper.queryTxHistory(args).then((res) => {
+      if (enable_logs) {
+        console.log("queryTxHistory Success", res);
+      }
+      return true;
+    }).catch((err) => {
+      if (enable_logs) {
+        console.log("queryTxHistory Error", err);
+      }
+      return false;
+    });
+}
+
+export async function queryDispositHistory(user_address: string, resturl: string, enable_logs : boolean = true) : Promise<boolean> {
+    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
+    let args: TxHistoryQueryParams = {
+        user_address: user_address,
+    };
+    return helper.queryDepositHistory(args).then((res) => {
+      if (enable_logs) {
+        console.log("queryDepositHistory Success", res);
+      }
+      return true;
+    }).catch((err) => {
+      if (enable_logs) {
+        console.log("queryDepositHistory Error", err);
+      }
+      return false;
+    });
+}
+
+export async function queryConfig(resturl: string, enable_logs : boolean = true) : Promise<boolean> {
+    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
+    return helper.queryConfig().then((res) => {
+      if (enable_logs) {
+        console.log("queryConfig Success", res);
+      }
+      return true;
+    }).catch((err) => {
+      if (enable_logs) {
+        console.log("queryConfig Error", err);
+      }
+      return false;
+    });
+}
+
+export async function queryStatistics(resturl: string, enable_logs : boolean = true) : Promise<boolean> {
+    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
+    return helper.loadStatistics().then((res) => {
+      if (enable_logs) {
+        console.log("loadStatistics Success", res);
+      }
+      return true;
+    }).catch((err) => {
+      if (enable_logs) {
+        console.log("loadStatistics Error", err);
       }
       return false;
     });
