@@ -343,10 +343,22 @@ async function main() {
             nargs: 1,
             default: false
           })
+          .option("image_md5s", {
+            alias: "image_md5s",
+            describe: "Specify a list of image md5s (comma seperated) to use this for prove tasks. Overrides original behaviour of randomly selectly available images",
+            type: "string",
+            nargs: 1,
+          })
       },
       // Handler for your command
       async function (argv: any) {
         console.log("Begin pressure test with args", argv);
+
+        const image_mds_in = argv.image_md5s ? (argv.image_md5s as string).split(',') : [];
+        if (image_mds_in.length !== 0) {
+          console.log("Using input image md5s", image_mds_in);
+        }
+
         await pressureTest(
           argv.r,
           argv.u,
@@ -359,6 +371,7 @@ async function main() {
           argv.interval_query_tasks_ms,
           argv.total_time_sec,
           argv.verbose,
+          image_mds_in,
         );
       }
     )

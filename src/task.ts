@@ -251,10 +251,10 @@ async function getMd5sAndTaskIds(
   let task_ids : string[] = [];
 
   for (const d of images_detail) {
-    if (!image_md5s.find((x) => x == d.md5)) {
+    if (!image_md5s.find((x) => x === d.md5)) {
       image_md5s.push(d.md5);
     }
-    if (!task_ids.find((x) => x == d._id["$oid"])) {
+    if (!task_ids.find((x) => x === (d._id["$oid"] as string))) {
       task_ids.push(d._id["$oid"]);
     }
   }
@@ -310,6 +310,7 @@ export async function pressureTest(
   interval_query_tasks_ms : number,
   total_time_sec : number,
   enable_logs : boolean,
+  image_md5s_in : string[],
 ) {
   const total_time_ms = total_time_sec * 1000;
   const total_prove_tasks = num_prove_tasks * Math.floor(total_time_ms/interval_prove_tasks_ms);
@@ -331,7 +332,8 @@ export async function pressureTest(
   console.log("Interval stats:");
   console.log("-".repeat(72));
 
-  const [image_md5s, task_ids] = await getMd5sAndTaskIds(resturl, user_addr);
+  const [image_md5s_fetched, task_ids] = await getMd5sAndTaskIds(resturl, user_addr);
+  const image_md5s = image_md5s_in.length === 0 ? image_md5s_fetched : image_md5s_in;
 
   const tasks = [
     runProveTasks(
