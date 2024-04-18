@@ -22,6 +22,7 @@ The following options are available for the `zkwasm-service-cli` command:
 - [addprovingtask](#command-addprovingtask)
 - [adddeploytask](#command-adddeploytask)
 - [addpayment](#command-addpayment)
+- [pressuretest](#command-pressuretest)
 
 ## Command: addimage
 
@@ -110,3 +111,27 @@ The following options are available for the `addpayment` command:
 Existing Tx hash - `node dist/index.js addpayment -r "http://127.0.0.1:8080" -t "<transactionhash>"`
 
 Create a new transaction - `node dist/index.js addpayment -r "http://127.0.0.1:8080" -p "https://goerli.infura.io/v3/xxxxxxx" -u "YOUR_ADDRESS" -x "YOUR_PRIVATE_KEY" -a "0.00001"`
+
+## Command: pressuretest
+
+Run pressure test of zkwasm playground: send prove request and query requests in parallel over their respective intervals.
+
+### Usage
+
+`node dist/index.js pressuretest -r <resturl> -u <address> -x <priv> [--public_input <public_input>] [--private_input <private_input>] --num_prove_tasks <number> --interval_prove_tasks_ms <number> --num_query_tasks <number> --interval_query_tasks_ms <number> --total_time_sec <number>`
+
+### Options
+
+The following options are available for the `pressuretest` command:
+
+- `-r, --resturl <url>`: The rest url of zkwasm cloud service. This option is **required**.
+- `-u, --address <address>`: The user address which adds the proving task. This option is **required**.
+- `-x, --priv <priv>`: The private key of user address. This option is **required** for signing the message.
+- `--public_input <public_input>`: The public input of the proof, inputs must have the format (0x)[0-f]\*:(i64|bytes|bytes-packed) and be separated by spaces (e.g.: 0x12:i64 44:i64 32:i64).
+- `--private_input <private_input>`: The private input of the proof. Currently not supported.
+- `--num_prove_tasks <number>`: Number of prove tasks to run during a single interval in the pressure test.
+- `--interval_prove_tasks_ms <number>`: Interval (msec) in which to run prove tasks during pressure test.
+- `--num_query_tasks <number>`: Number of query tasks to run during a single interval in the pressure test.
+- `--interval_query_tasks_ms <number>`: Interval (msec) in which to run query tasks during pressure test, default is 100".
+- `--total_time_sec <number>`: Total time of pressure test (sec).
+- `--image_md5s <image0_md5,image1_md5,...>: List of image md5s (one or more, comma seperated) to use for prove tasks. Overrides original behaviour of randomly selectly available images.

@@ -7,6 +7,7 @@ import {
   //addDeployTask,
   addNewPayment,
   addPaymentWithTx,
+  pressureTest,
 } from "./task";
 import{
   queryTask,
@@ -264,6 +265,114 @@ async function main() {
       async function (argv: any) {
         console.log("Creating new transaction...");
         await queryTask(argv.t, argv.r);
+      }
+    )
+    .command(
+      "pressuretest",
+      'Pressure test. Example: node dist/index.js pressuretest -r "http://127.0.0.1:8108" -u "0x3552f5E0BFcCF79A87a304e80455b368Af9B56F6" -x "xxxxxxx" --public_input "44:i64 32:i64" --num_prove_tasks 1 --interval_prove_tasks_ms 5000 --num_query_tasks 10 --interval_query_tasks_ms 5000 --total_time_sec 10',
+      function (yargs: any) {
+        return yargs
+          .option("u", {
+            alias: "address",
+            describe: "User address which adding the image",
+            demandOption: "User address is required",
+            type: "string",
+            nargs: 1,
+          })
+          .option("x", {
+            alias: "priv",
+            describe: "The priv of user address.",
+            demandOption: "The priv is required for signing message.",
+            type: "string",
+            nargs: 1,
+          })
+          .option("public_input", {
+            alias: "public_input",
+            describe:
+              "public input of the proof, inputs must have format (0x)[0-f]*:(i64|bytes|bytes-packed) and been separated by spaces (eg: 0x12:i64 44:i64 32:i64).",
+            type: "string",
+            nargs: 1,
+            default: ""
+          })
+          .option("private_input", {
+            alias: "private_input",
+            describe: "private currently not supported",
+            type: "string",
+            nargs: 1,
+            default: ""
+          })
+          .option("num_prove_tasks", {
+            alias: "num_prove_tasks",
+            describe: "Number of prove tasks to run during a single interval in the pressure test, default is 1",
+            type: "number",
+            nargs: 1,
+            default: 1
+          })
+          .option("interval_prove_tasks_ms", {
+            alias: "interval_prove_tasks_ms",
+            describe: "Interval (msec) in which to run prove tasks during pressure test, default is 5000",
+            type: "number",
+            nargs: 1,
+            default: 1
+          })
+          .option("num_query_tasks", {
+            alias: "num_query_tasks",
+            describe: "Number of query tasks to run during a single interval in the pressure test, default is 1",
+            type: "number",
+            nargs: 1,
+            default: 1
+          })
+          .option("interval_query_tasks_ms", {
+            alias: "interval_query_tasks_ms",
+            describe: "Interval (msec) in which to run query tasks during pressure test, default is 100",
+            type: "number",
+            nargs: 1,
+            default: 100
+          })
+          .option("total_time_sec", {
+            alias: "total_time_sec",
+            describe: "Total time of pressure test (sec), default is 10",
+            type: "number",
+            nargs: 1,
+            default: 10
+          })
+          .option("verbose", {
+            alias: "verbose",
+            describe: "Enable verbose logging, default is false.",
+            type: "boolean",
+            nargs: 1,
+            default: false
+          })
+          .option("image_md5s", {
+            alias: "image_md5s",
+            describe: "List of image md5s (one or more, comma seperated) to use for prove tasks. Overrides original behaviour of randomly selectly available images.",
+            type: "string",
+            nargs: 1,
+          })
+      },
+      // Handler for your command
+      async function (argv: any) {
+        console.log("Begin pressure test with args", argv);
+
+        const image_mds_in = argv.image_md5s ? (argv.image_md5s as string).split(',') : [];
+        if (image_mds_in.length !== 0) {
+          console.log("Using input image md5s", image_mds_in);
+        }
+
+        await pressureTest(
+          argv.r,
+          argv.u,
+          argv.priv,
+          argv.public_input,
+          argv.private_input,
+          argv.num_prove_tasks,
+          argv.interval_prove_tasks_ms,
+          argv.num_query_tasks,
+          argv.interval_query_tasks_ms,
+          argv.total_time_sec,
+          argv.verbose,
+          image_mds_in,
+        );
       }
     )
     .help();

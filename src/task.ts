@@ -13,6 +13,8 @@ import {
   ImageMetadataValsProvePaymentSrc,
 } from "zkwasm-service-helper";
 
+import { queryTask, getAvailableImages, queryImage, queryUser, queryConfig, queryTxHistory, queryStatistics, queryDispositHistory, queryUserSubscription, queryTaskByTypeAndStatus } from "./query";
+
 export async function addNewWasmImage(
   resturl: string,
   absPath: string,
@@ -58,12 +60,12 @@ export async function addNewWasmImage(
   };
 
   let helper = new ZkWasmServiceHelper(resturl, "", "");
-  helper.addNewWasmImage(task).then((res) => {
+  await helper.addNewWasmImage(task).then((res) => {
     console.log("Add Image Response", res);
   }).catch((err) => {
     console.log("Add Image Error", err);
   }).finally(()=>
-  console.log("Finish addNewWasmImage!")
+    console.log("Finish addNewWasmImage!")
   )
 }
 
@@ -74,8 +76,9 @@ export async function addProvingTask(
   public_inputs: string,
   private_inputs: string,
   priv: string,
-) {
-  let helper = new ZkWasmServiceHelper(resturl, "", "");
+  enable_logs : boolean = true,
+) : Promise<boolean> {
+  let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
   let pb_inputs: Array<string> = ZkWasmUtil.validateInputs(public_inputs);
   let priv_inputs: Array<string> = ZkWasmUtil.validateInputs(private_inputs);
 
@@ -91,8 +94,10 @@ export async function addProvingTask(
   try {
     signature = await signMessage(msgString, priv);
   } catch (e: unknown) {
-    console.log("error signing message", e);
-    return;
+    if (enable_logs) {
+      console.log("error signing message", e);
+    }
+    return false;
   }
 
   let task: WithSignature<ProvingParams> = {
@@ -100,8 +105,264 @@ export async function addProvingTask(
     signature: signature,
   };
 
-  await helper.addProvingTask(task);
-  console.log("Finish addProvingTask!");
+  return await helper.addProvingTask(task).then((res) => {
+    if (enable_logs) {
+      console.log("Add Proving task Response", res);
+    }
+    return true;
+  }).catch((err) => {
+    if (enable_logs) {
+      console.log("Add Proving task Error", err);
+    }
+    return false;
+  });
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+
+async function sendIntervaledRequests(
+  tot_ms: number,
+  interval_ms: number,
+  n_req: number,
+  request_fn: (i : number) => Promise<void>,
+  finish_fn : () => void,
+) {
+    const start_t = Date.now();
+    let req_cnt = 0;
+
+    for (let curr_t = Date.now(); curr_t - start_t < tot_ms && req_cnt < n_req; curr_t = Date.now()) {
+        await request_fn(req_cnt);
+        req_cnt++;
+        await sleep(interval_ms);
+    }
+
+    finish_fn();
+}
+
+async function runProveTasks(
+  resturl: string,
+  user_addr: string,
+  image_md5s: string[],
+  priv: string,
+  public_inputs: string,
+  private_inputs: string,
+  num_prove_tasks : number,
+  interval_ms : number,
+  total_time_ms : number,
+  original_interval_ms : number,
+  enable_logs : boolean,
+) {
+  let interval_succ_cnt = 0;
+  let interval_fail_cnt = 0;
+  let secs = 0;
+  const interval_id = setInterval(() => {
+    console.log("Prove: t =", secs, "\tsucc =", interval_succ_cnt, "\tfail = ", interval_fail_cnt);
+    interval_succ_cnt = 0;
+    interval_fail_cnt = 0;
+    secs++;
+  }, original_interval_ms);
+
+  let n_success = 0;
+  sendIntervaledRequests(total_time_ms, interval_ms, num_prove_tasks,
+    async (i : number) => {
+      const success = await addProvingTask(
+        resturl,
+        user_addr,
+        image_md5s[i % image_md5s.length],
+        public_inputs,
+        private_inputs,
+        priv,
+        enable_logs,
+      );
+      if (success) {
+        n_success++;
+        interval_succ_cnt++;
+      } else {
+        interval_fail_cnt++;
+      }
+    },
+    () => {
+      console.log("\n");
+      console.log("-".repeat(72));
+      console.log("Finished sending prove requests, cumulative stats:");
+      console.log("\tNumber of successful prove tasks sent", n_success, "out of", num_prove_tasks);
+      console.log("\tProve task success rate", n_success/num_prove_tasks * 100, "%");
+
+      clearInterval(interval_id);
+    }
+  );
+}
+
+async function runQueryTasks(
+  resturl: string,
+  user_address: string,
+  image_md5s: string[],
+  task_ids: string[],
+  num_query_tasks : number,
+  interval_ms : number,
+  total_time_ms : number,
+  original_interval_ms : number,
+  enable_logs : boolean,
+) {
+  let interval_succ_cnt = 0;
+  let interval_fail_cnt = 0;
+  let secs = 0;
+  const interval_id = setInterval(() => {
+    console.log("Query: t =", secs, "\tsucc =", interval_succ_cnt, "\tfail = ", interval_fail_cnt);
+    interval_succ_cnt = 0;
+    interval_fail_cnt = 0;
+    secs++;
+  }, original_interval_ms);
+
+  let n_success = 0;
+  sendIntervaledRequests(total_time_ms, interval_ms, num_query_tasks,
+    async (_ : number) => {
+      const query_fn = getRandomQuery(image_md5s, task_ids, resturl, user_address, enable_logs);
+      const success = await query_fn();
+      if (success) {
+        n_success++;
+        interval_succ_cnt++;
+      } else {
+        interval_fail_cnt++;
+      }
+    },
+    () => {
+      console.log("\n");
+      console.log("-".repeat(72));
+      console.log("Finished sending query requests, cumulative stats:");
+      console.log("\tNumber of successful query tasks sent", n_success, "out of", num_query_tasks);
+      console.log("\tQuery task success rate", n_success/num_query_tasks * 100, "%");
+
+      clearInterval(interval_id);
+    }
+  );
+}
+
+async function getMd5sAndTaskIds(
+  resturl: string,
+  user_addr: string,
+) : Promise<[string[], string[]]> {
+  const images_detail = await getAvailableImages(resturl, user_addr, false);
+
+  let image_md5s : string[] = [];
+  let task_ids : string[] = [];
+
+  for (const d of images_detail) {
+    if (!image_md5s.find((x) => x === d.md5)) {
+      image_md5s.push(d.md5);
+    }
+    if (!task_ids.find((x) => x === (d._id["$oid"] as string))) {
+      task_ids.push(d._id["$oid"]);
+    }
+  }
+
+  return [image_md5s, task_ids];
+}
+
+function getRandIdx(length: number): number {
+    return Math.floor(Math.random() * length)
+}
+
+function getRandomQuery(
+  image_md5s : string[],
+  task_ids : string[],
+  resturl: string,
+  user_addr: string,
+  enable_logs : boolean,
+) : () => Promise<boolean> {
+  const fn_list = [
+    () => queryTask(task_ids[getRandIdx(task_ids.length)], resturl, enable_logs),
+    () => queryImage(image_md5s[getRandIdx(image_md5s.length)], resturl, enable_logs),
+    () => queryUser(user_addr, resturl, enable_logs),
+    () => queryUserSubscription(user_addr, resturl, enable_logs),
+    () => queryTxHistory(user_addr, resturl, enable_logs),
+    () => queryDispositHistory(user_addr, resturl, enable_logs),
+    () => queryConfig(resturl, enable_logs),
+    () => queryStatistics(resturl, enable_logs),
+    () => {
+      const task_types = ["Setup", "Prove", "Reset"];
+      const task_statuses = ["Pending", "Processing", "DryRunFailed", "Done", "Fail", "Stale"];
+      return queryTaskByTypeAndStatus(
+        task_types[getRandIdx(task_types.length)],
+        task_statuses[getRandIdx(task_statuses.length)],
+        resturl,
+        enable_logs
+      );
+    }
+  ];
+
+  let idx = getRandIdx(fn_list.length);
+  return fn_list[idx];
+}
+
+export async function pressureTest(
+  resturl: string,
+  user_addr: string,
+  priv: string,
+  public_inputs: string,
+  private_inputs: string,
+  num_prove_tasks : number,
+  interval_prove_tasks_ms : number,
+  num_query_tasks : number,
+  interval_query_tasks_ms : number,
+  total_time_sec : number,
+  enable_logs : boolean,
+  image_md5s_in : string[],
+) {
+  const total_time_ms = total_time_sec * 1000;
+  const total_prove_tasks = num_prove_tasks * Math.floor(total_time_ms/interval_prove_tasks_ms);
+  const total_query_tasks = num_query_tasks * Math.floor(total_time_ms/interval_query_tasks_ms);
+
+  const prove_interval_ms = Math.ceil(interval_prove_tasks_ms/num_prove_tasks);
+  const query_interval_ms = Math.ceil(interval_query_tasks_ms/num_query_tasks);
+
+  console.log("Total_time_ms", total_time_ms);
+  console.log("total_prove_tasks", total_prove_tasks);
+  console.log("total_query_tasks", total_query_tasks);
+  console.log("prove_interval_ms", prove_interval_ms);
+  console.log("query_interval_ms", query_interval_ms);
+
+  console.log("-".repeat(72));
+  console.log("Prove target:\tsucc =", num_prove_tasks, "\tper", interval_prove_tasks_ms, "ms");
+  console.log("Query target:\tsucc =", num_query_tasks, "\tper", interval_query_tasks_ms, "ms");
+  console.log("-".repeat(72));
+  console.log("Interval stats:");
+  console.log("-".repeat(72));
+
+  const [image_md5s_fetched, task_ids] = await getMd5sAndTaskIds(resturl, user_addr);
+  const image_md5s = image_md5s_in.length === 0 ? image_md5s_fetched : image_md5s_in;
+
+  const tasks = [
+    runProveTasks(
+      resturl,
+      user_addr,
+      image_md5s,
+      priv,
+      public_inputs,
+      private_inputs,
+      total_prove_tasks,
+      prove_interval_ms,
+      total_time_ms, 
+      interval_prove_tasks_ms,
+      enable_logs,
+    ), 
+    runQueryTasks(
+      resturl,
+      user_addr,
+      image_md5s,
+      task_ids,
+      total_query_tasks,
+      query_interval_ms,
+      total_time_ms,
+      interval_query_tasks_ms,
+      enable_logs,
+    ),
+  ];
+
+  await Promise.all(tasks);
 }
 
 /*
