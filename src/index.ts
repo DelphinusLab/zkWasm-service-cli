@@ -345,7 +345,7 @@ async function main() {
           })
           .option("image_md5s", {
             alias: "image_md5s",
-            describe: "Specify a list of image md5s (comma seperated) to use this for prove tasks. Overrides original behaviour of randomly selectly available images",
+            describe: "List of image md5s (one or more, comma seperated) to use for prove tasks. Overrides original behaviour of randomly selectly available images.",
             type: "string",
             nargs: 1,
           })
