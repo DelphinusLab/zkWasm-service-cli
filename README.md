@@ -122,7 +122,7 @@ Run pressure test of zkwasm playground: send prove request and query requests in
 
 ### Options
 
-The following options are available for the `addprovingtask` command:
+The following options are available for the `pressuretest` command:
 
 - `-r, --resturl <url>`: The rest url of zkwasm cloud service. This option is **required**.
 - `-u, --address <address>`: The user address which adds the proving task. This option is **required**.
