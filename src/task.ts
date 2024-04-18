@@ -13,7 +13,7 @@ import {
   ImageMetadataValsProvePaymentSrc,
 } from "zkwasm-service-helper";
 
-import { queryTask, getAvailableImages, queryImage, queryUser, queryConfig, queryTxHistory, queryStatistics, queryDispositHistory, queryUserSubscription } from "./query";
+import { queryTask, getAvailableImages, queryImage, queryUser, queryConfig, queryTxHistory, queryStatistics, queryDispositHistory, queryUserSubscription, queryTaskByTypeAndStatus } from "./query";
 
 export async function addNewWasmImage(
   resturl: string,
@@ -282,6 +282,16 @@ function getRandomQuery(
     () => queryDispositHistory(user_addr, resturl, enable_logs),
     () => queryConfig(resturl, enable_logs),
     () => queryStatistics(resturl, enable_logs),
+    () => {
+      const task_types = ["Setup", "Prove", "Reset"];
+      const task_statuses = ["Pending", "Processing", "DryRunFailed", "Done", "Fail", "Stale"];
+      return queryTaskByTypeAndStatus(
+        task_types[getRandIdx(task_types.length)],
+        task_statuses[getRandIdx(task_statuses.length)],
+        resturl,
+        enable_logs
+      );
+    }
   ];
 
   let idx = getRandIdx(fn_list.length);

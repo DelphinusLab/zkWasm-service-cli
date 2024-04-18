@@ -57,6 +57,28 @@ export async function queryTask(taskid: string, resturl: string, enable_logs : b
     });
 }
 
+export async function queryTaskByTypeAndStatus(tasktype: string, taskstatus: string, resturl: string, enable_logs : boolean = true) : Promise<boolean> {
+    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
+    let args: QueryParams = {
+        id: "",
+        user_address: "",
+        md5: "",
+        tasktype: tasktype,
+        taskstatus: taskstatus,
+    };
+    return helper.loadTasks(args).then((res) => {
+      if (enable_logs) {
+        console.log("queryImage Success", res);
+      }
+      return true;
+    }).catch((err) => {
+      if (enable_logs) {
+        console.log("queryTask Error", err);
+      }
+      return false;
+    });
+}
+
 export async function queryImage(md5: string, resturl: string, enable_logs : boolean = true) : Promise<boolean> {
     let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
     return helper.queryImage(md5).then((res) => {
