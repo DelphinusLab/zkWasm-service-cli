@@ -219,17 +219,9 @@ async function runQueryTasks(
 
   let n_success = 0;
   sendIntervaledRequests(total_time_ms, interval_ms, num_query_tasks,
-    async (i : number) => {
-
+    async (_ : number) => {
       const query_fn = getRandomQuery(image_md5s, task_ids, resturl, user_address, enable_logs);
-
       const success = await query_fn();
-
-     // queryTask(
-     //   task_ids[i % task_ids.length],
-     //   resturl,
-     //   enable_logs,
-     // );
       if (success) {
         n_success++;
         interval_succ_cnt++;
@@ -270,8 +262,8 @@ async function getMd5sAndTaskIds(
   return [image_md5s, task_ids];
 }
 
-function getRandomIndex(min: number, max: number): number {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
+function getRandIdx(length: number): number {
+    return Math.floor(Math.random() * length)
 }
 
 function getRandomQuery(
@@ -281,12 +273,9 @@ function getRandomQuery(
   user_addr: string,
   enable_logs : boolean,
 ) : () => Promise<boolean> {
-
-  let tid = getRandomIndex(0, task_ids.length);
-
   const fn_list = [
-    () => queryTask(task_ids[tid], resturl, enable_logs),
-    () => queryImage(image_md5s[tid], resturl, enable_logs),
+    () => queryTask(task_ids[getRandIdx(task_ids.length)], resturl, enable_logs),
+    () => queryImage(image_md5s[getRandIdx(image_md5s.length)], resturl, enable_logs),
     () => queryUser(user_addr, resturl, enable_logs),
     () => queryUserSubscription(user_addr, resturl, enable_logs),
     () => queryTxHistory(user_addr, resturl, enable_logs),
@@ -295,8 +284,7 @@ function getRandomQuery(
     () => queryStatistics(resturl, enable_logs),
   ];
 
-  let idx = getRandomIndex(0, fn_list.length);
-
+  let idx = getRandIdx(fn_list.length);
   return fn_list[idx];
 }
 
