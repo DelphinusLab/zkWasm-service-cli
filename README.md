@@ -134,4 +134,6 @@ The following options are available for the `pressuretest` command:
 - `--num_query_tasks <number>`: Number of query tasks to run during a single interval in the pressure test.
 - `--interval_query_tasks_ms <number>`: Interval (msec) in which to run query tasks during pressure test, default is 100".
 - `--total_time_sec <number>`: Total time of pressure test (sec).
+- `--verbose <true|false>`: Whether or not to print every request response to the console.
+- `--query_task_only <true|false>`: When generating random queries for pressure test, only generate ones that query 'task' collection. 
 - `--image_md5s <image0_md5,image1_md5,...>: List of image md5s (one or more, comma seperated) to use for prove tasks. Overrides original behaviour of randomly selectly available images.

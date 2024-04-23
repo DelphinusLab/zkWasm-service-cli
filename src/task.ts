@@ -206,6 +206,7 @@ async function runQueryTasks(
   total_time_ms : number,
   original_interval_ms : number,
   enable_logs : boolean,
+  query_tasks_only : boolean,
 ) {
   let interval_succ_cnt = 0;
   let interval_fail_cnt = 0;
@@ -220,7 +221,7 @@ async function runQueryTasks(
   let n_success = 0;
   sendIntervaledRequests(total_time_ms, interval_ms, num_query_tasks,
     async (_ : number) => {
-      const query_fn = getRandomQuery(image_md5s, task_ids, resturl, user_address, enable_logs);
+      const query_fn = getRandomQuery(image_md5s, task_ids, resturl, user_address, enable_logs, query_tasks_only);
       const success = await query_fn();
       if (success) {
         n_success++;
@@ -272,16 +273,10 @@ function getRandomQuery(
   resturl: string,
   user_addr: string,
   enable_logs : boolean,
+  query_tasks_only : boolean,
 ) : () => Promise<boolean> {
   const fn_list = [
     () => queryTask(task_ids[getRandIdx(task_ids.length)], resturl, enable_logs),
-    () => queryImage(image_md5s[getRandIdx(image_md5s.length)], resturl, enable_logs),
-    () => queryUser(user_addr, resturl, enable_logs),
-    () => queryUserSubscription(user_addr, resturl, enable_logs),
-    () => queryTxHistory(user_addr, resturl, enable_logs),
-    () => queryDispositHistory(user_addr, resturl, enable_logs),
-    () => queryConfig(resturl, enable_logs),
-    () => queryStatistics(resturl, enable_logs),
     () => {
       const task_types = ["Setup", "Prove", "Reset"];
       const task_statuses = ["Pending", "Processing", "DryRunFailed", "Done", "Fail", "Stale"];
@@ -291,8 +286,20 @@ function getRandomQuery(
         resturl,
         enable_logs
       );
-    }
+    },
   ];
+
+  if (!query_tasks_only) {
+    fn_list.push(...[
+      () => queryImage(image_md5s[getRandIdx(image_md5s.length)], resturl, enable_logs),
+      () => queryUser(user_addr, resturl, enable_logs),
+      () => queryUserSubscription(user_addr, resturl, enable_logs),
+      () => queryTxHistory(user_addr, resturl, enable_logs),
+      () => queryDispositHistory(user_addr, resturl, enable_logs),
+      () => queryConfig(resturl, enable_logs),
+      () => queryStatistics(resturl, enable_logs),
+    ]);
+  }
 
   let idx = getRandIdx(fn_list.length);
   return fn_list[idx];
@@ -310,6 +317,7 @@ export async function pressureTest(
   interval_query_tasks_ms : number,
   total_time_sec : number,
   enable_logs : boolean,
+  query_tasks_only : boolean,
   image_md5s_in : string[],
 ) {
   const total_time_ms = total_time_sec * 1000;
@@ -359,6 +367,7 @@ export async function pressureTest(
       total_time_ms,
       interval_query_tasks_ms,
       enable_logs,
+      query_tasks_only,
     ),
   ];
 
