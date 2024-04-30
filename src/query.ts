@@ -9,7 +9,7 @@ import {
 } from "zkwasm-service-helper";
 import BN from "bn.js";
 
-export async function queryTask(taskid: string, resturl: string, enable_logs : boolean = true) : Promise<boolean> {
+export async function queryTask(taskid: string, resturl: string, enable_logs : boolean = true, custom_port : number = -1) : Promise<boolean> {
     let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
     let args: QueryParams = {
         id: taskid!,
@@ -18,7 +18,7 @@ export async function queryTask(taskid: string, resturl: string, enable_logs : b
         tasktype: "",
         taskstatus: "",
     };
-    return helper.loadTasks(args).then((res) => {
+    return helper.loadTasks(args, custom_port).then((res) => {
       const tasks = res as PaginationResult<Task[]>;
       const task: Task = tasks.data[0];
       let aggregate_proof = ZkWasmUtil.bytesToBN(task.proof);
@@ -57,7 +57,7 @@ export async function queryTask(taskid: string, resturl: string, enable_logs : b
     });
 }
 
-export async function queryTaskByTypeAndStatus(tasktype: string, taskstatus: string, resturl: string, enable_logs : boolean = true) : Promise<boolean> {
+export async function queryTaskByTypeAndStatus(tasktype: string, taskstatus: string, resturl: string, enable_logs : boolean = true, custom_port : number = -1) : Promise<boolean> {
     let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
     let args: QueryParams = {
         id: "",
@@ -66,7 +66,7 @@ export async function queryTaskByTypeAndStatus(tasktype: string, taskstatus: str
         tasktype: tasktype,
         taskstatus: taskstatus,
     };
-    return helper.loadTasks(args).then((res) => {
+    return helper.loadTasks(args, custom_port).then((res) => {
       if (enable_logs) {
         console.log("queryImage Success", res);
       }
