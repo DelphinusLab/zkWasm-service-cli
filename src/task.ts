@@ -77,6 +77,7 @@ export async function addProvingTask(
   private_inputs: string,
   priv: string,
   enable_logs : boolean = true,
+  custom_port : number = -1,
 ) : Promise<boolean> {
   let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
   let pb_inputs: Array<string> = ZkWasmUtil.validateInputs(public_inputs);
@@ -105,7 +106,7 @@ export async function addProvingTask(
     signature: signature,
   };
 
-  return await helper.addProvingTask(task).then((res) => {
+  return await helper.addProvingTask(task, custom_port).then((res) => {
     if (enable_logs) {
       console.log("Add Proving task Response", res);
     }
@@ -176,6 +177,7 @@ async function runProveTasks(
         private_inputs,
         priv,
         enable_logs,
+        getRandPort(),
       );
       if (success) {
         n_success++;
@@ -264,7 +266,14 @@ async function getMd5sAndTaskIds(
 }
 
 function getRandIdx(length: number): number {
-    return Math.floor(Math.random() * length)
+  return Math.floor(Math.random() * length)
+}
+
+function getRandPort(): number {
+  // check port range here /proc/sys/net/ipv4/ip_local_port_range
+  const min = 32768;
+  const max = 60999;
+  return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
 function getRandomQuery(
@@ -276,7 +285,7 @@ function getRandomQuery(
   query_tasks_only : boolean,
 ) : () => Promise<boolean> {
   const fn_list = [
-    () => queryTask(task_ids[getRandIdx(task_ids.length)], resturl, enable_logs),
+    () => queryTask(task_ids[getRandIdx(task_ids.length)], resturl, enable_logs, getRandPort()),
     () => {
       const task_types = ["Setup", "Prove", "Reset"];
       const task_statuses = ["Pending", "Processing", "DryRunFailed", "Done", "Fail", "Stale"];
@@ -284,7 +293,8 @@ function getRandomQuery(
         task_types[getRandIdx(task_types.length)],
         task_statuses[getRandIdx(task_statuses.length)],
         resturl,
-        enable_logs
+        enable_logs,
+        getRandPort()
       );
     },
   ];
