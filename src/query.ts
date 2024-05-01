@@ -10,7 +10,7 @@ import {
 import BN from "bn.js";
 
 export async function queryTask(taskid: string, resturl: string, enable_logs : boolean = true, custom_port : number = -1) : Promise<boolean> {
-    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
+    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs, custom_port);
     let args: QueryParams = {
         id: taskid!,
         user_address: "",
@@ -18,7 +18,7 @@ export async function queryTask(taskid: string, resturl: string, enable_logs : b
         tasktype: "",
         taskstatus: "",
     };
-    return helper.loadTasks(args, custom_port).then((res) => {
+    return helper.loadTasks(args).then((res) => {
       const tasks = res as PaginationResult<Task[]>;
       const task: Task = tasks.data[0];
       let aggregate_proof = ZkWasmUtil.bytesToBN(task.proof);
@@ -48,6 +48,7 @@ export async function queryTask(taskid: string, resturl: string, enable_logs : b
         });
         console.log("   fee:", fee);
       }
+      // console.log("queryTask Succ", res);
       return true;
     }).catch((err) => {
       if (enable_logs) {
@@ -58,7 +59,7 @@ export async function queryTask(taskid: string, resturl: string, enable_logs : b
 }
 
 export async function queryTaskByTypeAndStatus(tasktype: string, taskstatus: string, resturl: string, enable_logs : boolean = true, custom_port : number = -1) : Promise<boolean> {
-    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
+    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs, custom_port);
     let args: QueryParams = {
         id: "",
         user_address: "",
@@ -66,7 +67,7 @@ export async function queryTaskByTypeAndStatus(tasktype: string, taskstatus: str
         tasktype: tasktype,
         taskstatus: taskstatus,
     };
-    return helper.loadTasks(args, custom_port).then((res) => {
+    return helper.loadTasks(args).then((res) => {
       if (enable_logs) {
         console.log("queryImage Success", res);
       }
@@ -79,8 +80,8 @@ export async function queryTaskByTypeAndStatus(tasktype: string, taskstatus: str
     });
 }
 
-export async function queryImage(md5: string, resturl: string, enable_logs : boolean = true) : Promise<boolean> {
-    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
+export async function queryImage(md5: string, resturl: string, enable_logs : boolean = true, custom_port : number = -1) : Promise<boolean> {
+    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs, custom_port);
     return helper.queryImage(md5).then((res) => {
       if (enable_logs) {
         console.log("queryImage Success", res);
@@ -94,8 +95,8 @@ export async function queryImage(md5: string, resturl: string, enable_logs : boo
     });
 }
 
-export async function queryUser(user_address: string, resturl: string, enable_logs : boolean = true) : Promise<boolean> {
-    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
+export async function queryUser(user_address: string, resturl: string, enable_logs : boolean = true, custom_port : number = -1) : Promise<boolean> {
+    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs, custom_port);
     let args: UserQueryParams = {
         user_address: user_address,
     };
@@ -112,8 +113,8 @@ export async function queryUser(user_address: string, resturl: string, enable_lo
     });
 }
 
-export async function queryUserSubscription(user_address: string, resturl: string, enable_logs : boolean = true) : Promise<boolean> {
-    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
+export async function queryUserSubscription(user_address: string, resturl: string, enable_logs : boolean = true, custom_port : number = -1) : Promise<boolean> {
+    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs, custom_port);
     let args: UserQueryParams = {
         user_address: user_address,
     };
@@ -130,8 +131,8 @@ export async function queryUserSubscription(user_address: string, resturl: strin
     });
 }
 
-export async function queryTxHistory(user_address: string, resturl: string, enable_logs : boolean = true) : Promise<boolean> {
-    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
+export async function queryTxHistory(user_address: string, resturl: string, enable_logs : boolean = true, custom_port : number = -1) : Promise<boolean> {
+    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs, custom_port);
     let args: TxHistoryQueryParams = {
         user_address: user_address,
     };
@@ -148,8 +149,8 @@ export async function queryTxHistory(user_address: string, resturl: string, enab
     });
 }
 
-export async function queryDispositHistory(user_address: string, resturl: string, enable_logs : boolean = true) : Promise<boolean> {
-    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
+export async function queryDispositHistory(user_address: string, resturl: string, enable_logs : boolean = true, custom_port : number = -1) : Promise<boolean> {
+    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs, custom_port);
     let args: TxHistoryQueryParams = {
         user_address: user_address,
     };
@@ -166,8 +167,8 @@ export async function queryDispositHistory(user_address: string, resturl: string
     });
 }
 
-export async function queryConfig(resturl: string, enable_logs : boolean = true) : Promise<boolean> {
-    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
+export async function queryConfig(resturl: string, enable_logs : boolean = true, custom_port : number = -1) : Promise<boolean> {
+    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs, custom_port);
     return helper.queryConfig().then((res) => {
       if (enable_logs) {
         console.log("queryConfig Success", res);
@@ -181,8 +182,8 @@ export async function queryConfig(resturl: string, enable_logs : boolean = true)
     });
 }
 
-export async function queryStatistics(resturl: string, enable_logs : boolean = true) : Promise<boolean> {
-    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
+export async function queryStatistics(resturl: string, enable_logs : boolean = true, custom_port : number = -1) : Promise<boolean> {
+    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs, custom_port);
     return helper.loadStatistics().then((res) => {
       if (enable_logs) {
         console.log("loadStatistics Success", res);
@@ -196,8 +197,8 @@ export async function queryStatistics(resturl: string, enable_logs : boolean = t
     });
 }
 
-export async function getAvailableImages(resturl: string, user_address : string, enable_logs : boolean = true) : Promise<Task[]> {
-    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
+export async function getAvailableImages(resturl: string, user_address : string, enable_logs : boolean = true, custom_port : number = -1) : Promise<Task[]> {
+    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs, custom_port);
     let args: QueryParams = {
         id: "",
         user_address: user_address,

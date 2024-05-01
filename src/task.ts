@@ -79,7 +79,7 @@ export async function addProvingTask(
   enable_logs : boolean = true,
   custom_port : number = -1,
 ) : Promise<boolean> {
-  let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
+  let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs, custom_port);
   let pb_inputs: Array<string> = ZkWasmUtil.validateInputs(public_inputs);
   let priv_inputs: Array<string> = ZkWasmUtil.validateInputs(private_inputs);
 
@@ -106,7 +106,7 @@ export async function addProvingTask(
     signature: signature,
   };
 
-  return await helper.addProvingTask(task, custom_port).then((res) => {
+  return await helper.addProvingTask(task).then((res) => {
     if (enable_logs) {
       console.log("Add Proving task Response", res);
     }
@@ -122,7 +122,6 @@ export async function addProvingTask(
 function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
-
 
 async function sendIntervaledRequests(
   tot_ms: number,
@@ -301,13 +300,13 @@ function getRandomQuery(
 
   if (!query_tasks_only) {
     fn_list.push(...[
-      () => queryImage(image_md5s[getRandIdx(image_md5s.length)], resturl, enable_logs),
-      () => queryUser(user_addr, resturl, enable_logs),
-      () => queryUserSubscription(user_addr, resturl, enable_logs),
-      () => queryTxHistory(user_addr, resturl, enable_logs),
-      () => queryDispositHistory(user_addr, resturl, enable_logs),
-      () => queryConfig(resturl, enable_logs),
-      () => queryStatistics(resturl, enable_logs),
+      () => queryImage(image_md5s[getRandIdx(image_md5s.length)], resturl, enable_logs, getRandPort()),
+      () => queryUser(user_addr, resturl, enable_logs, getRandPort()),
+      () => queryUserSubscription(user_addr, resturl, enable_logs, getRandPort()),
+      () => queryTxHistory(user_addr, resturl, enable_logs, getRandPort()),
+      () => queryDispositHistory(user_addr, resturl, enable_logs, getRandPort()),
+      () => queryConfig(resturl, enable_logs, getRandPort()),
+      () => queryStatistics(resturl, enable_logs, getRandPort()),
     ]);
   }
 
