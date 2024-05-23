@@ -518,23 +518,29 @@ async function updateTasksExeStats(dbPort : number, filter : JsonLike) : Promise
     return [stats, endTime - startTime];
 }
 
-async function createIndexForTasks(dbPort : number, index : JsonLike) : Promise<string>
+async function createIndexForTasks(dbPort : number, indexes : JsonLike[]) : Promise<string[]>
 {
     const client = await getClient(dbPort);
     const tasksCollection = await getCollection(client, "tasks");
 
-    const res = await tasksCollection.createIndex(index);
+    const res = [];
+    for (const index of indexes) {
+      res.push(await tasksCollection.createIndex(index));
+    }
     client.close()
 
     return res;
 }
 
-async function dropIndexForTasks(dbPort : number, index : string) : Promise<void>
+async function dropIndexForTasks(dbPort : number, indexes : string[]) : Promise<void>
 {
     const client = await getClient(dbPort);
     const tasksCollection = await getCollection(client, "tasks");
 
-    const res = await tasksCollection.dropIndex(index);
+    for (const index of indexes) {
+      await tasksCollection.dropIndex(index);
+    }
+      
     client.close()
     return;
 }
@@ -548,7 +554,7 @@ async function runDbFindAndUpdatePerformanceTest(
 ) : Promise<{[key:string] : any}>  {
   const stats : {[key:string] : any} = {};
   {
-    console.log("\nMeasuring FIND", msg, "...");
+    // console.log("\nMeasuring FIND", msg, "...");
 
     let totalExeTimeMs : number = 0;
     let totalDocsExamined : number = 0;
@@ -565,11 +571,11 @@ async function runDbFindAndUpdatePerformanceTest(
     const avgExeTimeMs = totalExeTimeMs / ITERATIONS;
     const avgDocsExamined = totalDocsExamined / ITERATIONS;
     const avgRealExeTimeMs = totalRealExeTimeMs / ITERATIONS;
-    console.log("Number of queries:", ITERATIONS);
-    console.log("Average docs examined for query:", avgDocsExamined);
-    console.log("Average execution time for query:", avgExeTimeMs, "ms");
-    console.log("Average real time spent on query:", avgRealExeTimeMs, "ms");
-    console.log("-".repeat(100));
+    //console.log("Number of queries:", ITERATIONS);
+    //console.log("Average docs examined for query:", avgDocsExamined);
+    //console.log("Average execution time for query:", avgExeTimeMs, "ms");
+    //console.log("Average real time spent on query:", avgRealExeTimeMs, "ms");
+    //console.log("-".repeat(100));
     stats["find"] = {
       avgExeTimeMs : avgExeTimeMs,
       avgDocsExamined : avgDocsExamined,
@@ -578,7 +584,7 @@ async function runDbFindAndUpdatePerformanceTest(
   }
 
   {
-    console.log("\nMeasuring UPDATE", msg, "...");
+    // console.log("\nMeasuring UPDATE", msg, "...");
 
     let totalDocsUpdated : number = 0;
     let totalRealExeTimeMs : number = 0;
@@ -591,10 +597,10 @@ async function runDbFindAndUpdatePerformanceTest(
 
     const avgDocsUpdated = totalDocsUpdated / ITERATIONS;
     const avgRealExeTimeMs = totalRealExeTimeMs / ITERATIONS;
-    console.log("Number of queries:", ITERATIONS);
-    console.log("Average docs updated:", avgDocsUpdated);
-    console.log("Average real time spent on update:", avgRealExeTimeMs, "ms");
-    console.log("-".repeat(100));
+    //console.log("Number of queries:", ITERATIONS);
+    //console.log("Average docs updated:", avgDocsUpdated);
+    //console.log("Average real time spent on update:", avgRealExeTimeMs, "ms");
+    //console.log("-".repeat(100));
     stats["update"] = {
       avgDocsUpdated : avgDocsUpdated,
       avgRealExeTimeMs : avgRealExeTimeMs,
@@ -631,16 +637,16 @@ function getPercentageDifferences(lhs : {[key: string] : any}, rhs : {[key:strin
 export async function dbPerformTestRunnner(
   dbPort: number,
   fieldUnderTestData : JsonLike,
-) {
+) : Promise<JsonLike> {
   const name = fieldUnderTestData.name;
   const ITERATIONS = fieldUnderTestData.iterations;
-  const index = fieldUnderTestData.index;
+  const indexes = fieldUnderTestData.indexes;
   const generateFilter = fieldUnderTestData.generateFilter;
 
   const withoutIndexesStats = await runDbFindAndUpdatePerformanceTest(dbPort, ITERATIONS, "without indexes", generateFilter);
-  let indexName = await createIndexForTasks(dbPort, index);
+  let indexNames = await createIndexForTasks(dbPort, indexes);
   const withIndexesStats = await runDbFindAndUpdatePerformanceTest(dbPort, ITERATIONS, "with indexes", generateFilter);
-  await dropIndexForTasks(dbPort, indexName);
+  await dropIndexForTasks(dbPort, indexNames);
 
   const stats = {
     fieldUnderTest : name,
@@ -648,8 +654,8 @@ export async function dbPerformTestRunnner(
     withIndexes : withIndexesStats,
     percentageDiff : getPercentageDifferences(withoutIndexesStats, withIndexesStats),
   }
-
   console.log(stats);
+  return stats
 }
 
 export async function dbPerformTest(
@@ -657,16 +663,56 @@ export async function dbPerformTest(
 ) {
   const images = await getImagesAsArray(dbPort);
 
-  const data = {
-    name : "md5",
-    iterations : 1000,
-    index : {md5 : 1},
-    generateFilter : () => {
-      const image = (images[getRandIdx(images.length)] as any) as Image;
-      const md5 = image.md5;
-      return { md5 : md5 };
-    },
+  const taskTypes = ["Setup", "Prove", "Verify", "Batch", "Deploy", "Reset",];
+
+  const dataUnderTest = [
+    {
+      name : "index = md5, filter = md5",
+      iterations : 1000,
+      indexes : [{md5 : 1}],
+      generateFilter : () => {
+        const image = (images[getRandIdx(images.length)] as any) as Image;
+        const md5 = image.md5;
+        return { md5 : md5 };
+      },
+    }, 
+    {
+      name : "index = md5 + task_type, filter = md5",
+      iterations : 1000,
+      indexes : [{md5 : 1, task_type : 1}],
+      generateFilter : () => {
+        const image = (images[getRandIdx(images.length)] as any) as Image;
+        const md5 = image.md5;
+        return { md5 : md5 };
+      },
+    }, 
+    {
+      name : "index = md5 + task_type, filter = md5 + task_type",
+      iterations : 1000,
+      indexes : [{md5 : 1, task_type : 1}],
+      generateFilter : () => {
+        const image = (images[getRandIdx(images.length)] as any) as Image;
+        const md5 = image.md5;
+        const taskType = taskTypes[getRandIdx(taskTypes.length)]; 
+        return { md5 : md5, task_type : taskType };
+      },
+    }, 
+    {
+      name : "index = [md5 + task_type, user_address + md5, status + md5], filter = md5",
+      iterations : 1000,
+      indexes : [{md5 : 1, task_type : 1}, {user_address: 1, md5 : 1 }, {status : 1, md5: 1}],
+      generateFilter : () => {
+        const image = (images[getRandIdx(images.length)] as any) as Image;
+        const md5 = image.md5;
+        return { md5 : md5 };
+      },
+    }, 
+  ];
+
+  const results = [];
+  for (const data of dataUnderTest) {
+    results.push(await dbPerformTestRunnner(dbPort, data));
   }
 
-  await dbPerformTestRunnner(dbPort, data);
+  console.log(JSON.stringify(results));
 }
