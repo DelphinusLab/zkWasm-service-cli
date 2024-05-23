@@ -11,9 +11,12 @@ import {
   AppConfig,
   ImageMetadataKeys,
   ImageMetadataValsProvePaymentSrc,
+  Image
 } from "zkwasm-service-helper";
 
 import { queryTask, getAvailableImages, queryImage, queryUser, queryConfig, queryTxHistory, queryStatistics, queryDispositHistory, queryUserSubscription, queryTaskByTypeAndStatus } from "./query";
+
+import { MongoClient, Db, Collection, ExplainVerbosity, Document, UpdateResult, WithId } from "mongodb";
 
 export async function addNewWasmImage(
   resturl: string,
@@ -374,6 +377,7 @@ export async function pressureTest(
   await Promise.all(tasks);
 }
 
+
 /*
 export async function addDeployTask(
   resturl: string,
@@ -456,4 +460,213 @@ export async function addPaymentWithTx(txhash: string, resturl: string) {
   let helper = new ZkWasmServiceHelper(resturl, "", "");
   console.log("Sending transaction hash " + txhash + " to zkWasm service...");
   await helper.addPayment({ txhash: txhash });
+}
+
+async function getClient(port : number) {
+  const url = "mongodb://localhost:" + port;
+  const client = new MongoClient(url);
+  return client;
+}
+
+async function getCollection(client : MongoClient, name : string) 
+{
+  const dbName = "zkwasmTaskDB";
+  await client.connect();
+  const db = client.db(dbName);
+  const collection = db.collection(name);
+  return collection;
+}
+
+async function getImagesAsArray(dbPort : number) 
+{
+  const client = await getClient(dbPort);
+  const imagesCollection = await getCollection(client, "images");
+  const images = await imagesCollection.find().toArray();
+  client.close()
+  return images;
+}
+
+type JsonLike = {[key : string] : any};
+
+async function getTasksExeStats(dbPort : number, filter : JsonLike) : Promise<[Document, number]>
+{
+    const client = await getClient(dbPort);
+    const tasksCollection = await getCollection(client, "tasks");
+
+    const startTime = new Date().getTime();
+    const stats = await tasksCollection.find(filter).explain(ExplainVerbosity.executionStats);
+    const endTime = new Date().getTime();
+
+    client.close()
+    return [stats, endTime - startTime];
+}
+
+async function updateTasksExeStats(dbPort : number, filter : JsonLike) : Promise<[UpdateResult<Document>, number]>
+{
+    const client = await getClient(dbPort);
+    const tasksCollection = await getCollection(client, "tasks");
+
+    const ts = new Date().getTime().toString();
+    const update = { $set: { debug_logs: `Update from test at ${ts}` } }
+
+    const startTime = new Date().getTime();
+    const stats = await tasksCollection.updateMany(filter, update);
+    const endTime = new Date().getTime();
+
+    client.close()
+
+    return [stats, endTime - startTime];
+}
+
+async function createIndexForTasks(dbPort : number, index : JsonLike) : Promise<string>
+{
+    const client = await getClient(dbPort);
+    const tasksCollection = await getCollection(client, "tasks");
+
+    const res = await tasksCollection.createIndex(index);
+    client.close()
+
+    return res;
+}
+
+async function dropIndexForTasks(dbPort : number, index : string) : Promise<void>
+{
+    const client = await getClient(dbPort);
+    const tasksCollection = await getCollection(client, "tasks");
+
+    const res = await tasksCollection.dropIndex(index);
+    client.close()
+    return;
+}
+
+
+async function runDbFindAndUpdatePerformanceTest(
+  dbPort: number,
+  ITERATIONS : number,
+  msg : string,
+  generateFilter : () => JsonLike,
+) : Promise<{[key:string] : any}>  {
+  const stats : {[key:string] : any} = {};
+  {
+    console.log("\nMeasuring FIND", msg, "...");
+
+    let totalExeTimeMs : number = 0;
+    let totalDocsExamined : number = 0;
+    let totalRealExeTimeMs : number = 0;
+    for (let i = 0; i < ITERATIONS; i++) {
+      const filter = generateFilter();
+      const [stats, timeSpent] = await getTasksExeStats(dbPort, filter);
+      totalDocsExamined += stats.executionStats.totalDocsExamined as number;
+      totalExeTimeMs += stats.executionStats.executionTimeMillis as number;
+      totalRealExeTimeMs += timeSpent;
+
+    }
+
+    const avgExeTimeMs = totalExeTimeMs / ITERATIONS;
+    const avgDocsExamined = totalDocsExamined / ITERATIONS;
+    const avgRealExeTimeMs = totalRealExeTimeMs / ITERATIONS;
+    console.log("Number of queries:", ITERATIONS);
+    console.log("Average docs examined for query:", avgDocsExamined);
+    console.log("Average execution time for query:", avgExeTimeMs, "ms");
+    console.log("Average real time spent on query:", avgRealExeTimeMs, "ms");
+    console.log("-".repeat(100));
+    stats["find"] = {
+      avgExeTimeMs : avgExeTimeMs,
+      avgDocsExamined : avgDocsExamined,
+      avgRealExeTimeMs : avgRealExeTimeMs,
+    }
+  }
+
+  {
+    console.log("\nMeasuring UPDATE", msg, "...");
+
+    let totalDocsUpdated : number = 0;
+    let totalRealExeTimeMs : number = 0;
+    for (let i = 0; i < ITERATIONS; i++) {
+      const filter = generateFilter();
+      const [stats, timeSpent] = await updateTasksExeStats(dbPort, filter);
+      totalDocsUpdated += stats.modifiedCount;
+      totalRealExeTimeMs += timeSpent;
+    }
+
+    const avgDocsUpdated = totalDocsUpdated / ITERATIONS;
+    const avgRealExeTimeMs = totalRealExeTimeMs / ITERATIONS;
+    console.log("Number of queries:", ITERATIONS);
+    console.log("Average docs updated:", avgDocsUpdated);
+    console.log("Average real time spent on update:", avgRealExeTimeMs, "ms");
+    console.log("-".repeat(100));
+    stats["update"] = {
+      avgDocsUpdated : avgDocsUpdated,
+      avgRealExeTimeMs : avgRealExeTimeMs,
+    }
+  }
+  return stats;
+}
+
+function getPercentageDifferences(lhs : {[key: string] : any}, rhs : {[key:string] : any}) {
+  const result: { [key: string]: any } = {};
+
+  const allKeys = new Set<string>([...Object.keys(lhs), ...Object.keys(rhs)]);
+  allKeys.forEach((key) => {
+    const lhsValue = lhs[key];
+    const rhsValue = rhs[key];
+
+    if (typeof lhsValue === "object" && typeof rhsValue === "object" && lhsValue !== null && rhsValue !== null) {
+      result[key] = getPercentageDifferences(lhsValue, rhsValue);
+    } else if (typeof lhsValue === "number" && typeof rhsValue === "number") {
+      if (lhsValue !== 0) {
+        const percentageDifference = ((rhsValue - lhsValue) / lhsValue) * 100;
+        result[key] = percentageDifference;
+      } else {
+        result[key] = rhsValue === 0 ? 0 : 100;
+      }
+    } else {
+      console.warn(`Skipping key "${key}" because one of the values is not a number.`);
+    }
+  });
+
+  return result;
+}
+
+export async function dbPerformTestRunnner(
+  dbPort: number,
+  fieldUnderTestData : JsonLike,
+) {
+  const name = fieldUnderTestData.name;
+  const ITERATIONS = fieldUnderTestData.iterations;
+  const index = fieldUnderTestData.index;
+  const generateFilter = fieldUnderTestData.generateFilter;
+
+  const withoutIndexesStats = await runDbFindAndUpdatePerformanceTest(dbPort, ITERATIONS, "without indexes", generateFilter);
+  let indexName = await createIndexForTasks(dbPort, index);
+  const withIndexesStats = await runDbFindAndUpdatePerformanceTest(dbPort, ITERATIONS, "with indexes", generateFilter);
+  await dropIndexForTasks(dbPort, indexName);
+
+  const stats = {
+    fieldUnderTest : name,
+    withoutIndexes : withoutIndexesStats,
+    withIndexes : withIndexesStats,
+    percentageDiff : getPercentageDifferences(withoutIndexesStats, withIndexesStats),
+  }
+
+  console.log(stats);
+}
+
+export async function dbPerformTest(
+  dbPort: number,
+) {
+  const images = await getImagesAsArray(dbPort);
+
+  const data = {
+    name : "md5",
+    iterations : 1000,
+    index : {md5 : 1},
+    generateFilter : () => {
+      const image = (images[getRandIdx(images.length)] as any) as Image;
+      const md5 = image.md5;
+      return { md5 : md5 };
+    },
+  }
+
+  await dbPerformTestRunnner(dbPort, data);
 }

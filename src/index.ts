@@ -1,5 +1,3 @@
-#! /usr/bin/env node
-import fs from "fs";
 import { resolve } from "path";
 import {
   addNewWasmImage,
@@ -8,6 +6,7 @@ import {
   addNewPayment,
   addPaymentWithTx,
   pressureTest,
+  dbPerformTest,
 } from "./task";
 import{
   queryTask,
@@ -383,6 +382,29 @@ async function main() {
         );
       }
     )
+    .command(
+      "dbperformancetest",
+      '',
+      function (yargs: any) {
+        return yargs
+          .option("port", {
+            alias: "port",
+            describe: "",
+            type: "number",
+            nargs: 1,
+          })
+      },
+      // Handler for your command
+      async function (argv: any) {
+        console.log("Begin pressure test with args", argv);
+
+        await dbPerformTest(
+          argv.port
+        );
+      }
+    )
+
+
     .help();
 
   yargs.parse();
