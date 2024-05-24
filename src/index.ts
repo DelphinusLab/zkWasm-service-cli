@@ -9,18 +9,9 @@ import {
   addPaymentWithTx,
   pressureTest,
 } from "./task";
-import{
-  queryTask,
-} from "./query";
-import {
-  ZkWasmServiceHelper,
-  WithSignature,
-  ProvingParams,
-  DeployParams,
-  AddImageParams,
-  ZkWasmUtil,
-} from "zkwasm-service-helper";
-import formdata from "form-data";
+import { queryTask } from "./query";
+import { ProofSubmitMode } from "zkwasm-service-helper";
+
 const yargs = require("yargs");
 
 async function main() {
@@ -85,7 +76,8 @@ async function main() {
           })
           .option("creator_paid_proof", {
             alias: "creator_paid_proof",
-            describe: "Specify if proofs for this image will be charged to the creator of the image",
+            describe:
+              "Specify if proofs for this image will be charged to the creator of the image",
             type: "boolean",
             nargs: 1,
             default: false,
@@ -106,7 +98,7 @@ async function main() {
           "",
           circuit_size,
           argv.priv,
-          argv.creator_paid_proof,
+          argv.creator_paid_proof
         );
       }
     )
@@ -144,6 +136,13 @@ async function main() {
             type: "string",
             nargs: 1,
           })
+          .option("submit_mode", {
+            alias: "submit_mode",
+            describe: "Submit mode for the proof, default is manual",
+            type: "string",
+            nargs: 1,
+            default: "manual",
+          })
           .option("private_input", {
             alias: "private_input",
             describe: "private currently not supported",
@@ -160,7 +159,8 @@ async function main() {
           argv.i,
           argv.public_input ? argv.public_input : "",
           argv.priv_input ? argv.priv_input : "",
-          argv.priv,
+          argv.submit_mode,
+          argv.priv
         );
       }
     )
@@ -254,13 +254,12 @@ async function main() {
       'Query task\n Example: node dist/index.js querytask -r "http://127.0.0.1:8080" -t "<transactionid>" ',
       // options for your command
       function (yargs: any) {
-        return yargs
-          .option("t", {
-            alias: "tx",
-            describe: "transaction hash",
-            type: "string",
-            nargs: 1,
-          });
+        return yargs.option("t", {
+          alias: "tx",
+          describe: "transaction hash",
+          type: "string",
+          nargs: 1,
+        });
       },
       async function (argv: any) {
         console.log("Creating new transaction...");
@@ -292,72 +291,91 @@ async function main() {
               "public input of the proof, inputs must have format (0x)[0-f]*:(i64|bytes|bytes-packed) and been separated by spaces (eg: 0x12:i64 44:i64 32:i64).",
             type: "string",
             nargs: 1,
-            default: ""
+            default: "",
           })
           .option("private_input", {
             alias: "private_input",
             describe: "private currently not supported",
             type: "string",
             nargs: 1,
-            default: ""
+            default: "",
+          })
+          .option("submit_mode", {
+            alias: "submit_mode",
+            describe: "Submit mode for the proof, default is manual",
+            type: "string",
+            nargs: 1,
+            default: "manual",
           })
           .option("num_prove_tasks", {
             alias: "num_prove_tasks",
-            describe: "Number of prove tasks to run during a single interval in the pressure test, default is 1",
+            describe:
+              "Number of prove tasks to run during a single interval in the pressure test, default is 1",
             type: "number",
             nargs: 1,
-            default: 1
+            default: 1,
           })
           .option("interval_prove_tasks_ms", {
             alias: "interval_prove_tasks_ms",
-            describe: "Interval (msec) in which to run prove tasks during pressure test, default is 5000",
+            describe:
+              "Interval (msec) in which to run prove tasks during pressure test, default is 5000",
             type: "number",
             nargs: 1,
-            default: 1
+            default: 1,
           })
           .option("num_query_tasks", {
             alias: "num_query_tasks",
-            describe: "Number of query tasks to run during a single interval in the pressure test, default is 1",
+            describe:
+              "Number of query tasks to run during a single interval in the pressure test, default is 1",
             type: "number",
             nargs: 1,
-            default: 1
+            default: 1,
           })
           .option("interval_query_tasks_ms", {
             alias: "interval_query_tasks_ms",
-            describe: "Interval (msec) in which to run query tasks during pressure test, default is 100",
+            describe:
+              "Interval (msec) in which to run query tasks during pressure test, default is 100",
             type: "number",
             nargs: 1,
-            default: 100
+            default: 100,
           })
           .option("total_time_sec", {
             alias: "total_time_sec",
             describe: "Total time of pressure test (sec), default is 10",
             type: "number",
             nargs: 1,
-            default: 10
+            default: 10,
           })
           .option("verbose", {
             alias: "verbose",
             describe: "Enable verbose logging, default is false.",
             type: "boolean",
             nargs: 1,
-            default: false
+            default: false,
           })
           .option("image_md5s", {
             alias: "image_md5s",
-            describe: "List of image md5s (one or more, comma seperated) to use for prove tasks. Overrides original behaviour of randomly selectly available images.",
+            describe:
+              "List of image md5s (one or more, comma seperated) to use for prove tasks. Overrides original behaviour of randomly selectly available images.",
             type: "string",
             nargs: 1,
-          })
+          });
       },
       // Handler for your command
       async function (argv: any) {
         console.log("Begin pressure test with args", argv);
 
-        const image_mds_in = argv.image_md5s ? (argv.image_md5s as string).split(',') : [];
+        const image_mds_in = argv.image_md5s
+          ? (argv.image_md5s as string).split(",")
+          : [];
         if (image_mds_in.length !== 0) {
           console.log("Using input image md5s", image_mds_in);
         }
+
+        const proof_submit_mode =
+          argv.submit_mode === "Auto"
+            ? ProofSubmitMode.Auto
+            : ProofSubmitMode.Manual;
 
         await pressureTest(
           argv.r,
@@ -365,13 +383,14 @@ async function main() {
           argv.priv,
           argv.public_input,
           argv.private_input,
+          proof_submit_mode,
           argv.num_prove_tasks,
           argv.interval_prove_tasks_ms,
           argv.num_query_tasks,
           argv.interval_query_tasks_ms,
           argv.total_time_sec,
           argv.verbose,
-          image_mds_in,
+          image_mds_in
         );
       }
     )

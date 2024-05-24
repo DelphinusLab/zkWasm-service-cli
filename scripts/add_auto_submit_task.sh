@@ -8,3 +8,4 @@ node dist/index.js pressuretest \
     --num_query_tasks 0 \
     --image_md5s "4CB1FBCCEC0C107C41405FC1FB380799" \
     --public_input "3:i64 2:i64" \
+    --submit_mode "Auto" \

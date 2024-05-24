@@ -9,10 +9,8 @@ import {
   AddImageParams,
   ZkWasmUtil,
   AppConfig,
-  ImageMetadataKeys,
-  ImageMetadataValsProvePaymentSrc,
-  TaskMetadataKeys,
-  TaskMetadataValsProofSubmitMode,
+  ProofSubmitMode,
+  ProvePaymentSrc,
 } from "zkwasm-service-helper";
 
 import {
@@ -42,13 +40,6 @@ export async function addNewWasmImage(
   const filename = parse(absPath).base;
   let fileSelected: Buffer = fs.readFileSync(absPath);
 
-  const metadata_keys = [ImageMetadataKeys.ProvePaymentSrc];
-  const metadata_vals = [
-    creator_paid_proof
-      ? ImageMetadataValsProvePaymentSrc.CreatorPay
-      : ImageMetadataValsProvePaymentSrc.Default,
-  ];
-
   let md5 = ZkWasmUtil.convertToMd5(new Uint8Array(fileSelected));
   let info: AddImageParams = {
     name: filename,
@@ -58,8 +49,8 @@ export async function addNewWasmImage(
     description_url: description_url,
     avator_url: avator_url,
     circuit_size: circuit_size,
-    metadata_keys: metadata_keys,
-    metadata_vals: metadata_vals,
+    prove_payment_src: ProvePaymentSrc.Default,
+    auto_submit_network_ids: [97],
   };
   let msg = ZkWasmUtil.createAddImageSignMessage(info);
   let signature: string;
@@ -94,6 +85,7 @@ export async function addProvingTask(
   image_md5: string,
   public_inputs: string,
   private_inputs: string,
+  proof_submit_mode: ProofSubmitMode,
   priv: string,
   enable_logs: boolean = true
 ): Promise<boolean> {
@@ -106,8 +98,7 @@ export async function addProvingTask(
     md5: image_md5,
     public_inputs: pb_inputs,
     private_inputs: priv_inputs,
-    metadata_keys: [TaskMetadataKeys.ProofSubmitMode],
-    metadata_vals: [TaskMetadataValsProofSubmitMode.Auto],
+    proof_submit_mode: proof_submit_mode,
   };
   let msgString = ZkWasmUtil.createProvingSignMessage(info);
 
@@ -177,6 +168,7 @@ async function runProveTasks(
   public_inputs: string,
   private_inputs: string,
   num_prove_tasks: number,
+  submit_mode: ProofSubmitMode,
   interval_ms: number,
   total_time_ms: number,
   original_interval_ms: number,
@@ -211,6 +203,7 @@ async function runProveTasks(
         image_md5s[i % image_md5s.length],
         public_inputs,
         private_inputs,
+        submit_mode,
         priv,
         enable_logs
       );
@@ -388,6 +381,7 @@ export async function pressureTest(
   priv: string,
   public_inputs: string,
   private_inputs: string,
+  proof_submit_mode: ProofSubmitMode,
   num_prove_tasks: number,
   interval_prove_tasks_ms: number,
   num_query_tasks: number,
@@ -450,6 +444,7 @@ export async function pressureTest(
       public_inputs,
       private_inputs,
       total_prove_tasks,
+      proof_submit_mode,
       prove_interval_ms,
       total_time_ms,
       interval_prove_tasks_ms,
