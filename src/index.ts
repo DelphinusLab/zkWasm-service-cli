@@ -6,7 +6,7 @@ import {
   addNewPayment,
   addPaymentWithTx,
   pressureTest,
-  dbPerformTest,
+  dbPerformanceTest,
 } from "./task";
 import{
   queryTask,
@@ -398,7 +398,7 @@ async function main() {
       async function (argv: any) {
         console.log("Begin pressure test with args", argv);
 
-        await dbPerformTest(
+        await dbPerformanceTest(
           argv.port
         );
       }

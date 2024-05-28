@@ -11,7 +11,8 @@ import {
   AppConfig,
   ImageMetadataKeys,
   ImageMetadataValsProvePaymentSrc,
-  Image
+  Image,
+  Task,
 } from "zkwasm-service-helper";
 
 import { queryTask, getAvailableImages, queryImage, queryUser, queryConfig, queryTxHistory, queryStatistics, queryDispositHistory, queryUserSubscription, queryTaskByTypeAndStatus } from "./query";
@@ -488,59 +489,49 @@ async function getImagesAsArray(dbPort : number)
 
 type JsonLike = {[key : string] : any};
 
-async function getTasksExeStats(dbPort : number, filter : JsonLike) : Promise<[Document, number]>
+async function getCollectionFindExeStats(dbPort : number, collectionName : string, filter : JsonLike) : Promise<[Document, number]>
 {
     const client = await getClient(dbPort);
-    const tasksCollection = await getCollection(client, "tasks");
-
+    const collection = await getCollection(client, collectionName);
     const startTime = new Date().getTime();
-    const stats = await tasksCollection.find(filter).explain(ExplainVerbosity.executionStats);
+    const stats = await collection.find(filter).explain(ExplainVerbosity.executionStats);
     const endTime = new Date().getTime();
-
     client.close()
     return [stats, endTime - startTime];
 }
 
-async function updateTasksExeStats(dbPort : number, filter : JsonLike) : Promise<[UpdateResult<Document>, number]>
+async function updateCollection(dbPort : number, collectionName : string, filter : JsonLike) : Promise<[UpdateResult<Document>, number]>
 {
     const client = await getClient(dbPort);
-    const tasksCollection = await getCollection(client, "tasks");
-
+    const collection = await getCollection(client, collectionName);
     const ts = new Date().getTime().toString();
     const update = { $set: { debug_logs: `Update from test at ${ts}` } }
-
     const startTime = new Date().getTime();
-    const stats = await tasksCollection.updateMany(filter, update);
+    const stats = await collection.updateMany(filter, update);
     const endTime = new Date().getTime();
-
     client.close()
-
     return [stats, endTime - startTime];
 }
 
-async function createIndexForTasks(dbPort : number, indexes : JsonLike[]) : Promise<string[]>
+async function createIndexForCollection(dbPort : number, collectionName : string, indexes : JsonLike[]) : Promise<string[]>
 {
     const client = await getClient(dbPort);
-    const tasksCollection = await getCollection(client, "tasks");
-
+    const collection = await getCollection(client, collectionName);
     const res = [];
     for (const index of indexes) {
-      res.push(await tasksCollection.createIndex(index));
+      res.push(await collection.createIndex(index));
     }
     client.close()
-
     return res;
 }
 
-async function dropIndexForTasks(dbPort : number, indexes : string[]) : Promise<void>
+async function dropIndexForCollection(dbPort : number, collectionName : string, indexes : string[]) : Promise<void>
 {
     const client = await getClient(dbPort);
-    const tasksCollection = await getCollection(client, "tasks");
-
+    const collection = await getCollection(client, collectionName);
     for (const index of indexes) {
-      await tasksCollection.dropIndex(index);
+      await collection.dropIndex(index);
     }
-      
     client.close()
     return;
 }
@@ -548,35 +539,28 @@ async function dropIndexForTasks(dbPort : number, indexes : string[]) : Promise<
 
 async function runDbFindAndUpdatePerformanceTest(
   dbPort: number,
-  ITERATIONS : number,
-  msg : string,
+  iterations : number,
+  collectionName : string,
   generateFilter : () => JsonLike,
 ) : Promise<{[key:string] : any}>  {
   const stats : {[key:string] : any} = {};
   {
-    // console.log("\nMeasuring FIND", msg, "...");
-
     let totalExeTimeMs : number = 0;
     let totalDocsExamined : number = 0;
     let totalRealExeTimeMs : number = 0;
-    for (let i = 0; i < ITERATIONS; i++) {
+    for (let i = 0; i < iterations; i++) {
       const filter = generateFilter();
-      const [stats, timeSpent] = await getTasksExeStats(dbPort, filter);
+      const [stats, timeSpent] = await getCollectionFindExeStats(dbPort, collectionName, filter);
       totalDocsExamined += stats.executionStats.totalDocsExamined as number;
       totalExeTimeMs += stats.executionStats.executionTimeMillis as number;
       totalRealExeTimeMs += timeSpent;
 
     }
 
-    const avgExeTimeMs = totalExeTimeMs / ITERATIONS;
-    const avgDocsExamined = totalDocsExamined / ITERATIONS;
-    const avgRealExeTimeMs = totalRealExeTimeMs / ITERATIONS;
-    //console.log("Number of queries:", ITERATIONS);
-    //console.log("Average docs examined for query:", avgDocsExamined);
-    //console.log("Average execution time for query:", avgExeTimeMs, "ms");
-    //console.log("Average real time spent on query:", avgRealExeTimeMs, "ms");
-    //console.log("-".repeat(100));
-    stats["find"] = {
+    const avgExeTimeMs = totalExeTimeMs / iterations;
+    const avgDocsExamined = totalDocsExamined / iterations;
+    const avgRealExeTimeMs = totalRealExeTimeMs / iterations;
+    stats[collectionName] = {
       avgExeTimeMs : avgExeTimeMs,
       avgDocsExamined : avgDocsExamined,
       avgRealExeTimeMs : avgRealExeTimeMs,
@@ -584,24 +568,18 @@ async function runDbFindAndUpdatePerformanceTest(
   }
 
   {
-    // console.log("\nMeasuring UPDATE", msg, "...");
-
     let totalDocsUpdated : number = 0;
     let totalRealExeTimeMs : number = 0;
-    for (let i = 0; i < ITERATIONS; i++) {
+    for (let i = 0; i < iterations; i++) {
       const filter = generateFilter();
-      const [stats, timeSpent] = await updateTasksExeStats(dbPort, filter);
+      const [stats, timeSpent] = await updateCollection(dbPort, collectionName, filter);
       totalDocsUpdated += stats.modifiedCount;
       totalRealExeTimeMs += timeSpent;
     }
 
-    const avgDocsUpdated = totalDocsUpdated / ITERATIONS;
-    const avgRealExeTimeMs = totalRealExeTimeMs / ITERATIONS;
-    //console.log("Number of queries:", ITERATIONS);
-    //console.log("Average docs updated:", avgDocsUpdated);
-    //console.log("Average real time spent on update:", avgRealExeTimeMs, "ms");
-    //console.log("-".repeat(100));
-    stats["update"] = {
+    const avgDocsUpdated = totalDocsUpdated / iterations;
+    const avgRealExeTimeMs = totalRealExeTimeMs / iterations;
+    stats[collectionName] = {
       avgDocsUpdated : avgDocsUpdated,
       avgRealExeTimeMs : avgRealExeTimeMs,
     }
@@ -636,17 +614,18 @@ function getPercentageDifferences(lhs : {[key: string] : any}, rhs : {[key:strin
 
 export async function dbPerformTestRunnner(
   dbPort: number,
+  collectionName : string,
   fieldUnderTestData : JsonLike,
 ) : Promise<JsonLike> {
   const name = fieldUnderTestData.name;
-  const ITERATIONS = fieldUnderTestData.iterations;
+  const iterations = fieldUnderTestData.iterations;
   const indexes = fieldUnderTestData.indexes;
   const generateFilter = fieldUnderTestData.generateFilter;
 
-  const withoutIndexesStats = await runDbFindAndUpdatePerformanceTest(dbPort, ITERATIONS, "without indexes", generateFilter);
-  let indexNames = await createIndexForTasks(dbPort, indexes);
-  const withIndexesStats = await runDbFindAndUpdatePerformanceTest(dbPort, ITERATIONS, "with indexes", generateFilter);
-  await dropIndexForTasks(dbPort, indexNames);
+  const withoutIndexesStats = await runDbFindAndUpdatePerformanceTest(dbPort, iterations, collectionName, generateFilter);
+  let indexNames = await createIndexForCollection(dbPort, collectionName, indexes);
+  const withIndexesStats = await runDbFindAndUpdatePerformanceTest(dbPort, iterations, collectionName, generateFilter);
+  await dropIndexForCollection(dbPort, collectionName, indexNames);
 
   const stats = {
     fieldUnderTest : name,
@@ -658,12 +637,13 @@ export async function dbPerformTestRunnner(
   return stats
 }
 
-export async function dbPerformTest(
+export async function dbPerformanceTestTasks(
   dbPort: number,
 ) {
+  const collectionUnderTest = "tasks"
   const images = await getImagesAsArray(dbPort);
-
   const taskTypes = ["Setup", "Prove", "Verify", "Batch", "Deploy", "Reset",];
+  const taskStatuses = ["Pending", "Processing", "DryRunFailed", "Done", "Fail", "Stale",]
 
   const dataUnderTest = [
     {
@@ -707,12 +687,75 @@ export async function dbPerformTest(
         return { md5 : md5 };
       },
     }, 
+    {
+      name : "index = [md5 + task_type, user_address + md5, status + md5], filter = md5 + task_type",
+      iterations : 1000,
+      indexes : [{md5 : 1, task_type : 1}, {user_address: 1, md5 : 1 }, {status : 1, md5: 1}],
+      generateFilter : () => {
+        const image = (images[getRandIdx(images.length)] as any) as Image;
+        const md5 = image.md5;
+        const taskType = taskTypes[getRandIdx(taskTypes.length)]; 
+        return { md5 : md5, task_type : taskType };
+      },
+    }, 
+    {
+      name : "index = [md5 + task_type, user_address + md5, status + md5], filter = status=Pending",
+      iterations : 1000,
+      indexes : [{md5 : 1, task_type : 1}, {user_address: 1, md5 : 1 }, {status : 1, md5: 1}],
+      generateFilter : () => {
+        const taskStatus = "Pending";
+        return { status: taskStatus };
+      },
+    }, 
+    {
+      name : "index = [md5 + task_type, user_address + md5, status + md5], filter = status + md5 ",
+      iterations : 1000,
+      indexes : [{md5 : 1, task_type : 1}, {user_address: 1, md5 : 1 }, {status : 1, md5: 1}],
+      generateFilter : () => {
+        const image = (images[getRandIdx(images.length)] as any) as Image;
+        const md5 = image.md5;
+        const taskStatus = taskStatuses[getRandIdx(taskStatuses.length)]; 
+        return { status : taskStatus, md5 : md5  };
+      },
+    }, 
+    {
+      name : "index = [md5 + task_type, user_address + md5, status + md5], filter = user_address + md5 + status + task_type",
+      iterations : 1000,
+      indexes : [{md5 : 1, task_type : 1}, {user_address: 1, md5 : 1 }, {status : 1, md5: 1}],
+      generateFilter : () => {
+        const image = (images[getRandIdx(images.length)] as any) as Image;
+        const md5 = image.md5;
+        const user_address = image.user_address;
+        const taskType = taskTypes[getRandIdx(taskTypes.length)]; 
+        const taskStatus = taskStatuses[getRandIdx(taskStatuses.length)]; 
+        return { user_address: user_address, md5 : md5, status: taskStatus, task_type : taskType, };
+      },
+    }, 
+    {
+      name : "index = [md5 + task_type, user_address + md5, status + md5], filter = user_address + md5 + status + task_type",
+      iterations : 1000,
+      indexes : [{md5 : 1, task_type : 1}, {user_address: 1, md5 : 1 }, {status : 1, md5: 1}],
+      generateFilter : () => {
+        const image = (images[getRandIdx(images.length)] as any) as Image;
+        const md5 = image.md5;
+        const user_address = image.user_address;
+        const taskType = taskTypes[getRandIdx(taskTypes.length)]; 
+        const taskStatus = taskStatuses[getRandIdx(taskStatuses.length)]; 
+        return { user_address: user_address, md5 : md5, status: taskStatus, task_type : taskType, };
+      },
+    }, 
   ];
 
   const results = [];
   for (const data of dataUnderTest) {
-    results.push(await dbPerformTestRunnner(dbPort, data));
+    results.push(await dbPerformTestRunnner(dbPort, collectionUnderTest, data));
   }
 
   console.log(JSON.stringify(results));
+}
+
+export async function dbPerformanceTest(
+  dbPort: number,
+) {
+  dbPerformanceTestTasks(dbPort);
 }
