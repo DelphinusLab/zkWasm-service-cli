@@ -389,8 +389,14 @@ async function main() {
         return yargs
           .option("port", {
             alias: "port",
-            describe: "",
+            describe: "The port of the DB under test.",
             type: "number",
+            nargs: 1,
+          })
+          .option("collection", {
+            alias: "collection",
+            describe: "Specifies the DB performance test to be run, these are usually associated with DB collections, available option are 'tasks' and 'batch'.",
+            type: "string",
             nargs: 1,
           })
       },
@@ -399,7 +405,8 @@ async function main() {
         console.log("Begin pressure test with args", argv);
 
         await dbPerformanceTest(
-          argv.port
+          argv.port,
+          argv.collection,
         );
       }
     )

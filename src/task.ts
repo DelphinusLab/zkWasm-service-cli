@@ -756,6 +756,11 @@ export async function dbPerformanceTestTasks(
 
 export async function dbPerformanceTest(
   dbPort: number,
+  collectionUnderTest : string
 ) {
-  dbPerformanceTestTasks(dbPort);
+  if (collectionUnderTest === "tasks") {
+    dbPerformanceTestTasks(dbPort);
+  } else {
+    console.log(`${collectionUnderTest} not recognised as a DB performance test`);
+  }
 }
