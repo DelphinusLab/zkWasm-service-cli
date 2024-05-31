@@ -50,7 +50,7 @@ export async function addNewWasmImage(
     avator_url: avator_url,
     circuit_size: circuit_size,
     prove_payment_src: ProvePaymentSrc.Default,
-    auto_submit_network_ids: [97],
+    auto_submit_network_ids: [],
   };
   let msg = ZkWasmUtil.createAddImageSignMessage(info);
   let signature: string;
