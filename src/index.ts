@@ -359,6 +359,14 @@ async function main() {
               "List of image md5s (one or more, comma seperated) to use for prove tasks. Overrides original behaviour of randomly selectly available images.",
             type: "string",
             nargs: 1,
+          })
+          .option("query_tasks_only", {
+            alias: "query_tasks_only",
+            describe:
+              "When generating random queries for pressure test, only generate ones that query 'task' collection.",
+            type: "boolean",
+            nargs: 1,
+            default: false,
           });
       },
       // Handler for your command
@@ -390,6 +398,7 @@ async function main() {
           argv.interval_query_tasks_ms,
           argv.total_time_sec,
           argv.verbose,
+          argv.query_tasks_only,
           image_mds_in
         );
       }
