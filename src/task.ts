@@ -240,12 +240,12 @@ async function runQueryTasks(
   user_address: string,
   image_md5s: string[],
   task_ids: string[],
-  num_query_tasks : number,
-  interval_ms : number,
-  total_time_ms : number,
-  original_interval_ms : number,
-  enable_logs : boolean,
-  query_tasks_only : boolean,
+  num_query_tasks: number,
+  interval_ms: number,
+  total_time_ms: number,
+  original_interval_ms: number,
+  enable_logs: boolean,
+  query_tasks_only: boolean
 ) {
   let interval_succ_cnt = 0;
   let interval_fail_cnt = 0;
@@ -265,9 +265,19 @@ async function runQueryTasks(
   }, original_interval_ms);
 
   let n_success = 0;
-  sendIntervaledRequests(total_time_ms, interval_ms, num_query_tasks,
-    async (_ : number) => {
-      const query_fn = getRandomQuery(image_md5s, task_ids, resturl, user_address, enable_logs, query_tasks_only);
+  sendIntervaledRequests(
+    total_time_ms,
+    interval_ms,
+    num_query_tasks,
+    async (_: number) => {
+      const query_fn = getRandomQuery(
+        image_md5s,
+        task_ids,
+        resturl,
+        user_address,
+        enable_logs,
+        query_tasks_only
+      );
       const success = await query_fn();
       if (success) {
         n_success++;
@@ -327,11 +337,12 @@ function getRandomQuery(
   task_ids: string[],
   resturl: string,
   user_addr: string,
-  enable_logs : boolean,
-  query_tasks_only : boolean,
-) : () => Promise<boolean> {
+  enable_logs: boolean,
+  query_tasks_only: boolean
+): () => Promise<boolean> {
   const fn_list = [
-    () => queryTask(task_ids[getRandIdx(task_ids.length)], resturl, enable_logs),
+    () =>
+      queryTask(task_ids[getRandIdx(task_ids.length)], resturl, enable_logs),
     () => {
       const task_types = ["Setup", "Prove", "Reset"];
       const task_statuses = [
@@ -352,15 +363,22 @@ function getRandomQuery(
   ];
 
   if (!query_tasks_only) {
-    fn_list.push(...[
-      () => queryImage(image_md5s[getRandIdx(image_md5s.length)], resturl, enable_logs),
-      () => queryUser(user_addr, resturl, enable_logs),
-      () => queryUserSubscription(user_addr, resturl, enable_logs),
-      () => queryTxHistory(user_addr, resturl, enable_logs),
-      () => queryDispositHistory(user_addr, resturl, enable_logs),
-      () => queryConfig(resturl, enable_logs),
-      () => queryStatistics(resturl, enable_logs),
-    ]);
+    fn_list.push(
+      ...[
+        () =>
+          queryImage(
+            image_md5s[getRandIdx(image_md5s.length)],
+            resturl,
+            enable_logs
+          ),
+        () => queryUser(user_addr, resturl, enable_logs),
+        () => queryUserSubscription(user_addr, resturl, enable_logs),
+        () => queryTxHistory(user_addr, resturl, enable_logs),
+        () => queryDispositHistory(user_addr, resturl, enable_logs),
+        () => queryConfig(resturl, enable_logs),
+        () => queryStatistics(resturl, enable_logs),
+      ]
+    );
   }
 
   let idx = getRandIdx(fn_list.length);
@@ -374,15 +392,14 @@ export async function pressureTest(
   public_inputs: string,
   private_inputs: string,
   proof_submit_mode: ProofSubmitMode,
- 
-  num_prove_tasks : number,
-  interval_prove_tasks_ms : number,
-  num_query_tasks : number,
-  interval_query_tasks_ms : number,
-  total_time_sec : number,
-  enable_logs : boolean,
-  query_tasks_only : boolean,
-  image_md5s_in : string[],
+  num_prove_tasks: number,
+  interval_prove_tasks_ms: number,
+  num_query_tasks: number,
+  interval_query_tasks_ms: number,
+  total_time_sec: number,
+  enable_logs: boolean,
+  query_tasks_only: boolean,
+  image_md5s_in: string[]
 ) {
   const total_time_ms = total_time_sec * 1000;
   const total_prove_tasks =
@@ -453,12 +470,8 @@ export async function pressureTest(
       query_interval_ms,
       total_time_ms,
       interval_query_tasks_ms,
-<<<<<<< HEAD
-      enable_logs
-=======
       enable_logs,
-      query_tasks_only,
->>>>>>> main
+      query_tasks_only
     ),
   ];
 
