@@ -81,6 +81,13 @@ async function main() {
             type: "boolean",
             nargs: 1,
             default: false,
+          })
+          .option("auto_submit_network_ids", {
+            alias: "auto_submit_network_ids",
+            describe:
+              "List of network ids to automatically submit proofs to. If not specified, proofs will not be automatically submitted.",
+            type: "array",
+            default: [],
           });
       },
       // Handler for your command
@@ -89,6 +96,7 @@ async function main() {
         console.log("Begin adding image for ", absolutePath);
         let circuit_size: number = argv.c ? argv.c : 18;
         let desc = argv.d ? argv.d : argv.n;
+
         await addNewWasmImage(
           argv.r,
           absolutePath,
@@ -98,7 +106,8 @@ async function main() {
           "",
           circuit_size,
           argv.priv,
-          argv.creator_paid_proof
+          argv.creator_paid_proof,
+          argv.auto_submit_network_ids
         );
       }
     )
@@ -381,7 +390,7 @@ async function main() {
         }
 
         const proof_submit_mode =
-          argv.submit_mode === "Auto"
+          argv.submit_mode === "Auto" || argv.submit_mode === "auto"
             ? ProofSubmitMode.Auto
             : ProofSubmitMode.Manual;
 
