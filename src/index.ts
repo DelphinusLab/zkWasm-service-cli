@@ -390,7 +390,7 @@ async function main() {
         }
 
         const proof_submit_mode =
-          argv.submit_mode === "Auto"
+          argv.submit_mode === "Auto" || argv.submit_mode === "auto"
             ? ProofSubmitMode.Auto
             : ProofSubmitMode.Manual;
 

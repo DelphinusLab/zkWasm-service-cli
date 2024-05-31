@@ -64,6 +64,7 @@ The following options are available for the `addprovingtask` command:
 - `-x, --priv <priv>`: The private key of user address. This option is **required** for signing the message.
 - `--public_input <public_input>`: The public input of the proof, inputs must have the format (0x)[0-f]\*:(i64|bytes|bytes-packed) and be separated by spaces (e.g.: 0x12:i64 44:i64 32:i64).
 - `--private_input <private_input>`: The private input of the proof. Currently not supported.
+- `--submit-mode <submit_mode>`: The submit mode of the proving task. Specify "Auto" or "Manual". If not specified, the default is "Manual".
 
 ## Command: adddeploytask
 
