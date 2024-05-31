@@ -35,12 +35,18 @@ export async function addNewWasmImage(
   avator_url: string,
   circuit_size: number,
   priv: string,
-  creator_paid_proof: boolean
+  creator_paid_proof: boolean,
+  auto_submit_networks: number[]
 ) {
   const filename = parse(absPath).base;
   let fileSelected: Buffer = fs.readFileSync(absPath);
 
   let md5 = ZkWasmUtil.convertToMd5(new Uint8Array(fileSelected));
+
+  let prove_payment_src = creator_paid_proof
+    ? ProvePaymentSrc.CreatorPay
+    : ProvePaymentSrc.Default;
+
   let info: AddImageParams = {
     name: filename,
     image_md5: md5,
@@ -49,8 +55,8 @@ export async function addNewWasmImage(
     description_url: description_url,
     avator_url: avator_url,
     circuit_size: circuit_size,
-    prove_payment_src: ProvePaymentSrc.Default,
-    auto_submit_network_ids: [],
+    prove_payment_src: prove_payment_src,
+    auto_submit_network_ids: auto_submit_networks,
   };
   let msg = ZkWasmUtil.createAddImageSignMessage(info);
   let signature: string;

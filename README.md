@@ -30,7 +30,7 @@ Add a new wasm image.
 
 ### Usage
 
-`node dist/index.js addimage -r <resturl> -p <path> -u <address> -x <priv> [-n <name>] [-d <description>] [-c <circuit_size>] [--creator_paid_proof <true|false>]`
+`node dist/index.js addimage -r <resturl> -p <path> -u <address> -x <priv> [-n <name>] [-d <description>] [-c <circuit_size>] [--creator_paid_proof <true|false>] --auto_submit_network_ids x y z`
 
 ### Options
 
@@ -40,10 +40,11 @@ The following options are available for the `addimage` command:
 - `-p, --path <path>`: The path to the wasm image. This option is **required**.
 - `-u, --address <address>`: The user address which adding the image. This option is **required**.
 - `-x, --priv <priv>`: The private key of user address. This option is **required** for signing the message.
-- `-n, --name <name>`: The name of the image (legacy and not using). 
+- `-n, --name <name>`: The name of the image (legacy and not using).
 - `-d, --description <description>`: The description of the image. If not specified, the name will be used.
 - `-c, --circuit_size <circuit_size>`: The circuit size of the image. If not specified, the default size is 18.
 - `--creator_paid_proof <true|false>`: Whether the proving fee is charged to the image creator or not. If not specified, the default is false.
+- `--auto_submit_network_ids <network_id1 network_id2 ...>`: List of network IDs to automatically submit the image to. If not specified, the image will not be automatically submitted to any networks.
 
 ## Command: addprovingtask
 
@@ -135,5 +136,5 @@ The following options are available for the `pressuretest` command:
 - `--interval_query_tasks_ms <number>`: Interval (msec) in which to run query tasks during pressure test, default is 100".
 - `--total_time_sec <number>`: Total time of pressure test (sec).
 - `--verbose <true|false>`: Whether or not to print every request response to the console.
-- `--query_task_only <true|false>`: When generating random queries for pressure test, only generate ones that query 'task' collection. 
+- `--query_task_only <true|false>`: When generating random queries for pressure test, only generate ones that query 'task' collection.
 - `--image_md5s <image0_md5,image1_md5,...>: List of image md5s (one or more, comma seperated) to use for prove tasks. Overrides original behaviour of randomly selectly available images.
