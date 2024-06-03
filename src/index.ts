@@ -395,7 +395,7 @@ async function main() {
           })
           .option("collection", {
             alias: "collection",
-            describe: "Specifies the DB performance test to be run, these are usually associated with DB collections, available option are 'tasks' and 'batch'.",
+            describe: "Specifies the DB performance test to be run, these are usually associated with DB collections, available option are 'tasks', 'images' and 'batch'.",
             type: "string",
             nargs: 1,
           })

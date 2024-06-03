@@ -155,4 +155,4 @@ The following options are available for the `pressuretest` command:
 
 - `-r, --resturl <url>`: The rest url of zkwasm cloud service. This option is **required**, but is not actually used.
 - `--port <port>`: The port of the DB under test.
-- `--collection <collection>`: Specifies the DB performance test to be run, these are usually associated with DB collections, available option are 'tasks' and 'batch'.
+- `--collection <collection>`: Specifies the DB performance test to be run, these are usually associated with DB collections, available option are 'tasks', 'images' and 'batch'.
