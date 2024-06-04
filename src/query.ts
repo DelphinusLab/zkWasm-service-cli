@@ -79,6 +79,138 @@ export async function queryTaskByTypeAndStatus(tasktype: string, taskstatus: str
     });
 }
 
+export async function queryTasksWithMd5(md5 : string, resturl: string, enable_logs : boolean = true) : Promise<boolean> {
+    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
+    let args: QueryParams = {
+        id: "",
+        user_address: "",
+        md5: md5,
+        tasktype: "",
+        taskstatus: "",
+    };
+    return helper.loadTasks(args).then((res) => {
+      if (enable_logs) {
+        console.log("queryImage Success", res);
+      }
+      return true;
+    }).catch((err) => {
+      if (enable_logs) {
+        console.log("queryTask Error", err);
+      }
+      return false;
+    });
+}
+
+export async function queryTasksWithMd5AndTaskType(md5 : string, task_type : string, resturl: string, enable_logs : boolean = true) : Promise<boolean> {
+    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
+    let args: QueryParams = {
+        id: "",
+        user_address: "",
+        md5: md5,
+        tasktype: task_type,
+        taskstatus: "",
+    };
+    return helper.loadTasks(args).then((res) => {
+      if (enable_logs) {
+        console.log("queryImage Success", res);
+      }
+      return true;
+    }).catch((err) => {
+      if (enable_logs) {
+        console.log("queryTask Error", err);
+      }
+      return false;
+    });
+}
+
+export async function queryTasksWithUserAddress(user_address : string, resturl: string, enable_logs : boolean = true) : Promise<boolean> {
+    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
+    let args: QueryParams = {
+        id: "",
+        user_address: user_address,
+        md5: "",
+        tasktype: "",
+        taskstatus: "",
+    };
+    return helper.loadTasks(args).then((res) => {
+      if (enable_logs) {
+        console.log("queryImage Success", res);
+      }
+      return true;
+    }).catch((err) => {
+      if (enable_logs) {
+        console.log("queryTask Error", err);
+      }
+      return false;
+    });
+}
+
+export async function queryTasksWithUserAddressAndMd5(user_address : string, md5 : string, resturl: string, enable_logs : boolean = true) : Promise<boolean> {
+    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
+    let args: QueryParams = {
+        id: "",
+        user_address: user_address,
+        md5: md5,
+        tasktype: "",
+        taskstatus: "",
+    };
+    return helper.loadTasks(args).then((res) => {
+      if (enable_logs) {
+        console.log("queryImage Success", res);
+      }
+      return true;
+    }).catch((err) => {
+      if (enable_logs) {
+        console.log("queryTask Error", err);
+      }
+      return false;
+    });
+}
+
+export async function queryTasksWithStatus(status : string, resturl: string, enable_logs : boolean = true) : Promise<boolean> {
+    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
+    let args: QueryParams = {
+        id: "",
+        user_address: "",
+        md5: "",
+        tasktype: "",
+        taskstatus: status,
+    };
+    return helper.loadTasks(args).then((res) => {
+      if (enable_logs) {
+        console.log("queryImage Success", res);
+      }
+      return true;
+    }).catch((err) => {
+      if (enable_logs) {
+        console.log("queryTask Error", err);
+      }
+      return false;
+    });
+}
+
+export async function queryTasksWithStatusAndMd5(status : string, md5 : string, resturl: string, enable_logs : boolean = true) : Promise<boolean> {
+    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
+    let args: QueryParams = {
+        id: "",
+        user_address: "",
+        md5: md5,
+        tasktype: "",
+        taskstatus: status,
+    };
+    return helper.loadTasks(args).then((res) => {
+      if (enable_logs) {
+        console.log("queryImage Success", res);
+      }
+      return true;
+    }).catch((err) => {
+      if (enable_logs) {
+        console.log("queryTask Error", err);
+      }
+      return false;
+    });
+}
+
 export async function queryImage(md5: string, resturl: string, enable_logs : boolean = true) : Promise<boolean> {
     let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
     return helper.queryImage(md5).then((res) => {
@@ -201,6 +333,27 @@ export async function getAvailableImages(resturl: string, user_address : string,
     let args: QueryParams = {
         id: "",
         user_address: user_address,
+        md5: "",
+        tasktype: "Setup",
+        taskstatus: "Done",
+    };
+    return helper.loadTasks(args).then((res) => {
+      const tasks = res as PaginationResult<Task[]>;
+      return tasks.data;
+    }).catch((err) => {
+      throw err
+    }).finally(() => {
+      if (enable_logs) {
+        console.log("Finish queryTask.")
+      }
+    });
+}
+
+export async function getAllAvailableImages(resturl: string, enable_logs : boolean = true) : Promise<Task[]> {
+    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
+    let args: QueryParams = {
+        id: "",
+        user_address: "",
         md5: "",
         tasktype: "Setup",
         taskstatus: "Done",

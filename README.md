@@ -139,3 +139,22 @@ The following options are available for the `pressuretest` command:
 - `--verbose <true|false>`: Whether or not to print every request response to the console.
 - `--query_task_only <true|false>`: When generating random queries for pressure test, only generate ones that query 'task' collection.
 - `--image_md5s <image0_md5,image1_md5,...>: List of image md5s (one or more, comma seperated) to use for prove tasks. Overrides original behaviour of randomly selectly available images.
+
+
+## Command: pressuretest
+
+Run performance test directly on mongoDB instance: run iterations of find and update queries with and without indexes, measuring the execution time and difference.
+
+### Usage
+
+```
+node dist/index.js dbperformancetest -r <resturl> --port <mongoDB port> --collection <task under test>
+```
+
+### Options
+
+The following options are available for the `pressuretest` command:
+
+- `-r, --resturl <url>`: The rest url of zkwasm cloud service. This option is **required**, but is not actually used.
+- `--port <port>`: The port of the DB under test.
+- `--collection <collection>`: Specifies the DB performance test to be run, these are usually associated with DB collections, available option are 'tasks', 'images' and 'batch'.

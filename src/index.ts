@@ -1,5 +1,3 @@
-#! /usr/bin/env node
-import fs from "fs";
 import { resolve } from "path";
 import {
   addNewWasmImage,
@@ -8,6 +6,7 @@ import {
   addNewPayment,
   addPaymentWithTx,
   pressureTest,
+  dbPerformanceTest,
 } from "./task";
 import { queryTask } from "./query";
 import { ProofSubmitMode } from "zkwasm-service-helper";
@@ -412,6 +411,36 @@ async function main() {
         );
       }
     )
+    .command(
+      "dbperformancetest",
+      '',
+      function (yargs: any) {
+        return yargs
+          .option("port", {
+            alias: "port",
+            describe: "The port of the DB under test.",
+            type: "number",
+            nargs: 1,
+          })
+          .option("collection", {
+            alias: "collection",
+            describe: "Specifies the DB performance test to be run, these are usually associated with DB collections, available option are 'tasks', 'images' and 'batch'.",
+            type: "string",
+            nargs: 1,
+          })
+      },
+      // Handler for your command
+      async function (argv: any) {
+        console.log("Begin pressure test with args", argv);
+
+        await dbPerformanceTest(
+          argv.port,
+          argv.collection,
+        );
+      }
+    )
+
+
     .help();
 
   yargs.parse();
