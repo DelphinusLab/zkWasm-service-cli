@@ -567,3 +567,9 @@ export async function addPaymentWithTx(txhash: string, resturl: string) {
   console.log("Sending transaction hash " + txhash + " to zkWasm service...");
   await helper.addPayment({ txhash: txhash });
 }
+
+export async function setMaintenanceMode(resturl: string, address: string, active : boolean) {
+  let helper = new ZkWasmServiceHelper(resturl, "", "");
+  console.log("Set maintenance mode to " + active ? "active" : "not active" + " ...");
+  await helper.setMaintenanceMode({ address: address, active: active });
+}
