@@ -265,6 +265,13 @@ async function main() {
       // options for your command
       function (yargs: any) {
         return yargs
+          .option("u", {
+            alias: "address",
+            describe: "Address of maintainer sending maintenance mode request",
+            demandOption: "Address is required",
+            type: "string",
+            nargs: 1,
+          })
           .option("active", {
             alias: "active",
             describe: "True or False, determines if maintenance mode should be activated or deactivated.",
