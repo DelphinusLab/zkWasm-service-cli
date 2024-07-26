@@ -261,20 +261,12 @@ async function main() {
     )
     .command(
       "setmaintenancemode",
-      'Set maintenance mode\n Example: node dist/index.js setmaintenancemode -r "http://127.0.0.1:8080" -u "YOUR_ADDRESS" -x "PRIV_KEY" --active <true|false>',
-      // options for your command
+      'Set maintenance mode\n Example: node dist/index.js setmaintenancemode -r "http://127.0.0.1:8080" -x "PRIV_KEY" --active <true|false>',
       function (yargs: any) {
         return yargs
-          .option("u", {
-            alias: "address",
-            describe: "Address of maintainer sending maintenance mode request",
-            demandOption: "Address is required",
-            type: "string",
-            nargs: 1,
-          })
           .option("x", {
             alias: "priv",
-            describe: "The priv of user address.",
+            describe: "The private key of the address of the administrator sending maintenance mode request.",
             demandOption: "The priv is required for signing message.",
             type: "string",
             nargs: 1,
@@ -286,7 +278,7 @@ async function main() {
           });
       },
       async function (argv: any) {
-        await setMaintenanceMode(argv.r, argv.u, argv.x, argv.active);
+        await setMaintenanceMode(argv.r, argv.x, argv.active);
       }
     )
     .command(

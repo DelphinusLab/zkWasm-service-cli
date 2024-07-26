@@ -1,11 +1,10 @@
 import fs from "fs";
-import { ethers } from "ethers";
+import { ethers, Wallet } from "ethers";
 import { parse } from "path";
 import { signMessage, askQuestion } from "./util";
 import {
   ZkWasmServiceHelper,
   WithSignature,
-  WithVerifySignature,
   ProvingParams,
   AddImageParams,
   ZkWasmUtil,
@@ -14,6 +13,7 @@ import {
   ProvePaymentSrc,
   MaintenanceModeType,
   SetMaintenanceModeParams,
+  AdminRequestType,
 } from "zkwasm-service-helper";
 
 import {
@@ -571,13 +571,13 @@ export async function addPaymentWithTx(txhash: string, resturl: string) {
   await helper.addPayment({ txhash: txhash });
 }
 
-export async function setMaintenanceMode(resturl: string, address : string, priv: string, active : boolean) {
+export async function setMaintenanceMode(resturl: string, priv: string, active : boolean) {
   let params : SetMaintenanceModeParams = {
     mode: active ? MaintenanceModeType.Enabled : MaintenanceModeType.Disabled,
     // TODO: update with real values once nonce verification is implemented
     nonce : 1,
-    request_type : "SetMaintenanceMode",
-    node_address : address,
+    request_type : AdminRequestType.MaintenanceMode,
+    user_address : await (new Wallet(priv, null)).getAddress()
   };
 
   let msg = ZkWasmUtil.createSetMaintenanceModeSignMessage(params);
@@ -591,7 +591,7 @@ export async function setMaintenanceMode(resturl: string, address : string, priv
     console.log("sign error: ", e);
     return;
   }
-  let task: WithVerifySignature<SetMaintenanceModeParams> = {
+  let task: WithSignature<SetMaintenanceModeParams> = {
     ...params,
     signature,
   };
