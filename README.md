@@ -23,6 +23,7 @@ The following options are available for the `zkwasm-service-cli` command:
 - [adddeploytask](#command-adddeploytask)
 - [addpayment](#command-addpayment)
 - [pressuretest](#command-pressuretest)
+- [setmaintenancemode](#command-setmaintenancemode)
 
 ## Command: addimage
 
