@@ -574,10 +574,10 @@ export async function addPaymentWithTx(txhash: string, resturl: string) {
 export async function setMaintenanceMode(resturl: string, address : string, priv: string, active : boolean) {
   let params : SetMaintenanceModeParams = {
     mode: active ? MaintenanceModeType.Enabled : MaintenanceModeType.Disabled,
-    node_address : address,
     // TODO: update with real values once nonce verification is implemented
     nonce : 1,
     request_type : "SetMaintenanceMode",
+    node_address : address,
   };
 
   let msg = ZkWasmUtil.createSetMaintenanceModeSignMessage(params);
