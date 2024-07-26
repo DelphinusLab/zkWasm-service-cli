@@ -1,4 +1,4 @@
-node dist/index.js pressuretest \
+node dist/index.js setmaintenancemode \
     -r "service-endpoint" \
     -u "user_address" \
     -x "private_key" \
