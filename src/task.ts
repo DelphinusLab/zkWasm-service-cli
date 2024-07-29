@@ -1,5 +1,5 @@
 import fs from "fs";
-import { ethers } from "ethers";
+import { ethers, Wallet } from "ethers";
 import { parse } from "path";
 import { signMessage, askQuestion } from "./util";
 import {
@@ -11,6 +11,9 @@ import {
   AppConfig,
   ProofSubmitMode,
   ProvePaymentSrc,
+  MaintenanceModeType,
+  SetMaintenanceModeParams,
+  AdminRequestType,
 } from "zkwasm-service-helper";
 
 import {
@@ -566,4 +569,42 @@ export async function addPaymentWithTx(txhash: string, resturl: string) {
   let helper = new ZkWasmServiceHelper(resturl, "", "");
   console.log("Sending transaction hash " + txhash + " to zkWasm service...");
   await helper.addPayment({ txhash: txhash });
+}
+
+export async function setMaintenanceMode(resturl: string, priv: string, active : boolean) {
+  let params : SetMaintenanceModeParams = {
+    mode: active ? MaintenanceModeType.Enabled : MaintenanceModeType.Disabled,
+    // TODO: update with real values once nonce verification is implemented
+    nonce : 1,
+    request_type : AdminRequestType.MaintenanceMode,
+    user_address : await (new Wallet(priv, null)).getAddress()
+  };
+
+  let msg = ZkWasmUtil.createSetMaintenanceModeSignMessage(params);
+  let signature: string;
+
+  try {
+    console.log("msg is:", msg);
+    signature = await signMessage(msg, priv);
+    console.log("signature is:", signature);
+  } catch (e: unknown) {
+    console.log("sign error: ", e);
+    return;
+  }
+  let task: WithSignature<SetMaintenanceModeParams> = {
+    ...params,
+    signature,
+  };
+
+  console.log("Setting maintenance mode to", params.mode, "...");
+  let helper = new ZkWasmServiceHelper(resturl, "", "");
+  await helper
+    .setMaintenanceMode(task)
+    .then((res) => {
+      console.log("Set maintenance mode Success", res);
+    })
+    .catch((err) => {
+      console.log("Set maintenance mode Error", err);
+    })
+    .finally(() => console.log("Finish setMaintenanceMode!"));
 }

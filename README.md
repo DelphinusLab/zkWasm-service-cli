@@ -23,6 +23,7 @@ The following options are available for the `zkwasm-service-cli` command:
 - [adddeploytask](#command-adddeploytask)
 - [addpayment](#command-addpayment)
 - [pressuretest](#command-pressuretest)
+- [setmaintenancemode](#command-setmaintenancemode)
 
 ## Command: addimage
 
@@ -139,3 +140,19 @@ The following options are available for the `pressuretest` command:
 - `--verbose <true|false>`: Whether or not to print every request response to the console.
 - `--query_task_only <true|false>`: When generating random queries for pressure test, only generate ones that query 'task' collection.
 - `--image_md5s <image0_md5,image1_md5,...>: List of image md5s (one or more, comma seperated) to use for prove tasks. Overrides original behaviour of randomly selectly available images.
+
+## Command: setmaintenancemode
+
+Set maintenance mode to active or inactive. Maintenance mode denies certain requests which allows the server to be safely shutdown.
+
+### Usage
+
+`node dist/index.js setmaintenancemode -r <resturl> -x <priv> --active <true|false>`
+
+### Options
+
+The following options are available for the `pressuretest` command:
+
+- `-r, --resturl <url>`: The rest url of zkwasm cloud service. This option is **required**.
+- `-x, --priv <priv>`: The private key of the address of the administrator sending maintenance mode request.
+- `--active <true|false>`: True or False, determines if maintenance mode should be activated or deactivated.
