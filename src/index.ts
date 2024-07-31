@@ -7,6 +7,7 @@ import {
   //addDeployTask,
   addNewPayment,
   addPaymentWithTx,
+  setMaintenanceMode,
   pressureTest,
 } from "./task";
 import { queryTask } from "./query";
@@ -256,6 +257,28 @@ async function main() {
         }
         console.log("Creating new transaction...");
         await addNewPayment(argv.r, argv.p, argv.a, argv.x);
+      }
+    )
+    .command(
+      "setmaintenancemode",
+      'Set maintenance mode\n Example: node dist/index.js setmaintenancemode -r "http://127.0.0.1:8080" -x "PRIV_KEY" --active <true|false>',
+      function (yargs: any) {
+        return yargs
+          .option("x", {
+            alias: "priv",
+            describe: "The private key of the address of the administrator sending maintenance mode request.",
+            demandOption: "The priv is required for signing message.",
+            type: "string",
+            nargs: 1,
+          })
+          .option("active", {
+            alias: "active",
+            describe: "True or False, determines if maintenance mode should be activated or deactivated.",
+            type: "boolean",
+          });
+      },
+      async function (argv: any) {
+        await setMaintenanceMode(argv.r, argv.x, argv.active);
       }
     )
     .command(
