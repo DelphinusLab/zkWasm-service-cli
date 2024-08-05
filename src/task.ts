@@ -96,7 +96,8 @@ export async function addProvingTask(
   private_inputs: string,
   proof_submit_mode: ProofSubmitMode,
   priv: string,
-  enable_logs: boolean = true
+  enable_logs: boolean = true,
+  num : number = 0,
 ): Promise<boolean> {
   let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
   let pb_inputs: Array<string> = ZkWasmUtil.validateInputs(public_inputs);
@@ -130,15 +131,17 @@ export async function addProvingTask(
     .addProvingTask(task)
     .then((res) => {
       if (enable_logs) {
-        console.log("Add Proving task Response", res);
+        console.log(`#${num} Add Proving task Response`, res);
       }
       return true;
     })
     .catch((err) => {
       if (enable_logs) {
-        console.log("Add Proving task Error", err);
+        console.log(`#${num} Add Proving task Error`, err);
       }
       return false;
+    }).finally(() => {
+        console.log(`#${num} Add Proving task Finished`);
     });
 }
 
@@ -214,7 +217,8 @@ async function runProveTasks(
         private_inputs,
         submit_mode,
         priv,
-        enable_logs
+        enable_logs,
+        i,
       );
       if (success) {
         n_success++;
