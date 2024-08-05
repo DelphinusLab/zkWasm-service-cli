@@ -96,7 +96,8 @@ export async function addProvingTask(
   private_inputs: string,
   proof_submit_mode: ProofSubmitMode,
   priv: string,
-  enable_logs: boolean = true
+  enable_logs: boolean = true,
+  num : number = 0,
 ): Promise<boolean> {
   let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
   let pb_inputs: Array<string> = ZkWasmUtil.validateInputs(public_inputs);
@@ -130,13 +131,13 @@ export async function addProvingTask(
     .addProvingTask(task)
     .then((res) => {
       if (enable_logs) {
-        console.log("Add Proving task Response", res);
+        console.log(`#${num} Add Proving task Response`, res);
       }
       return true;
     })
     .catch((err) => {
       if (enable_logs) {
-        console.log("Add Proving task Error", err);
+        console.log(`#${num} Add Proving task Error`, err);
       }
       return false;
     });
@@ -144,6 +145,13 @@ export async function addProvingTask(
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function runFuncAndGetExecTime(i : number, func: (i : number) => Promise<void>): Promise<number> {
+    const start = new Date().getTime();
+    await func(i);
+    const end = new Date().getTime();
+    return end - start;
 }
 
 async function sendIntervaledRequests(
@@ -161,9 +169,9 @@ async function sendIntervaledRequests(
     curr_t - start_t < tot_ms && req_cnt < n_req;
     curr_t = Date.now()
   ) {
-    await request_fn(req_cnt);
+    let time_taken = await runFuncAndGetExecTime(req_cnt, request_fn);
     req_cnt++;
-    await sleep(interval_ms);
+    await sleep(Math.max(interval_ms - time_taken, 0));
   }
 
   finish_fn();
@@ -187,14 +195,11 @@ async function runProveTasks(
   let interval_fail_cnt = 0;
   let secs = 0;
   const interval_id = setInterval(() => {
-    console.log(
-      "Prove: t =",
-      secs,
-      "\tsucc =",
-      interval_succ_cnt,
-      "\tfail = ",
-      interval_fail_cnt
-    );
+    const msg = interval_succ_cnt == 0 && interval_fail_cnt == 0
+      ? "\tNo tasks finished within interval ..."
+      : `\tsucc = ${interval_succ_cnt}\tfail = ${interval_fail_cnt}`;
+    console.log(`Prove: t = ${secs}${msg}`);
+
     interval_succ_cnt = 0;
     interval_fail_cnt = 0;
     secs++;
@@ -214,7 +219,8 @@ async function runProveTasks(
         private_inputs,
         submit_mode,
         priv,
-        enable_logs
+        enable_logs,
+        i,
       );
       if (success) {
         n_success++;
@@ -260,14 +266,11 @@ async function runQueryTasks(
   let interval_fail_cnt = 0;
   let secs = 0;
   const interval_id = setInterval(() => {
-    console.log(
-      "Query: t =",
-      secs,
-      "\tsucc =",
-      interval_succ_cnt,
-      "\tfail = ",
-      interval_fail_cnt
-    );
+    const msg = interval_succ_cnt == 0 && interval_fail_cnt == 0
+      ? "\tNo tasks finished within interval ..."
+      : `\tsucc = ${interval_succ_cnt}\tfail = ${interval_fail_cnt}`;
+    console.log(`Query: t = ${secs}${msg}`);
+
     interval_succ_cnt = 0;
     interval_fail_cnt = 0;
     secs++;
