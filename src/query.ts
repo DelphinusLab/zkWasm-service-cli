@@ -6,6 +6,8 @@ import {
     TxHistoryQueryParams,
     PaginationResult,
     Task,
+    NodeStatisticsQueryParams,
+    NodeStatistics,
 } from "zkwasm-service-helper";
 import BN from "bn.js";
 
@@ -213,6 +215,23 @@ export async function getAvailableImages(resturl: string, user_address : string,
     }).finally(() => {
       if (enable_logs) {
         console.log("Finish queryTask.")
+      }
+    });
+}
+
+export async function getProverNodeList(resturl: string, enable_logs : boolean = true) : Promise<NodeStatistics[]> {
+    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
+    let args: NodeStatisticsQueryParams = {
+      total: 500,
+    }
+    return helper.queryNodeStatistics(args).then((res) => {
+      return res;
+    }
+    ).catch((err) => {
+      throw err
+    }).finally(() => {
+      if (enable_logs) {
+        console.log("Finish GetProverNodeList")
       }
     });
 }
