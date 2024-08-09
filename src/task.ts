@@ -88,6 +88,10 @@ export async function addNewWasmImage(
     .finally(() => console.log("Finish addNewWasmImage!"));
 }
 
+export interface ProveTaskResponse {
+  id: string;
+}
+
 export async function addProvingTask(
   resturl: string,
   user_addr: string,
@@ -97,8 +101,8 @@ export async function addProvingTask(
   proof_submit_mode: ProofSubmitMode,
   priv: string,
   enable_logs: boolean = true,
-  num : number = 0,
-): Promise<boolean> {
+  num: number = 0
+): Promise<ProveTaskResponse> {
   let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
   let pb_inputs: Array<string> = ZkWasmUtil.validateInputs(public_inputs);
   let priv_inputs: Array<string> = ZkWasmUtil.validateInputs(private_inputs);
@@ -119,7 +123,7 @@ export async function addProvingTask(
     if (enable_logs) {
       console.log("error signing message", e);
     }
-    return false;
+    throw e;
   }
 
   let task: WithSignature<ProvingParams> = {
@@ -133,13 +137,13 @@ export async function addProvingTask(
       if (enable_logs) {
         console.log(`#${num} Add Proving task Response`, res);
       }
-      return true;
+      return res;
     })
     .catch((err) => {
       if (enable_logs) {
         console.log(`#${num} Add Proving task Error`, err);
       }
-      return false;
+      throw err;
     });
 }
 
@@ -147,11 +151,14 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function runFuncAndGetExecTime(i : number, func: (i : number) => Promise<void>): Promise<number> {
-    const start = new Date().getTime();
-    await func(i);
-    const end = new Date().getTime();
-    return end - start;
+async function runFuncAndGetExecTime(
+  i: number,
+  func: (i: number) => Promise<void>
+): Promise<number> {
+  const start = new Date().getTime();
+  await func(i);
+  const end = new Date().getTime();
+  return end - start;
 }
 
 async function sendIntervaledRequests(
@@ -195,9 +202,10 @@ async function runProveTasks(
   let interval_fail_cnt = 0;
   let secs = 0;
   const interval_id = setInterval(() => {
-    const msg = interval_succ_cnt == 0 && interval_fail_cnt == 0
-      ? "\tNo tasks finished within interval ..."
-      : `\tsucc = ${interval_succ_cnt}\tfail = ${interval_fail_cnt}`;
+    const msg =
+      interval_succ_cnt == 0 && interval_fail_cnt == 0
+        ? "\tNo tasks finished within interval ..."
+        : `\tsucc = ${interval_succ_cnt}\tfail = ${interval_fail_cnt}`;
     console.log(`Prove: t = ${secs}${msg}`);
 
     interval_succ_cnt = 0;
@@ -211,22 +219,24 @@ async function runProveTasks(
     interval_ms,
     num_prove_tasks,
     async (i: number) => {
-      const success = await addProvingTask(
-        resturl,
-        user_addr,
-        image_md5s[i % image_md5s.length],
-        public_inputs,
-        private_inputs,
-        submit_mode,
-        priv,
-        enable_logs,
-        i,
-      );
-      if (success) {
+      // TODO: try catch instead of return boolean
+      try {
+        await addProvingTask(
+          resturl,
+          user_addr,
+          image_md5s[i % image_md5s.length],
+          public_inputs,
+          private_inputs,
+          submit_mode,
+          priv,
+          enable_logs,
+          i
+        );
         n_success++;
         interval_succ_cnt++;
-      } else {
+      } catch (e) {
         interval_fail_cnt++;
+        console.log("Error in runProveTasks", e);
       }
     },
     () => {
@@ -266,9 +276,10 @@ async function runQueryTasks(
   let interval_fail_cnt = 0;
   let secs = 0;
   const interval_id = setInterval(() => {
-    const msg = interval_succ_cnt == 0 && interval_fail_cnt == 0
-      ? "\tNo tasks finished within interval ..."
-      : `\tsucc = ${interval_succ_cnt}\tfail = ${interval_fail_cnt}`;
+    const msg =
+      interval_succ_cnt == 0 && interval_fail_cnt == 0
+        ? "\tNo tasks finished within interval ..."
+        : `\tsucc = ${interval_succ_cnt}\tfail = ${interval_fail_cnt}`;
     console.log(`Query: t = ${secs}${msg}`);
 
     interval_succ_cnt = 0;
@@ -574,13 +585,17 @@ export async function addPaymentWithTx(txhash: string, resturl: string) {
   await helper.addPayment({ txhash: txhash });
 }
 
-export async function setMaintenanceMode(resturl: string, priv: string, active : boolean) {
-  let params : SetMaintenanceModeParams = {
+export async function setMaintenanceMode(
+  resturl: string,
+  priv: string,
+  active: boolean
+) {
+  let params: SetMaintenanceModeParams = {
     mode: active ? MaintenanceModeType.Enabled : MaintenanceModeType.Disabled,
     // TODO: update with real values once nonce verification is implemented
-    nonce : 1,
-    request_type : AdminRequestType.MaintenanceMode,
-    user_address : await (new Wallet(priv, null)).getAddress()
+    nonce: 1,
+    request_type: AdminRequestType.MaintenanceMode,
+    user_address: await new Wallet(priv, null).getAddress(),
   };
 
   let msg = ZkWasmUtil.createSetMaintenanceModeSignMessage(params);

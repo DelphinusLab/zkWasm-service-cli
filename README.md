@@ -141,6 +141,27 @@ The following options are available for the `pressuretest` command:
 - `--query_task_only <true|false>`: When generating random queries for pressure test, only generate ones that query 'task' collection.
 - `--image_md5s <image0_md5,image1_md5,...>: List of image md5s (one or more, comma seperated) to use for prove tasks. Overrides original behaviour of randomly selectly available images.
 
+## Command: prover-profile
+
+This command will fetch the node statistics in memory, run the prover profile, and output the differences after the last task completes to the specified file.
+
+### Usage
+
+`node dist/index.js prover-profile -r <resturl> -u <address> -x <priv> [--public_input <public_input>] [--private_input <private_input>] --num_prove_tasks <number> --md5 <MD5> --out <output_file>`
+
+### Options
+
+The following options are available for the `prover-profile` command:
+
+- `-r, --resturl <url>`: The rest url of zkwasm cloud service. This option is **required**.
+- `-u, --address <address>`: The user address which adds the proving task. This option is **required**.
+- `-x, --priv <priv>`: The private key of user address. This option is **required** for signing the message.
+- `--public_input <public_input>`: The public input of the proof, inputs must have the format (0x)[0-f]\*:(i64|bytes|bytes-packed) and be separated by spaces (e.g.: 0x12:i64 44:i64 32:i64).
+- `--private_input <private_input>`: The private input of the proof. Currently not supported.
+- `--num_prove_tasks <number>`: Number of prove tasks to add to the queue for profiling.
+- `--md5 <MD%>`: MD5 to profile on, should be a simple image. (one or more, comma seperated) to use for prove tasks.
+- `--out <output_file>`: Output file to write the profile results to. This requires extension of .json or .csv
+
 ## Command: setmaintenancemode
 
 Set maintenance mode to active or inactive. Maintenance mode denies certain requests which allows the server to be safely shutdown.
