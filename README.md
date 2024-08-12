@@ -143,24 +143,19 @@ The following options are available for the `pressuretest` command:
 
 ## Command: prover-profile
 
-This command will fetch the node statistics in memory, run the prover profile, and output the differences after the last task completes to the specified file.
+This command will fetch the node statistics from the server and save it to a local `node_statistics_{timestamp}.json` file. If the `--compare-with` option is specified, the command will compare the current node statistics with the specified file and output the differences to the specified `--report-out` file.
 
 ### Usage
 
-`node dist/index.js prover-profile -r <resturl> -u <address> -x <priv> [--public_input <public_input>] [--private_input <private_input>] --num_prove_tasks <number> --md5 <MD5> --out <output_file>`
+`node dist/index.js prover-profile -r <resturl> --compare-with <file> --report-out <file>`
 
 ### Options
 
 The following options are available for the `prover-profile` command:
 
 - `-r, --resturl <url>`: The rest url of zkwasm cloud service. This option is **required**.
-- `-u, --address <address>`: The user address which adds the proving task. This option is **required**.
-- `-x, --priv <priv>`: The private key of user address. This option is **required** for signing the message.
-- `--public_input <public_input>`: The public input of the proof, inputs must have the format (0x)[0-f]\*:(i64|bytes|bytes-packed) and be separated by spaces (e.g.: 0x12:i64 44:i64 32:i64).
-- `--private_input <private_input>`: The private input of the proof. Currently not supported.
-- `--num_prove_tasks <number>`: Number of prove tasks to add to the queue for profiling.
-- `--md5 <MD%>`: MD5 to profile on, should be a simple image. (one or more, comma seperated) to use for prove tasks.
-- `--out <output_file>`: Output file to write the profile results to. This requires extension of .json or .csv
+- `--compare-with <file>`: The file to compare the current node statistics with. This option is required if `--report-out` is specified.
+- `--report-out <file>`: The file to output the node statistics to. This can be a .json or .csv file. This option is required if `--compare-with` is specified.
 
 ## Command: setmaintenancemode
 

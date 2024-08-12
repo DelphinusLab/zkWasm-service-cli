@@ -113,7 +113,16 @@ async function saveReportFile(report: NodeStats[], outFile: string) {
   if (fileExtension === ".json") {
     await fs.writeFile(outFile, JSON.stringify(report, null, 2));
   } else if (fileExtension === ".csv") {
-    const headers = Object.keys(report[0]).join(",");
+    const defaultHeaders: NodeStats = {
+      address: "",
+      successful_tasks: 0,
+      failed_tasks: 0,
+      total_tasks: 0,
+      timed_out_count: 0,
+      setup_time_diff: 0,
+      proof_time_diff: 0,
+    };
+    const headers = Object.keys(defaultHeaders).join(",");
     const rows = report.map((row) => Object.values(row).join(","));
     await fs.writeFile(outFile, [headers, ...rows].join("\n"));
   } else {
