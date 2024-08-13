@@ -110,9 +110,33 @@ async function saveReportFile(report: NodeStats[], outFile: string) {
   // Check extension of the output file
   const fileExtension = path.extname(outFile).toLowerCase();
 
+  // create a summary of the report
+
+  const summary: Summary = {
+    total_nodes: report.length,
+    successful_tasks: report.reduce(
+      (acc, node) => acc + node.successful_tasks,
+      0
+    ),
+    failed_tasks: report.reduce((acc, node) => acc + node.failed_tasks, 0),
+    total_tasks: report.reduce((acc, node) => acc + node.total_tasks, 0),
+    timed_out_count: report.reduce(
+      (acc, node) => acc + node.timed_out_count,
+      0
+    ),
+  };
+
   if (fileExtension === ".json") {
-    await fs.writeFile(outFile, JSON.stringify(report, null, 2));
+    const combinedReport = {
+      summary,
+      report,
+    };
+    await fs.writeFile(outFile, JSON.stringify(combinedReport, null, 2));
   } else if (fileExtension === ".csv") {
+    // Create CSV file, put summary at the top
+    const summaryHeaders = Object.keys(summary).join(",");
+    const summaryRow = Object.values(summary).join(",");
+
     const defaultHeaders: NodeStats = {
       address: "",
       successful_tasks: 0,
@@ -124,7 +148,10 @@ async function saveReportFile(report: NodeStats[], outFile: string) {
     };
     const headers = Object.keys(defaultHeaders).join(",");
     const rows = report.map((row) => Object.values(row).join(","));
-    await fs.writeFile(outFile, [headers, ...rows].join("\n"));
+
+    const csv = [summaryHeaders, summaryRow, headers, ...rows].join("\n");
+
+    await fs.writeFile(outFile, csv);
   } else {
     console.error(
       "Unsupported file format. Please use .json or .csv extension."
@@ -188,4 +215,12 @@ interface NodeStats {
   timed_out_count: number;
   setup_time_diff?: number;
   proof_time_diff?: number;
+}
+
+interface Summary {
+  total_nodes: number;
+  successful_tasks: number;
+  failed_tasks: number;
+  total_tasks: number;
+  timed_out_count: number;
 }

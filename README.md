@@ -145,6 +145,10 @@ The following options are available for the `pressuretest` command:
 
 This command will fetch the node statistics from the server and save it to a local `node_statistics_{timestamp}.json` file. If the `--compare-with` option is specified, the command will compare the current node statistics with the specified file and output the differences to the specified `--report-out` file.
 
+We do not require any user information as this is purely querying the server for statistics and optionally comparing them.
+
+If you want to add tasks to force value updates, you can use `addProvingTask` or `pressuretest` commands.
+
 ### Usage
 
 `node dist/index.js prover-profile -r <resturl> --compare-with <file> --report-out <file>`
