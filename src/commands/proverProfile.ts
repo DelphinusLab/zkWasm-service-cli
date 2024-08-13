@@ -125,7 +125,13 @@ async function saveReportFile(report: NodeStats[], outFile: string) {
       (acc, node) => acc + node.timed_out_count,
       0
     ),
-    working_nodes: report.filter((node) => node.successful_tasks > 0).length,
+    // Nodes with any successful, failed or timed out tasks (active nodes but not necessarily working)
+    active_nodes: report.filter(
+      (node) =>
+        node.successful_tasks > 0 ||
+        node.failed_tasks > 0 ||
+        node.timed_out_count > 0
+    ).length,
     success_task_nodes: report.filter((node) => node.successful_tasks > 0)
       .length,
     failed_task_nodes: report.filter((node) => node.failed_tasks > 0).length,
@@ -230,7 +236,7 @@ interface Summary {
   total_tasks: number;
   timed_out_count: number;
 
-  working_nodes: number;
+  active_nodes: number;
   success_task_nodes: number;
   failed_task_nodes: number;
   timed_out_nodes: number;
