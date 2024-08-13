@@ -125,6 +125,11 @@ async function saveReportFile(report: NodeStats[], outFile: string) {
       (acc, node) => acc + node.timed_out_count,
       0
     ),
+    working_nodes: report.filter((node) => node.successful_tasks > 0).length,
+    success_task_nodes: report.filter((node) => node.successful_tasks > 0)
+      .length,
+    failed_task_nodes: report.filter((node) => node.failed_tasks > 0).length,
+    timed_out_nodes: report.filter((node) => node.timed_out_count > 0).length,
   };
 
   if (fileExtension === ".json") {
@@ -224,4 +229,9 @@ interface Summary {
   failed_tasks: number;
   total_tasks: number;
   timed_out_count: number;
+
+  working_nodes: number;
+  success_task_nodes: number;
+  failed_task_nodes: number;
+  timed_out_nodes: number;
 }
