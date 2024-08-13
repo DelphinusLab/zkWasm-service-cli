@@ -141,6 +141,26 @@ The following options are available for the `pressuretest` command:
 - `--query_task_only <true|false>`: When generating random queries for pressure test, only generate ones that query 'task' collection.
 - `--image_md5s <image0_md5,image1_md5,...>: List of image md5s (one or more, comma seperated) to use for prove tasks. Overrides original behaviour of randomly selectly available images.
 
+## Command: prover-profile
+
+This command will fetch the node statistics from the server and save it to a local `node_statistics_{timestamp}.json` file. If the `--compare-with` option is specified, the command will compare the current node statistics with the specified file and output the differences to the specified `--report-out` file.
+
+We do not require any user information as this is purely querying the server for statistics and optionally comparing them.
+
+If you want to add tasks to force value updates, you can use `addProvingTask` or `pressuretest` commands.
+
+### Usage
+
+`node dist/index.js prover-profile -r <resturl> --compare-with <file> --report-out <file>`
+
+### Options
+
+The following options are available for the `prover-profile` command:
+
+- `-r, --resturl <url>`: The rest url of zkwasm cloud service. This option is **required**.
+- `--compare-with <file>`: The file to compare the current node statistics with. This option is required if `--report-out` is specified.
+- `--report-out <file>`: The file to output the node statistics to. This can be a .json or .csv file. This option is required if `--compare-with` is specified.
+
 ## Command: setmaintenancemode
 
 Set maintenance mode to active or inactive. Maintenance mode denies certain requests which allows the server to be safely shutdown.
