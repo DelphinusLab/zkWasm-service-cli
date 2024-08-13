@@ -84,10 +84,11 @@ export const handler = async (argv: Arguments) => {
 
 // save the statistics locally with a timestamp
 async function saveNodeStatistics(stats: NodeStatistics[], outFile: string) {
+  const rfcdate = new Date().toISOString();
   // append timestamp to the file name
   // Split by '.' and insert timestamp before the last element
   const parts = outFile.split(".");
-  const fileName = parts.slice(0, -1).join(".").concat(`_${Date.now()}`);
+  const fileName = parts.slice(0, -1).join(".").concat(`_${rfcdate}`);
   const fileExtension = parts[parts.length - 1];
   const statsPath = path.resolve(`${fileName}.${fileExtension}`);
 
