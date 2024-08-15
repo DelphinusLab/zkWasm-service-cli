@@ -165,6 +165,7 @@ async function sendIntervaledRequests(
   tot_ms: number,
   interval_ms: number,
   n_req: number,
+  secs: { value: number },
   request_fn: (i: number) => Promise<void>,
   finish_fn: () => void
 ) {
@@ -176,6 +177,11 @@ async function sendIntervaledRequests(
     curr_t - start_t < tot_ms && req_cnt < n_req;
     curr_t = Date.now()
   ) {
+    // Break if reached total runtime limit because requests ran overtime.
+    if (secs.value >= tot_ms / 1000) {
+      break;
+    }
+
     let time_taken = await runFuncAndGetExecTime(req_cnt, request_fn);
     req_cnt++;
     await sleep(Math.max(interval_ms - time_taken, 0));
@@ -200,17 +206,17 @@ async function runProveTasks(
 ) {
   let interval_succ_cnt = 0;
   let interval_fail_cnt = 0;
-  let secs = 0;
+  let secs = { value: 0 };
   const interval_id = setInterval(() => {
     const msg =
       interval_succ_cnt == 0 && interval_fail_cnt == 0
         ? "\tNo tasks finished within interval ..."
         : `\tsucc = ${interval_succ_cnt}\tfail = ${interval_fail_cnt}`;
-    console.log(`Prove: t = ${secs}${msg}`);
+    console.log(`Prove: t = ${secs.value}${msg}`);
 
     interval_succ_cnt = 0;
     interval_fail_cnt = 0;
-    secs++;
+    secs.value++;
   }, original_interval_ms);
 
   let n_success = 0;
@@ -218,6 +224,7 @@ async function runProveTasks(
     total_time_ms,
     interval_ms,
     num_prove_tasks,
+    secs,
     async (i: number) => {
       // TODO: try catch instead of return boolean
       try {
@@ -274,17 +281,17 @@ async function runQueryTasks(
 ) {
   let interval_succ_cnt = 0;
   let interval_fail_cnt = 0;
-  let secs = 0;
+  let secs = { value: 0 };
   const interval_id = setInterval(() => {
     const msg =
       interval_succ_cnt == 0 && interval_fail_cnt == 0
         ? "\tNo tasks finished within interval ..."
         : `\tsucc = ${interval_succ_cnt}\tfail = ${interval_fail_cnt}`;
-    console.log(`Query: t = ${secs}${msg}`);
+    console.log(`Query: t = ${secs.value}${msg}`);
 
     interval_succ_cnt = 0;
     interval_fail_cnt = 0;
-    secs++;
+    secs.value++;
   }, original_interval_ms);
 
   let n_success = 0;
@@ -292,6 +299,7 @@ async function runQueryTasks(
     total_time_ms,
     interval_ms,
     num_query_tasks,
+    secs,
     async (_: number) => {
       const query_fn = getRandomQuery(
         image_md5s,
@@ -552,10 +560,10 @@ export async function addNewPayment(
   console.log("receiverAddress is:", receiverAddress);
   let ans = await askQuestion(
     "Are you sure you want to send " +
-      amount +
-      " ETH to " +
-      receiverAddress +
-      "? (y/n)"
+    amount +
+    " ETH to " +
+    receiverAddress +
+    "? (y/n)"
   );
   if (ans === "n" || ans === "N") {
     console.log("User cancelled the transaction.");
