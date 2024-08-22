@@ -78,10 +78,8 @@ export async function addNewWasmImage(
     return;
   }
 
-  setupTask.setSignature(signature);
-
   await setupTask
-    .submitTask()
+    .submitTask(signature)
     .then((res) => {
       console.log("Add Image Response", res);
     })
@@ -129,10 +127,8 @@ export async function addProvingTask(
     throw e;
   }
 
-  proveTask.setSignature(signature);
-
   return proveTask
-    .submitTask()
+    .submitTask(signature)
     .then((res) => {
       if (enable_logs) {
         console.log(`#${num} Add Proving task Response`, res);
