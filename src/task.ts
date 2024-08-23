@@ -16,6 +16,8 @@ import {
   AdminRequestType,
   SetupTask,
   ProvingTask,
+  Payment,
+  MaintenanceRequest,
 } from "zkwasm-service-helper";
 
 import {
@@ -578,15 +580,16 @@ export async function addNewPayment(
   await tx.wait();
   console.log("Sending transaction hash to zkWasm service...");
   //Then submit the confirmed transaction hash to the zkWasm service.
-  await helper.addPayment({ txhash: tx.hash });
+
+  const payment = new Payment(resturl);
+  await payment.addPayment({ txhash: tx.hash });
 
   console.log("Finish addPayment!");
 }
 
 export async function addPaymentWithTx(txhash: string, resturl: string) {
-  let helper = new ZkWasmServiceHelper(resturl, "", "");
-  console.log("Sending transaction hash " + txhash + " to zkWasm service...");
-  await helper.addPayment({ txhash: txhash });
+  const payment = new Payment(resturl);
+  await payment.addPayment({ txhash: txhash });
 }
 
 export async function setMaintenanceMode(
@@ -594,18 +597,21 @@ export async function setMaintenanceMode(
   priv: string,
   active: boolean
 ) {
+  const user_address = await new Wallet(priv, null).getAddress();
   let params: SetMaintenanceModeParams = {
     mode: active ? MaintenanceModeType.Enabled : MaintenanceModeType.Disabled,
     // TODO: update with real values once nonce verification is implemented
     nonce: 1,
     request_type: AdminRequestType.MaintenanceMode,
-    user_address: await new Wallet(priv, null).getAddress(),
+    user_address: user_address,
   };
 
-  let msg = ZkWasmUtil.createSetMaintenanceModeSignMessage(params);
+  const maintenanceReq = new MaintenanceRequest(params, resturl, user_address);
+
   let signature: string;
 
   try {
+    const msg = await maintenanceReq.createSignMessage();
     console.log("msg is:", msg);
     signature = await signMessage(msg, priv);
     console.log("signature is:", signature);
@@ -613,15 +619,9 @@ export async function setMaintenanceMode(
     console.log("sign error: ", e);
     return;
   }
-  let task: WithSignature<SetMaintenanceModeParams> = {
-    ...params,
-    signature,
-  };
 
-  console.log("Setting maintenance mode to", params.mode, "...");
-  let helper = new ZkWasmServiceHelper(resturl, "", "");
-  await helper
-    .setMaintenanceMode(task)
+  await maintenanceReq
+    .submitTask(signature)
     .then((res) => {
       console.log("Set maintenance mode Success", res);
     })
