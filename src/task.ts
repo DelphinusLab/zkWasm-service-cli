@@ -14,6 +14,10 @@ import {
   MaintenanceModeType,
   SetMaintenanceModeParams,
   AdminRequestType,
+  SetupTask,
+  ProvingTask,
+  Payment,
+  MaintenanceRequest,
 } from "zkwasm-service-helper";
 
 import {
@@ -61,24 +65,23 @@ export async function addNewWasmImage(
     prove_payment_src: prove_payment_src,
     auto_submit_network_ids: auto_submit_networks,
   };
-  let msg = ZkWasmUtil.createAddImageSignMessage(info);
+
+  const setupTask = new SetupTask(resturl, info, user_addr);
+
+  const message = await setupTask.createSignMessage();
+
   let signature: string;
   try {
-    console.log("msg is:", msg);
-    signature = await signMessage(msg, priv);
+    console.log("msg is:", message);
+    signature = await signMessage(message, priv);
     console.log("signature is:", signature);
   } catch (e: unknown) {
     console.log("sign error: ", e);
     return;
   }
-  let task: WithSignature<AddImageParams> = {
-    ...info,
-    signature,
-  };
 
-  let helper = new ZkWasmServiceHelper(resturl, "", "");
-  await helper
-    .addNewWasmImage(task)
+  await setupTask
+    .submitTask(signature)
     .then((res) => {
       console.log("Add Image Response", res);
     })
@@ -103,22 +106,22 @@ export async function addProvingTask(
   enable_logs: boolean = true,
   num: number = 0
 ): Promise<ProveTaskResponse> {
-  let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
   let pb_inputs: Array<string> = ZkWasmUtil.validateInputs(public_inputs);
   let priv_inputs: Array<string> = ZkWasmUtil.validateInputs(private_inputs);
 
   let info: ProvingParams = {
-    user_address: user_addr.toLowerCase(),
     md5: image_md5,
     public_inputs: pb_inputs,
     private_inputs: priv_inputs,
     proof_submit_mode: proof_submit_mode,
   };
-  let msgString = ZkWasmUtil.createProvingSignMessage(info);
+
+  const proveTask = new ProvingTask(resturl, info, user_addr);
+  const message = await proveTask.createSignMessage();
 
   let signature: string;
   try {
-    signature = await signMessage(msgString, priv);
+    signature = await signMessage(message, priv);
   } catch (e: unknown) {
     if (enable_logs) {
       console.log("error signing message", e);
@@ -126,13 +129,8 @@ export async function addProvingTask(
     throw e;
   }
 
-  let task: WithSignature<ProvingParams> = {
-    ...info,
-    signature: signature,
-  };
-
-  return await helper
-    .addProvingTask(task)
+  return proveTask
+    .submitTask(signature)
     .then((res) => {
       if (enable_logs) {
         console.log(`#${num} Add Proving task Response`, res);
@@ -560,10 +558,10 @@ export async function addNewPayment(
   console.log("receiverAddress is:", receiverAddress);
   let ans = await askQuestion(
     "Are you sure you want to send " +
-    amount +
-    " ETH to " +
-    receiverAddress +
-    "? (y/n)"
+      amount +
+      " ETH to " +
+      receiverAddress +
+      "? (y/n)"
   );
   if (ans === "n" || ans === "N") {
     console.log("User cancelled the transaction.");
@@ -582,15 +580,16 @@ export async function addNewPayment(
   await tx.wait();
   console.log("Sending transaction hash to zkWasm service...");
   //Then submit the confirmed transaction hash to the zkWasm service.
-  await helper.addPayment({ txhash: tx.hash });
+
+  const payment = new Payment(resturl);
+  await payment.addPayment({ txhash: tx.hash });
 
   console.log("Finish addPayment!");
 }
 
 export async function addPaymentWithTx(txhash: string, resturl: string) {
-  let helper = new ZkWasmServiceHelper(resturl, "", "");
-  console.log("Sending transaction hash " + txhash + " to zkWasm service...");
-  await helper.addPayment({ txhash: txhash });
+  const payment = new Payment(resturl);
+  await payment.addPayment({ txhash: txhash });
 }
 
 export async function setMaintenanceMode(
@@ -598,18 +597,21 @@ export async function setMaintenanceMode(
   priv: string,
   active: boolean
 ) {
+  const user_address = await new Wallet(priv, null).getAddress();
   let params: SetMaintenanceModeParams = {
     mode: active ? MaintenanceModeType.Enabled : MaintenanceModeType.Disabled,
     // TODO: update with real values once nonce verification is implemented
     nonce: 1,
     request_type: AdminRequestType.MaintenanceMode,
-    user_address: await new Wallet(priv, null).getAddress(),
+    user_address: user_address,
   };
 
-  let msg = ZkWasmUtil.createSetMaintenanceModeSignMessage(params);
+  const maintenanceReq = new MaintenanceRequest(params, resturl, user_address);
+
   let signature: string;
 
   try {
+    const msg = await maintenanceReq.createSignMessage();
     console.log("msg is:", msg);
     signature = await signMessage(msg, priv);
     console.log("signature is:", signature);
@@ -617,15 +619,9 @@ export async function setMaintenanceMode(
     console.log("sign error: ", e);
     return;
   }
-  let task: WithSignature<SetMaintenanceModeParams> = {
-    ...params,
-    signature,
-  };
 
-  console.log("Setting maintenance mode to", params.mode, "...");
-  let helper = new ZkWasmServiceHelper(resturl, "", "");
-  await helper
-    .setMaintenanceMode(task)
+  await maintenanceReq
+    .submitTask(signature)
     .then((res) => {
       console.log("Set maintenance mode Success", res);
     })

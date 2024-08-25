@@ -34,7 +34,7 @@ export const handler = async (argv: Arguments) => {
     let stats = helper
       .queryNodeStatistics(args)
       .then((res) => {
-        return res;
+        return res.data;
       })
       .catch((err) => {
         console.log("Error fetching Current node statistics", err);
