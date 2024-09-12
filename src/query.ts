@@ -225,7 +225,7 @@ export async function getProverNodeList(resturl: string, enable_logs : boolean =
       total: 500,
     }
     return helper.queryNodeStatistics(args).then((res) => {
-      return res;
+      return res.data;
     }
     ).catch((err) => {
       throw err
