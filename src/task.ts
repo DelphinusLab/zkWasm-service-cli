@@ -27,6 +27,7 @@ import {
   queryDispositHistory,
   queryUserSubscription,
   queryTaskByTypeAndStatus,
+  queryLogs,
 } from "./query";
 
 export async function addNewWasmImage(
@@ -270,6 +271,7 @@ async function runProveTasks(
 async function runQueryTasks(
   resturl: string,
   user_address: string,
+  priv : string,
   image_md5s: string[],
   task_ids: string[],
   num_query_tasks: number,
@@ -302,6 +304,7 @@ async function runQueryTasks(
     secs,
     async (_: number) => {
       const query_fn = getRandomQuery(
+        priv,
         image_md5s,
         task_ids,
         resturl,
@@ -364,6 +367,7 @@ function getRandIdx(length: number): number {
 }
 
 function getRandomQuery(
+  priv : string,
   image_md5s: string[],
   task_ids: string[],
   resturl: string,
@@ -372,6 +376,7 @@ function getRandomQuery(
   query_tasks_only: boolean
 ): () => Promise<boolean> {
   const fn_list = [
+    // () => queryLogs(resturl, user_addr, "66e7bae09341b28f0181064d" /* task_ids[getRandIdx(task_ids.length)] */, priv ,enable_logs),
     () =>
       queryTask(task_ids[getRandIdx(task_ids.length)], resturl, enable_logs),
     () => {
@@ -495,6 +500,7 @@ export async function pressureTest(
     runQueryTasks(
       resturl,
       user_addr,
+      priv,
       image_md5s,
       task_ids,
       total_query_tasks,

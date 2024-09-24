@@ -1,7 +1,9 @@
 import {
     ZkWasmServiceHelper,
+    WithSignature,
     ZkWasmUtil,
     QueryParams,
+    LogQuery,
     UserQueryParams,
     TxHistoryQueryParams,
     PaginationResult,
@@ -10,6 +12,7 @@ import {
     NodeStatistics,
 } from "zkwasm-service-helper";
 import BN from "bn.js";
+import { signMessage } from "./util";
 
 export async function queryTask(taskid: string, resturl: string, enable_logs : boolean = true) : Promise<boolean> {
     let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
@@ -186,6 +189,41 @@ export async function queryConfig(resturl: string, enable_logs : boolean = true)
 export async function queryStatistics(resturl: string, enable_logs : boolean = true) : Promise<boolean> {
     let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
     return helper.loadStatistics().then((res) => {
+      if (enable_logs) {
+        console.log("loadStatistics Success", res);
+      }
+      return true;
+    }).catch((err) => {
+      if (enable_logs) {
+        console.log("loadStatistics Error", err);
+      }
+      return false;
+    });
+}
+
+export async function queryLogs(resturl: string, user_address : string, task_id : string, priv : string, enable_logs : boolean = true) : Promise<boolean> {
+    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
+    let info : LogQuery = {
+      id: task_id,
+      user_address: user_address.toLowerCase(),
+    };
+    let msg = ZkWasmUtil.createLogsMesssage(info);
+    let signature: string;
+    try {
+      signature = await signMessage(msg, priv);
+    } catch (e: unknown) {
+      if (enable_logs) {
+        console.log("error signing message", e);
+      }
+      throw e;
+    }
+
+    let query: WithSignature<LogQuery> = {
+      ...info,
+      signature,
+    };
+
+    return helper.queryLogs(query).then((res) => {
       if (enable_logs) {
         console.log("loadStatistics Success", res);
       }
