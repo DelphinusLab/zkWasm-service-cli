@@ -62,7 +62,7 @@ export async function queryTask(taskid: string, resturl: string, enable_logs : b
           task.compression === CompressionType.GZip
             ? gunzipSync(Buffer.from(externalHostFileBytes))
             : Buffer.from(externalHostFileBytes);
-        console.log("External host table json:", task.compression);
+        console.log("External host table json:");
         console.log(externalHostFileData.toString());
       }
       return true;
