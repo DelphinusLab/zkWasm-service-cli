@@ -48,7 +48,7 @@ export const handler = async (argv: Arguments) => {
   let currentStats: NodeStatistics[] = [];
 
   try {
-    currentStats = await getNodeStatistics();
+    currentStats = (await getNodeStatistics()).data;
   } catch (err) {
     console.log("Error fetching Current node statistics", err);
     return;
