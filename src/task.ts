@@ -14,6 +14,8 @@ import {
   MaintenanceModeType,
   SetMaintenanceModeParams,
   AdminRequestType,
+  ArchiveTasksParams,
+  RestoreTasksParams,
 } from "zkwasm-service-helper";
 
 import {
@@ -633,4 +635,88 @@ export async function setMaintenanceMode(
       console.log("Set maintenance mode Error", err);
     })
     .finally(() => console.log("Finish setMaintenanceMode!"));
+}
+
+export async function archiveTasks(
+  resturl: string,
+  priv: string,
+  timestamp: string
+) {
+  let params: ArchiveTasksParams = {
+    timestamp: timestamp,
+    // TODO: update with real values once nonce verification is implemented
+    nonce: 1,
+    request_type: AdminRequestType.MaintenanceMode,
+    user_address: await new Wallet(priv, null).getAddress(),
+  };
+
+  let msg = ZkWasmUtil.createArchiveTasksSignMessage(params);
+  let signature: string;
+
+  try {
+    console.log("msg is:", msg);
+    signature = await signMessage(msg, priv);
+    console.log("signature is:", signature);
+  } catch (e: unknown) {
+    console.log("sign error: ", e);
+    return;
+  }
+  let task: WithSignature<ArchiveTasksParams> = {
+    ...params,
+    signature,
+  };
+
+  console.log("Archive tasks after ", params.timestamp, "...");
+  let helper = new ZkWasmServiceHelper(resturl, "", "");
+  await helper
+    .archiveTasks(task)
+    .then((res) => {
+      console.log("Archive tasks success", res);
+    })
+    .catch((err) => {
+      console.log("Archive tasks error", err);
+    })
+    .finally(() => console.log("Finish archiveTasks!"));
+}
+
+export async function restoreTasks(
+  resturl: string,
+  priv: string,
+  archive_id: string
+) {
+  let params: RestoreTasksParams = {
+    archive_id: archive_id,
+    // TODO: update with real values once nonce verification is implemented
+    nonce: 1,
+    request_type: AdminRequestType.MaintenanceMode,
+    user_address: await new Wallet(priv, null).getAddress(),
+  };
+
+  let msg = ZkWasmUtil.createRestoreTasksSignMessage(params);
+  let signature: string;
+
+  try {
+    console.log("msg is:", msg);
+    signature = await signMessage(msg, priv);
+    console.log("signature is:", signature);
+  } catch (e: unknown) {
+    console.log("sign error: ", e);
+    return;
+  }
+  let task: WithSignature<RestoreTasksParams> = {
+    ...params,
+    signature,
+  };
+
+  console.log("Restored tasks associated with archive id ", params.archive_id, "...");
+  let helper = new ZkWasmServiceHelper(resturl, "", "");
+  await helper
+    .restoreTasks(task)
+    .then((res) => {
+      console.log("Restore tasks success", res);
+    })
+    .catch((err) => {
+      console.log("Restore tasks error", err);
+    })
+    .finally(() => console.log("Finish restoreTasks!"));
 }
