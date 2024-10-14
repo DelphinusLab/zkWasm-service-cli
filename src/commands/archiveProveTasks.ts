@@ -2,7 +2,7 @@ import { Arguments, Argv } from "yargs";
 import { archiveProveTasks } from "../task";
 
 export const command = "archiveprovetasks";
-export const desc = "Move tasks (excluding setup tasks) older than timestamp to archive collection";
+export const desc = "Move prove tasks from main tasks database to an archive database, only tasks older than the given timestamp are archived. User sending the request must be an administrator. Id is returned in response and it is required for `restoreprovetasks`.";
 
 export const builder = (yargs: Argv) => {
   return yargs

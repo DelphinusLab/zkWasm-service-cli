@@ -2,7 +2,7 @@ import { Arguments, Argv } from "yargs";
 import { restoreProveTasks } from "../task";
 
 export const command = "restoreprovetasks";
-export const desc = "Move tasks stored in archive back into tasks collection";
+export const desc = "Undo archive operation. `archiveprovetasks` returns id which is used for restoring the archived tasks. User sending the request must be an administrator.";
 
 export const builder = (yargs: Argv) => {
   return yargs

@@ -171,8 +171,40 @@ Set maintenance mode to active or inactive. Maintenance mode denies certain requ
 
 ### Options
 
-The following options are available for the `pressuretest` command:
+The following options are available for the `archiveprovetasks` command:
 
 - `-r, --resturl <url>`: The rest url of zkwasm cloud service. This option is **required**.
 - `-x, --priv <priv>`: The private key of the address of the administrator sending maintenance mode request.
 - `--active <true|false>`: True or False, determines if maintenance mode should be activated or deactivated.
+
+## Command: archiveprovetasks
+
+Move prove tasks from main tasks database to an archive database, only tasks older than the given timestamp are archived. User sending the request must be an administrator. Id is returned in response and it is required for `restoreprovetasks`.
+
+### Usage
+
+`node dist/index.js archiveprovetasks -r <resturl> -x <priv> --timestamp <timestamp>`
+
+### Options
+
+The following options are available for the `archiveprovetasks` command:
+
+- `-r, --resturl <url>`: The rest url of zkwasm cloud service. This option is **required**.
+- `-x, --priv <priv>`: The private key of the address of the administrator sending maintenance mode request.
+- `--timestamp <timestamp>`: YYYY-MM-DD format, prove tasks submitted before this date will be archived.
+
+## Command: restoreprovetasks
+
+Undo archive operation. `archiveprovetasks` returns id which is used for restoring the archived tasks. User sending the request must be an administrator.
+
+### Usage
+
+```node dist/index.js archiveprovetasks -r <resturl> -x <priv> --archive_id <archive_id>```
+
+### Options
+
+The following options are available for the `archiveprovetasks` command:
+
+- `-r, --resturl <url>`: The rest url of zkwasm cloud service. This option is **required**.
+- `-x, --priv <priv>`: The private key of the address of the administrator sending maintenance mode request.
+- `--archive_id <archive_id>`: Required to specify which archive operation to undo, id is given by `archiveprovetasks` response.
