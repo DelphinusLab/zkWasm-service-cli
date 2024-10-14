@@ -18,6 +18,8 @@ export function createCLI() {
       .command(commands.queryTask)
       .command(commands.pressureTest)
       .command(commands.proverProfile)
+      .command(commands.archiveTasks)
+      .command(commands.restoreTasks)
       // Add other commands here as they are implemented
       .example(
         'node dist/index.js addimage -r "http://127.0.0.1:8080" -p "/home/username/arith.wasm" -u "0x278847f04E166451182dd30E33e09667bA31e6a8" -x "xxxxxxx" -n "myfirstimage" -d "My First Image" -c 18',

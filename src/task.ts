@@ -643,10 +643,10 @@ export async function archiveTasks(
   timestamp: string
 ) {
   let params: ArchiveTasksParams = {
-    timestamp: timestamp,
+    timestamp: (new Date(timestamp)).toString(),
     // TODO: update with real values once nonce verification is implemented
     nonce: 1,
-    request_type: AdminRequestType.MaintenanceMode,
+    request_type: AdminRequestType.ArchiveOperation,
     user_address: await new Wallet(priv, null).getAddress(),
   };
 
@@ -688,7 +688,7 @@ export async function restoreTasks(
     archive_id: archive_id,
     // TODO: update with real values once nonce verification is implemented
     nonce: 1,
-    request_type: AdminRequestType.MaintenanceMode,
+    request_type: AdminRequestType.ArchiveOperation,
     user_address: await new Wallet(priv, null).getAddress(),
   };
 

@@ -4,3 +4,5 @@ export * as addPayment from "./addPayment";
 export * as queryTask from "./queryTask";
 export * as pressureTest from "./pressureTest";
 export * as proverProfile from "./proverProfile";
+export * as archiveTasks from "./archiveTasks";
+export * as restoreTasks from "./restoreTasks";
