@@ -14,8 +14,8 @@ import {
   MaintenanceModeType,
   SetMaintenanceModeParams,
   AdminRequestType,
-  ArchiveTasksParams,
-  RestoreTasksParams,
+  ArchiveProveTasksParams,
+  RestoreProveTasksParams,
 } from "zkwasm-service-helper";
 
 import {
@@ -637,20 +637,20 @@ export async function setMaintenanceMode(
     .finally(() => console.log("Finish setMaintenanceMode!"));
 }
 
-export async function archiveTasks(
+export async function archiveProveTasks(
   resturl: string,
   priv: string,
   timestamp: string
 ) {
-  let params: ArchiveTasksParams = {
-    timestamp: (new Date(timestamp)).toString(),
+  let params: ArchiveProveTasksParams = {
+    timestamp: (new Date(timestamp)).toISOString(),
     // TODO: update with real values once nonce verification is implemented
     nonce: 1,
     request_type: AdminRequestType.ArchiveOperation,
     user_address: await new Wallet(priv, null).getAddress(),
   };
 
-  let msg = ZkWasmUtil.createArchiveTasksSignMessage(params);
+  let msg = ZkWasmUtil.createArchiveProveTasksSignMessage(params);
   let signature: string;
 
   try {
@@ -661,7 +661,7 @@ export async function archiveTasks(
     console.log("sign error: ", e);
     return;
   }
-  let task: WithSignature<ArchiveTasksParams> = {
+  let task: WithSignature<ArchiveProveTasksParams> = {
     ...params,
     signature,
   };
@@ -669,7 +669,7 @@ export async function archiveTasks(
   console.log("Archive tasks after ", params.timestamp, "...");
   let helper = new ZkWasmServiceHelper(resturl, "", "");
   await helper
-    .archiveTasks(task)
+    .archiveProveTasks(task)
     .then((res) => {
       console.log("Archive tasks success", res);
     })
@@ -679,12 +679,12 @@ export async function archiveTasks(
     .finally(() => console.log("Finish archiveTasks!"));
 }
 
-export async function restoreTasks(
+export async function restoreProveTasks(
   resturl: string,
   priv: string,
   archive_id: string
 ) {
-  let params: RestoreTasksParams = {
+  let params: RestoreProveTasksParams = {
     archive_id: archive_id,
     // TODO: update with real values once nonce verification is implemented
     nonce: 1,
@@ -692,7 +692,7 @@ export async function restoreTasks(
     user_address: await new Wallet(priv, null).getAddress(),
   };
 
-  let msg = ZkWasmUtil.createRestoreTasksSignMessage(params);
+  let msg = ZkWasmUtil.createRestoreProveTasksSignMessage(params);
   let signature: string;
 
   try {
@@ -703,7 +703,7 @@ export async function restoreTasks(
     console.log("sign error: ", e);
     return;
   }
-  let task: WithSignature<RestoreTasksParams> = {
+  let task: WithSignature<RestoreProveTasksParams> = {
     ...params,
     signature,
   };
@@ -711,7 +711,7 @@ export async function restoreTasks(
   console.log("Restored tasks associated with archive id ", params.archive_id, "...");
   let helper = new ZkWasmServiceHelper(resturl, "", "");
   await helper
-    .restoreTasks(task)
+    .restoreProveTasks(task)
     .then((res) => {
       console.log("Restore tasks success", res);
     })

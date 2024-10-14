@@ -1,7 +1,7 @@
 import { Arguments, Argv } from "yargs";
-import { archiveTasks } from "../task";
+import { archiveProveTasks } from "../task";
 
-export const command = "archivetasks";
+export const command = "archiveprovetasks";
 export const desc = "Move tasks (excluding setup tasks) older than timestamp to archive collection";
 
 export const builder = (yargs: Argv) => {
@@ -21,7 +21,7 @@ export const builder = (yargs: Argv) => {
 };
 
 export const handler = async (argv: Arguments) => {
-  await archiveTasks(
+  await archiveProveTasks(
     argv.r as string,
     argv.x as string,
     argv.timestamp as string,
