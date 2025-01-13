@@ -51,6 +51,10 @@ export const builder = (yargs: Argv) => {
         "List of network ids to automatically submit proofs to. If not specified, proofs will not be automatically submitted.",
       type: "array",
       default: [],
+    })
+    .option("import_data_image", {
+      describe: "image's name",
+      type: "string",
     });
 };
 
@@ -59,6 +63,7 @@ export const handler = async (argv: Arguments) => {
   console.log("Begin adding image for ", absolutePath);
   let circuit_size: number = argv.c ? (argv.c as number) : 18;
   let desc = argv.d ? (argv.d as string) : (argv.n as string);
+  let image_data_image = argv.import_data_image ? argv.import_data_image as string : undefined;
 
   await addNewWasmImage(
     argv.r as string,
@@ -70,6 +75,7 @@ export const handler = async (argv: Arguments) => {
     circuit_size,
     argv.x as string,
     argv.creator_paid_proof as boolean,
-    argv.auto_submit_network_ids as number[]
+    argv.auto_submit_network_ids as number[],
+    image_data_image
   );
 };

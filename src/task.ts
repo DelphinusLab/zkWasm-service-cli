@@ -39,7 +39,8 @@ export async function addNewWasmImage(
   circuit_size: number,
   priv: string,
   creator_paid_proof: boolean,
-  auto_submit_networks: number[]
+  auto_submit_networks: number[],
+  inherited_merkle_data_md5: string | undefined
 ) {
   const filename = parse(absPath).base;
   let fileSelected: Buffer = fs.readFileSync(absPath);
@@ -60,6 +61,7 @@ export async function addNewWasmImage(
     circuit_size: circuit_size,
     prove_payment_src: prove_payment_src,
     auto_submit_network_ids: auto_submit_networks,
+    inherited_merkle_data_md5: inherited_merkle_data_md5,
   };
   let msg = ZkWasmUtil.createAddImageSignMessage(info);
   let signature: string;
