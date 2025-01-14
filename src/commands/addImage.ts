@@ -25,19 +25,21 @@ export const builder = (yargs: Argv) => {
       demandOption: "The priv is required for signing message.",
       type: "string",
     })
+    .option("n", {
+      alias: "name",
+      describe: "image's name",
+      demandOption: "The image name is required.",
+      type: "string",
+    })
     .option("c", {
       alias: "circuit_size",
       describe: "image's circuits size, if not specified, default is 22",
       type: "number",
+      default: 22,
     })
     .option("d", {
       alias: "description",
       describe: "image's description, if not specifed, will use name",
-      type: "string",
-    })
-    .option("n", {
-      alias: "name",
-      describe: "image's name",
       type: "string",
     })
     .option("creator_paid_proof", {
@@ -51,14 +53,18 @@ export const builder = (yargs: Argv) => {
         "List of network ids to automatically submit proofs to. If not specified, proofs will not be automatically submitted.",
       type: "array",
       default: [],
+    })
+    .option("import_data_image", {
+      describe: "The MD5 in which to inherit merkle data from",
+      type: "string",
     });
 };
 
 export const handler = async (argv: Arguments) => {
   const absolutePath = resolve(argv.p as string);
   console.log("Begin adding image for ", absolutePath);
-  let circuit_size: number = argv.c ? (argv.c as number) : 18;
   let desc = argv.d ? (argv.d as string) : (argv.n as string);
+  let image_data_image = argv.import_data_image ? argv.import_data_image as string : undefined;
 
   await addNewWasmImage(
     argv.r as string,
@@ -67,9 +73,10 @@ export const handler = async (argv: Arguments) => {
     argv.n as string,
     desc,
     "",
-    circuit_size,
+    argv.circuit_size as number,
     argv.x as string,
     argv.creator_paid_proof as boolean,
-    argv.auto_submit_network_ids as number[]
+    argv.auto_submit_network_ids as number[],
+    image_data_image
   );
 };
