@@ -48,6 +48,12 @@ export const builder = (yargs: Argv) => {
       type: "boolean",
       default: false,
     })
+    .option("creator_only_add_prove_task", {
+      describe:
+        "Specify if proofs for this image are restricted to only be added by the creator of the image",
+      type: "boolean",
+      default: false,
+    })
     .option("auto_submit_network_ids", {
       describe:
         "List of network ids to automatically submit proofs to. If not specified, proofs will not be automatically submitted.",
@@ -76,6 +82,7 @@ export const handler = async (argv: Arguments) => {
     argv.circuit_size as number,
     argv.x as string,
     argv.creator_paid_proof as boolean,
+    argv.creator_only_add_prove_task as boolean,
     argv.auto_submit_network_ids as number[],
     image_data_image
   );
