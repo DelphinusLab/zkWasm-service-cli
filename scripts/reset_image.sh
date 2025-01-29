@@ -5,4 +5,4 @@ node dist/index.js addimage \
     --image "Image MD5" \
     --creator_paid_proof true|false \
     --creator_only_add_prove_task true|false \
-    --auto_submit_network_ids "1, 2, 3" 
+    --auto_submit_network_ids 97 11001 314
