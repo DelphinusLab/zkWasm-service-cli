@@ -21,6 +21,8 @@ export async function queryTask(
   resturl: string,
   enable_logs: boolean = true,
   concise: boolean = false,
+  start: number = 0,
+  total: number = 1,
 ): Promise<boolean> {
   let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
   let args: QueryParams = {
@@ -29,6 +31,8 @@ export async function queryTask(
     md5: md5,
     tasktype: tasktype,
     taskstatus: taskstatus,
+    start: start,
+    total: total,
   };
   if (concise) {
     return helper
@@ -36,9 +40,11 @@ export async function queryTask(
       .then((res) => {
         if (enable_logs) {
           const tasks = res as PaginationResult<ConciseTask[]>;
-          const task: ConciseTask = tasks.data[0];
-          console.log("Concise Task details: ");
-          console.log("    ", task);
+          const ts: ConciseTask[] = tasks.data;
+          for (const [i, task] of ts.entries()) {
+            console.log("Concise Task", i, "details:");
+            console.log("    ", task);
+          }
         }
         return true;
       })
@@ -54,31 +60,34 @@ export async function queryTask(
       .then((res) => {
         if (enable_logs) {
           const tasks = res as PaginationResult<Task[]>;
-          const task: Task = tasks.data[0];
-          let aggregate_proof = ZkWasmUtil.bytesToBN(task.proof);
-          let instances = ZkWasmUtil.bytesToBN(task.instances);
-          let batchInstances = ZkWasmUtil.bytesToBN(task.batch_instances);
-          let aux = ZkWasmUtil.bytesToBN(task.aux);
-          let fee = task.task_fee && ZkWasmUtil.convertAmount(task.task_fee);
-          console.log("Task details: ");
-          console.log("    ", task);
-          console.log("    proof:");
-          aggregate_proof.map((proof: BN, _) => {
-            console.log("   0x", proof.toString("hex"));
-          });
-          console.log("    batch_instacne:");
-          batchInstances.map((ins: BN, _) => {
-            console.log("   0x", ins.toString("hex"));
-          });
-          console.log("    instacne:");
-          instances.map((ins: BN, _) => {
-            console.log("   0x", ins.toString("hex"));
-          });
-          console.log("    aux:");
-          aux.map((aux: BN, _) => {
-            console.log("   0x", aux.toString("hex"));
-          });
-          console.log("   fee:", fee);
+          const ts: Task[] = tasks.data;
+          console.log("Concise Task details:");
+          for (const [i, task] of ts.entries()) {
+            let aggregate_proof = ZkWasmUtil.bytesToBN(task.proof);
+            let instances = ZkWasmUtil.bytesToBN(task.instances);
+            let batchInstances = ZkWasmUtil.bytesToBN(task.batch_instances);
+            let aux = ZkWasmUtil.bytesToBN(task.aux);
+            let fee = task.task_fee && ZkWasmUtil.convertAmount(task.task_fee);
+            console.log("Task", i, "details:");
+            console.log("    ", task);
+            console.log("    proof:");
+            aggregate_proof.map((proof: BN, _) => {
+              console.log("   0x", proof.toString("hex"));
+            });
+            console.log("    batch_instacne:");
+            batchInstances.map((ins: BN, _) => {
+              console.log("   0x", ins.toString("hex"));
+            });
+            console.log("    instacne:");
+            instances.map((ins: BN, _) => {
+              console.log("   0x", ins.toString("hex"));
+            });
+            console.log("    aux:");
+            aux.map((aux: BN, _) => {
+              console.log("   0x", aux.toString("hex"));
+            });
+            console.log("   fee:", fee);
+          }
         }
         return true;
       })

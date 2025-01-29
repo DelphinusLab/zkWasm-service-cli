@@ -33,6 +33,19 @@ export const builder = (yargs: Argv) => {
         "Status of the task to query, options: Pending|DryRunSuccess|Processing|DryRunFailed|Done|Fail|Unprovable|Stale",
       type: "string",
     })
+    .option("start", {
+      alias: "start",
+      describe:
+        "Number of tasks to skip before counting total number of tasks to output, default is 0",
+      type: "number",
+      default: 0,
+    })
+    .option("total", {
+      alias: "total",
+      describe: "Total number of tasks to output, max is 100 and default is 1",
+      type: "number",
+      default: 1,
+    })
     .option("concise", {
       alias: "concise",
       describe: "Print concise output or regular, default is false",
@@ -48,19 +61,17 @@ export const builder = (yargs: Argv) => {
 };
 
 export const handler = async (argv: Arguments) => {
-  const concise = argv.concise as boolean;
-  if (concise) {
-    // todo
-  } else {
-    console.log("Querying task...");
-    await queryTask(
-      argv.task_id as string,
-      argv.user_address as string,
-      argv.md5 as string,
-      argv.tasktype as string,
-      argv.taskstatus as string,
-      argv.r as string,
-      argv.verbose as boolean,
-    );
-  }
+  console.log("Querying task...");
+  await queryTask(
+    argv.task_id as string,
+    argv.user_address as string,
+    argv.md5 as string,
+    argv.tasktype as string,
+    argv.taskstatus as string,
+    argv.r as string,
+    argv.verbose as boolean,
+    argv.concise as boolean,
+    argv.start as number,
+    argv.total as number,
+  );
 };

@@ -194,7 +194,7 @@ Query Task with given parameters.
 
 ### Options
 
-The following options are available for the `addprovingtask` command:
+The following options are available for the `querytask` command:
 
 - `-r, --resturl <url>`: The rest url of zkwasm cloud service. This option is **required**.
 - `--task_id <task_id>`: The id of the task to query.
@@ -202,6 +202,8 @@ The following options are available for the `addprovingtask` command:
 - `--md5 <md5>`: The image MD5 of the task to query.
 - `--tasktype <tasktype>`: The type of the task to query, options: Setup|Prove|Verify|Batch|Deploy|Reset.
 - `--taskstatus <taskstatus>`: The status of the task to query, options: Pending|DryRunSuccess|Processing|DryRunFailed|Done|Fail|Unprovable|Stale.
+- `--start <0|1|..|u64::MAX>`: The number of tasks to skip before counting total number of tasks to output, default is 0.
+- `--total <0|1|..|100>`: The total number of tasks to output, max is 100 and default is 1.
 - `--concise <true|false>`: Print concise output or regular, default is false.
 - `--verbose <true|false>`: Enable task to be printed to stdout, default is true.
 
