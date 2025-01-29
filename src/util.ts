@@ -1,6 +1,7 @@
 import EthCrypto from "eth-crypto";
+import { exit } from "process";
 import readline from "readline";
-import { ZkWasmUtil} from "zkwasm-service-helper";
+import { ProofSubmitMode, ZkWasmUtil } from "zkwasm-service-helper";
 
 export async function signMessage(message: string, priv: string) {
   return await ZkWasmUtil.signMessage(message, priv);
@@ -29,4 +30,16 @@ export async function askQuestion(query: string) {
       resolve(ans);
     })
   );
+}
+
+export function parseProofSubmitMode(submit_mode: any) {
+  const psm = (submit_mode as string).toLowerCase();
+  if (psm === "auto") {
+    return ProofSubmitMode.Auto;
+  } else if (psm === "manual") {
+    return ProofSubmitMode.Manual;
+  } else {
+    console.log("Invalid option for proof_submit_mode, must be either 'Auto' or 'Manual', input:", submit_mode);
+    exit(1);
+  }
 }

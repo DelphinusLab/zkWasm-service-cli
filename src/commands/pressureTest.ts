@@ -1,6 +1,6 @@
 import { Arguments, Argv } from "yargs";
 import { pressureTest } from "../task";
-import { ProofSubmitMode } from "zkwasm-service-helper";
+import { parseProofSubmitMode } from "../util";
 
 export const command = "pressuretest";
 export const desc = "Pressure test";
@@ -31,9 +31,9 @@ export const builder = (yargs: Argv) => {
       default: "",
     })
     .option("submit_mode", {
-      describe: "Submit mode for the proof, default is manual",
+      describe: "Submit mode for the proof, either 'Manual' or 'Auto', default is 'Manual'",
       type: "string",
-      default: "manual",
+      default: "Manual",
     })
     .option("num_prove_tasks", {
       describe:
@@ -92,18 +92,13 @@ export const handler = async (argv: Arguments) => {
     console.log("Using input image md5s", image_mds_in);
   }
 
-  const proof_submit_mode =
-    argv.submit_mode === "Auto" || argv.submit_mode === "auto"
-      ? ProofSubmitMode.Auto
-      : ProofSubmitMode.Manual;
-
   await pressureTest(
     argv.r as string,
     argv.u as string,
     argv.x as string,
     argv.public_input as string,
     argv.private_input as string,
-    proof_submit_mode,
+    parseProofSubmitMode(argv.submit_mode),
     argv.num_prove_tasks as number,
     argv.interval_prove_tasks_ms as number,
     argv.num_query_tasks as number,

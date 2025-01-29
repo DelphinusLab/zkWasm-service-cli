@@ -1,6 +1,6 @@
 import { Arguments, Argv } from "yargs";
 import { addProvingTask } from "../task";
-import { ProofSubmitMode } from "zkwasm-service-helper";
+import { parseProofSubmitMode } from "../util";
 
 export const command = "addprovingtask";
 export const desc = "Add proving task";
@@ -31,9 +31,9 @@ export const builder = (yargs: Argv) => {
       type: "string",
     })
     .option("submit_mode", {
-      describe: "Submit mode for the proof, default is manual",
+      describe: "Submit mode for the proof, either 'Manual' or 'Auto', default is 'Manual'",
       type: "string",
-      default: "manual",
+      default: "Manual",
     })
     .option("private_input", {
       describe: "private currently not supported",
@@ -49,7 +49,7 @@ export const handler = async (argv: Arguments) => {
     argv.i as string,
     argv.public_input ? (argv.public_input as string) : "",
     argv.private_input ? (argv.private_input as string) : "",
-    argv.submit_mode as ProofSubmitMode,
+    parseProofSubmitMode(argv.submit_mode),
     argv.x as string
   );
 };
