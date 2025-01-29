@@ -43,3 +43,14 @@ export function parseProofSubmitMode(submit_mode: any) {
     exit(1);
   }
 }
+
+export function parseAutoSubmitNetworkIds(auto_submit_network_ids: any) {
+  return (auto_submit_network_ids as any[]).map((it) => {
+    if (typeof it === "number" && !Number.isNaN(it) && Number.isFinite(it)) {
+      return it as number;
+    } else {
+      console.log("Invalid type detected in auto_submit_network_ids, must only contain network ids, input:", auto_submit_network_ids);
+      exit(1);
+    }
+  })
+}

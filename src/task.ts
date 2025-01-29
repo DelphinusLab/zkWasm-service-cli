@@ -15,6 +15,7 @@ import {
   SetMaintenanceModeParams,
   AdminRequestType,
   AddProveTaskRestrictions,
+  ResetImageParams,
 } from "zkwasm-service-helper";
 
 import {
@@ -67,7 +68,7 @@ export async function addNewWasmImage(
     prove_payment_src: prove_payment_src,
     auto_submit_network_ids: auto_submit_networks,
     inherited_merkle_data_md5: inherited_merkle_data_md5,
-    add_prove_task_restrictions : add_prove_task_restrictions,
+    add_prove_task_restrictions: add_prove_task_restrictions,
   };
   let msg = ZkWasmUtil.createAddImageSignMessage(info);
   let signature: string;
@@ -641,4 +642,56 @@ export async function setMaintenanceMode(
       console.log("Set maintenance mode Error", err);
     })
     .finally(() => console.log("Finish setMaintenanceMode!"));
+}
+
+export async function addResetImageTask(
+  resturl: string,
+  user_addr: string,
+  md5: string,
+  circuit_size: number,
+  priv: string,
+  creator_paid_proof: boolean,
+  creator_only_add_prove_task: boolean,
+  auto_submit_networks: number[],
+) {
+  let prove_payment_src = creator_paid_proof
+    ? ProvePaymentSrc.CreatorPay
+    : ProvePaymentSrc.Default;
+  let add_prove_task_restrictions = creator_only_add_prove_task
+    ? AddProveTaskRestrictions.CreatorOnly
+    : AddProveTaskRestrictions.Anyone;
+
+  let info: ResetImageParams = {
+    md5: md5,
+    circuit_size: circuit_size,
+    user_address: user_addr.toLowerCase(),
+    prove_payment_src: prove_payment_src,
+    auto_submit_network_ids: auto_submit_networks,
+    add_prove_task_restrictions: add_prove_task_restrictions
+  };
+  let msg = ZkWasmUtil.createResetImageMessage(info);
+  let signature: string;
+  try {
+    console.log("msg is:", msg);
+    signature = await signMessage(msg, priv);
+    console.log("signature is:", signature);
+  } catch (e: unknown) {
+    console.log("sign error: ", e);
+    return;
+  }
+  let task: WithSignature<ResetImageParams> = {
+    ...info,
+    signature,
+  };
+
+  let helper = new ZkWasmServiceHelper(resturl, "", "");
+  await helper
+    .addResetTask(task)
+    .then((res) => {
+      console.log("Add Reset Image Response", res);
+    })
+    .catch((err) => {
+      console.log("Add Reset Image Error", err);
+    })
+    .finally(() => console.log("Finish addResetImageTask!"));
 }
