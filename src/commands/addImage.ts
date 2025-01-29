@@ -71,7 +71,9 @@ export const handler = async (argv: Arguments) => {
   const absolutePath = resolve(argv.p as string);
   console.log("Begin adding image for ", absolutePath);
   let desc = argv.d ? (argv.d as string) : (argv.n as string);
-  let image_data_image = argv.import_data_image ? argv.import_data_image as string : undefined;
+  let image_data_image = argv.import_data_image
+    ? (argv.import_data_image as string)
+    : undefined;
 
   await addNewWasmImage(
     argv.r as string,
@@ -85,6 +87,6 @@ export const handler = async (argv: Arguments) => {
     argv.creator_paid_proof as boolean,
     argv.creator_only_add_prove_task as boolean,
     parseAutoSubmitNetworkIds(argv.auto_submit_network_ids),
-    image_data_image
+    image_data_image,
   );
 };

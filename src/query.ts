@@ -1,79 +1,128 @@
 import {
-    ZkWasmServiceHelper,
-    ZkWasmUtil,
-    QueryParams,
-    UserQueryParams,
-    TxHistoryQueryParams,
-    PaginationResult,
-    Task,
-    NodeStatisticsQueryParams,
-    NodeStatistics,
+  ZkWasmServiceHelper,
+  ZkWasmUtil,
+  QueryParams,
+  UserQueryParams,
+  TxHistoryQueryParams,
+  PaginationResult,
+  Task,
+  NodeStatisticsQueryParams,
+  NodeStatistics,
+  ConciseTask,
 } from "zkwasm-service-helper";
 import BN from "bn.js";
 
-export async function queryTask(taskid: string, resturl: string, enable_logs : boolean = true) : Promise<boolean> {
-    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
-    let args: QueryParams = {
-        id: taskid!,
-        user_address: "",
-        md5: "",
-        tasktype: "",
-        taskstatus: "",
-    };
-    return helper.loadTasks(args).then((res) => {
-      const tasks = res as PaginationResult<Task[]>;
-      const task: Task = tasks.data[0];
-      let aggregate_proof = ZkWasmUtil.bytesToBN(task.proof);
-      let instances = ZkWasmUtil.bytesToBN(task.instances);
-      let batchInstances = ZkWasmUtil.bytesToBN(task.batch_instances);
-      let aux = ZkWasmUtil.bytesToBN(task.aux);
-      let fee = task.task_fee && ZkWasmUtil.convertAmount(task.task_fee); 
-
-      if (enable_logs) {
-        console.log("Task details: ");
-        console.log("    ", task);
-        console.log("    proof:");
-        aggregate_proof.map((proof: BN, _) => {
+export async function queryTask(
+  taskid: string,
+  user_address: string,
+  md5: string,
+  tasktype: string,
+  taskstatus: string,
+  resturl: string,
+  enable_logs: boolean = true,
+  concise: boolean = false,
+): Promise<boolean> {
+  let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
+  let args: QueryParams = {
+    id: taskid,
+    user_address: user_address,
+    md5: md5,
+    tasktype: tasktype,
+    taskstatus: taskstatus,
+  };
+  if (concise) {
+    return helper
+      .loadTaskList(args)
+      .then((res) => {
+        if (enable_logs) {
+          const tasks = res as PaginationResult<ConciseTask[]>;
+          const task: ConciseTask = tasks.data[0];
+          console.log("Concise Task details: ");
+          console.log("    ", task);
+        }
+        return true;
+      })
+      .catch((err) => {
+        if (enable_logs) {
+          console.log("Concise queryTask Error", err);
+        }
+        return false;
+      });
+  } else {
+    return helper
+      .loadTasks(args)
+      .then((res) => {
+        if (enable_logs) {
+          const tasks = res as PaginationResult<Task[]>;
+          const task: Task = tasks.data[0];
+          let aggregate_proof = ZkWasmUtil.bytesToBN(task.proof);
+          let instances = ZkWasmUtil.bytesToBN(task.instances);
+          let batchInstances = ZkWasmUtil.bytesToBN(task.batch_instances);
+          let aux = ZkWasmUtil.bytesToBN(task.aux);
+          let fee = task.task_fee && ZkWasmUtil.convertAmount(task.task_fee);
+          console.log("Task details: ");
+          console.log("    ", task);
+          console.log("    proof:");
+          aggregate_proof.map((proof: BN, _) => {
             console.log("   0x", proof.toString("hex"));
-        });
-        console.log("    batch_instacne:");
-        batchInstances.map((ins: BN, _) => {
+          });
+          console.log("    batch_instacne:");
+          batchInstances.map((ins: BN, _) => {
             console.log("   0x", ins.toString("hex"));
-        });
-        console.log("    instacne:");
-        instances.map((ins: BN, _) => {
+          });
+          console.log("    instacne:");
+          instances.map((ins: BN, _) => {
             console.log("   0x", ins.toString("hex"));
-        });
-        console.log("    aux:");
-        aux.map((aux: BN, _) => {
+          });
+          console.log("    aux:");
+          aux.map((aux: BN, _) => {
             console.log("   0x", aux.toString("hex"));
-        });
-        console.log("   fee:", fee);
-      }
-      return true;
-    }).catch((err) => {
-      if (enable_logs) {
-        console.log("queryTask Error", err);
-      }
-      return false;
-    });
+          });
+          console.log("   fee:", fee);
+        }
+        return true;
+      })
+      .catch((err) => {
+        if (enable_logs) {
+          console.log("queryTask Error", err);
+        }
+        return false;
+      });
+  }
 }
 
-export async function queryTaskByTypeAndStatus(tasktype: string, taskstatus: string, resturl: string, enable_logs : boolean = true) : Promise<boolean> {
-    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
-    let args: QueryParams = {
-        id: "",
-        user_address: "",
-        md5: "",
-        tasktype: tasktype,
-        taskstatus: taskstatus,
-    };
-    return helper.loadTasks(args).then((res) => {
+export async function queryTaskByTypeAndStatus(
+  tasktype: string,
+  taskstatus: string,
+  resturl: string,
+  enable_logs: boolean = true,
+): Promise<boolean> {
+  return await queryTask(
+    "",
+    "",
+    "",
+    tasktype,
+    taskstatus,
+    resturl,
+    enable_logs,
+  );
+}
+
+export async function queryImage(
+  md5: string,
+  resturl: string,
+  enable_logs: boolean = true,
+): Promise<boolean> {
+  let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
+  return helper
+    .queryImage(md5)
+    .then((res) => {
       if (enable_logs) {
         console.log("queryImage Success", res);
       }
       return true;
-    }).catch((err) => {
+    })
+    .catch((err) => {
       if (enable_logs) {
         console.log("queryTask Error", err);
       }
@@ -81,32 +130,24 @@ export async function queryTaskByTypeAndStatus(tasktype: string, taskstatus: str
     });
 }
 
-export async function queryImage(md5: string, resturl: string, enable_logs : boolean = true) : Promise<boolean> {
-    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
-    return helper.queryImage(md5).then((res) => {
-      if (enable_logs) {
-        console.log("queryImage Success", res);
-      }
-      return true;
-    }).catch((err) => {
-      if (enable_logs) {
-        console.log("queryTask Error", err);
-      }
-      return false;
-    });
-}
-
-export async function queryUser(user_address: string, resturl: string, enable_logs : boolean = true) : Promise<boolean> {
-    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
-    let args: UserQueryParams = {
-        user_address: user_address,
-    };
-    return helper.queryUser(args).then((res) => {
+export async function queryUser(
+  user_address: string,
+  resturl: string,
+  enable_logs: boolean = true,
+): Promise<boolean> {
+  let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
+  let args: UserQueryParams = {
+    user_address: user_address,
+  };
+  return helper
+    .queryUser(args)
+    .then((res) => {
       if (enable_logs) {
         console.log("queryUser Success", res);
       }
       return true;
-    }).catch((err) => {
+    })
+    .catch((err) => {
       if (enable_logs) {
         console.log("queryUser Error", err);
       }
@@ -114,17 +155,24 @@ export async function queryUser(user_address: string, resturl: string, enable_lo
     });
 }
 
-export async function queryUserSubscription(user_address: string, resturl: string, enable_logs : boolean = true) : Promise<boolean> {
-    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
-    let args: UserQueryParams = {
-        user_address: user_address,
-    };
-    return helper.queryUserSubscription(args).then((res) => {
+export async function queryUserSubscription(
+  user_address: string,
+  resturl: string,
+  enable_logs: boolean = true,
+): Promise<boolean> {
+  let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
+  let args: UserQueryParams = {
+    user_address: user_address,
+  };
+  return helper
+    .queryUserSubscription(args)
+    .then((res) => {
       if (enable_logs) {
         console.log("queryUserSubscription Success", res);
       }
       return true;
-    }).catch((err) => {
+    })
+    .catch((err) => {
       if (enable_logs) {
         console.log("queryUserSubscription Error", err);
       }
@@ -132,17 +180,24 @@ export async function queryUserSubscription(user_address: string, resturl: strin
     });
 }
 
-export async function queryTxHistory(user_address: string, resturl: string, enable_logs : boolean = true) : Promise<boolean> {
-    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
-    let args: TxHistoryQueryParams = {
-        user_address: user_address,
-    };
-    return helper.queryTxHistory(args).then((res) => {
+export async function queryTxHistory(
+  user_address: string,
+  resturl: string,
+  enable_logs: boolean = true,
+): Promise<boolean> {
+  let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
+  let args: TxHistoryQueryParams = {
+    user_address: user_address,
+  };
+  return helper
+    .queryTxHistory(args)
+    .then((res) => {
       if (enable_logs) {
         console.log("queryTxHistory Success", res);
       }
       return true;
-    }).catch((err) => {
+    })
+    .catch((err) => {
       if (enable_logs) {
         console.log("queryTxHistory Error", err);
       }
@@ -150,17 +205,24 @@ export async function queryTxHistory(user_address: string, resturl: string, enab
     });
 }
 
-export async function queryDispositHistory(user_address: string, resturl: string, enable_logs : boolean = true) : Promise<boolean> {
-    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
-    let args: TxHistoryQueryParams = {
-        user_address: user_address,
-    };
-    return helper.queryDepositHistory(args).then((res) => {
+export async function queryDispositHistory(
+  user_address: string,
+  resturl: string,
+  enable_logs: boolean = true,
+): Promise<boolean> {
+  let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
+  let args: TxHistoryQueryParams = {
+    user_address: user_address,
+  };
+  return helper
+    .queryDepositHistory(args)
+    .then((res) => {
       if (enable_logs) {
         console.log("queryDepositHistory Success", res);
       }
       return true;
-    }).catch((err) => {
+    })
+    .catch((err) => {
       if (enable_logs) {
         console.log("queryDepositHistory Error", err);
       }
@@ -168,14 +230,20 @@ export async function queryDispositHistory(user_address: string, resturl: string
     });
 }
 
-export async function queryConfig(resturl: string, enable_logs : boolean = true) : Promise<boolean> {
-    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
-    return helper.queryConfig().then((res) => {
+export async function queryConfig(
+  resturl: string,
+  enable_logs: boolean = true,
+): Promise<boolean> {
+  let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
+  return helper
+    .queryConfig()
+    .then((res) => {
       if (enable_logs) {
         console.log("queryConfig Success", res);
       }
       return true;
-    }).catch((err) => {
+    })
+    .catch((err) => {
       if (enable_logs) {
         console.log("queryConfig Error", err);
       }
@@ -183,14 +251,20 @@ export async function queryConfig(resturl: string, enable_logs : boolean = true)
     });
 }
 
-export async function queryStatistics(resturl: string, enable_logs : boolean = true) : Promise<boolean> {
-    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
-    return helper.loadStatistics().then((res) => {
+export async function queryStatistics(
+  resturl: string,
+  enable_logs: boolean = true,
+): Promise<boolean> {
+  let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
+  return helper
+    .loadStatistics()
+    .then((res) => {
       if (enable_logs) {
         console.log("loadStatistics Success", res);
       }
       return true;
-    }).catch((err) => {
+    })
+    .catch((err) => {
       if (enable_logs) {
         console.log("loadStatistics Error", err);
       }
@@ -198,40 +272,54 @@ export async function queryStatistics(resturl: string, enable_logs : boolean = t
     });
 }
 
-export async function getAvailableImages(resturl: string, user_address : string, enable_logs : boolean = true) : Promise<Task[]> {
-    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
-    let args: QueryParams = {
-        id: "",
-        user_address: user_address,
-        md5: "",
-        tasktype: "Setup",
-        taskstatus: "Done",
-    };
-    return helper.loadTasks(args).then((res) => {
+export async function getAvailableImages(
+  resturl: string,
+  user_address: string,
+  enable_logs: boolean = true,
+): Promise<Task[]> {
+  let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
+  let args: QueryParams = {
+    id: "",
+    user_address: user_address,
+    md5: "",
+    tasktype: "Setup",
+    taskstatus: "Done",
+  };
+  return helper
+    .loadTasks(args)
+    .then((res) => {
       const tasks = res as PaginationResult<Task[]>;
       return tasks.data;
-    }).catch((err) => {
-      throw err
-    }).finally(() => {
+    })
+    .catch((err) => {
+      throw err;
+    })
+    .finally(() => {
       if (enable_logs) {
-        console.log("Finish queryTask.")
+        console.log("Finish queryTask.");
       }
     });
 }
 
-export async function getProverNodeList(resturl: string, enable_logs : boolean = true) : Promise<NodeStatistics[]> {
-    let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
-    let args: NodeStatisticsQueryParams = {
-      total: 500,
-    }
-    return helper.queryNodeStatistics(args).then((res) => {
+export async function getProverNodeList(
+  resturl: string,
+  enable_logs: boolean = true,
+): Promise<NodeStatistics[]> {
+  let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
+  let args: NodeStatisticsQueryParams = {
+    total: 500,
+  };
+  return helper
+    .queryNodeStatistics(args)
+    .then((res) => {
       return res.data;
-    }
-    ).catch((err) => {
-      throw err
-    }).finally(() => {
+    })
+    .catch((err) => {
+      throw err;
+    })
+    .finally(() => {
       if (enable_logs) {
-        console.log("Finish GetProverNodeList")
+        console.log("Finish GetProverNodeList");
       }
     });
 }

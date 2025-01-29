@@ -9,7 +9,7 @@ export async function signMessage(message: string, priv: string) {
 
 export function signMessageLocal(message: string, priv: string) {
   const messageHash = hasPersonalMessage(message);
-  return EthCrypto.sign(priv, messageHash)
+  return EthCrypto.sign(priv, messageHash);
 }
 
 export function hasPersonalMessage(message: string): string {
@@ -28,7 +28,7 @@ export async function askQuestion(query: string) {
     rl.question(query, (ans) => {
       rl.close();
       resolve(ans);
-    })
+    }),
   );
 }
 
@@ -39,7 +39,10 @@ export function parseProofSubmitMode(submit_mode: any) {
   } else if (psm === "manual") {
     return ProofSubmitMode.Manual;
   } else {
-    console.log("Invalid option for proof_submit_mode, must be either 'Auto' or 'Manual', input:", submit_mode);
+    console.log(
+      "Invalid option for proof_submit_mode, must be either 'Auto' or 'Manual', input:",
+      submit_mode,
+    );
     exit(1);
   }
 }
@@ -49,8 +52,11 @@ export function parseAutoSubmitNetworkIds(auto_submit_network_ids: any) {
     if (typeof it === "number" && !Number.isNaN(it) && Number.isFinite(it)) {
       return it as number;
     } else {
-      console.log("Invalid type detected in auto_submit_network_ids, must only contain network ids, input:", auto_submit_network_ids);
+      console.log(
+        "Invalid type detected in auto_submit_network_ids, must only contain network ids, input:",
+        auto_submit_network_ids,
+      );
       exit(1);
     }
-  })
+  });
 }

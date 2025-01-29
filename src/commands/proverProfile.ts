@@ -67,7 +67,7 @@ export const handler = async (argv: Arguments) => {
     const prevStats = await loadNodeStatisticsFile(statsPath);
 
     const report = compareNodeStats(prevStats, currentStats).filter(
-      Boolean
+      Boolean,
     ) as NodeStats[];
 
     // Write report to file
@@ -96,7 +96,7 @@ async function saveNodeStatistics(stats: NodeStatistics[], outFile: string) {
 }
 
 async function loadNodeStatisticsFile(
-  statsPath: string
+  statsPath: string,
 ): Promise<NodeStatistics[]> {
   try {
     const stats = await fs.readFile(statsPath, "utf-8");
@@ -117,20 +117,20 @@ async function saveReportFile(report: NodeStats[], outFile: string) {
     total_nodes: report.length,
     successful_tasks: report.reduce(
       (acc, node) => acc + node.successful_tasks,
-      0
+      0,
     ),
     failed_tasks: report.reduce((acc, node) => acc + node.failed_tasks, 0),
     total_tasks: report.reduce((acc, node) => acc + node.total_tasks, 0),
     timed_out_count: report.reduce(
       (acc, node) => acc + node.timed_out_count,
-      0
+      0,
     ),
     // Nodes with any successful, failed or timed out tasks (active nodes but not necessarily working)
     active_nodes: report.filter(
       (node) =>
         node.successful_tasks > 0 ||
         node.failed_tasks > 0 ||
-        node.timed_out_count > 0
+        node.timed_out_count > 0,
     ).length,
     success_task_nodes: report.filter((node) => node.successful_tasks > 0)
       .length,
@@ -166,18 +166,18 @@ async function saveReportFile(report: NodeStats[], outFile: string) {
     await fs.writeFile(outFile, csv);
   } else {
     console.error(
-      "Unsupported file format. Please use .json or .csv extension."
+      "Unsupported file format. Please use .json or .csv extension.",
     );
   }
 }
 
 function compareNodeStats(
   initialStats: NodeStatistics[],
-  finalStats: NodeStatistics[]
+  finalStats: NodeStatistics[],
 ) {
   return finalStats.map((finalNode) => {
     const initialNode = initialStats.find(
-      (node) => node.address === finalNode.address
+      (node) => node.address === finalNode.address,
     );
     // we can remove some new nodes that are not in the initial stats
     if (!initialNode) return null;

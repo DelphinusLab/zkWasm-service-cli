@@ -14,7 +14,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepare": "npm run build",
-    "build": "npx tsc && sh initzkwasmhelper.sh"
+    "build": "npx tsc && sh initzkwasmhelper.sh",
+    "format": "npx prettier --write ."
   },
   "main": "dist/index.js",
   "module": "dist/index.js",

@@ -31,7 +31,8 @@ export const builder = (yargs: Argv) => {
       default: "",
     })
     .option("submit_mode", {
-      describe: "Submit mode for the proof, either 'Manual' or 'Auto', default is 'Manual'",
+      describe:
+        "Submit mode for the proof, either 'Manual' or 'Auto', default is 'Manual'",
       type: "string",
       default: "Manual",
     })
@@ -106,6 +107,6 @@ export const handler = async (argv: Arguments) => {
     argv.total_time_sec as number,
     argv.verbose as boolean,
     argv.query_tasks_only as boolean,
-    image_mds_in
+    image_mds_in,
   );
 };

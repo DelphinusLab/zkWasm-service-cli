@@ -31,7 +31,8 @@ export const builder = (yargs: Argv) => {
       type: "string",
     })
     .option("submit_mode", {
-      describe: "Submit mode for the proof, either 'Manual' or 'Auto', default is 'Manual'",
+      describe:
+        "Submit mode for the proof, either 'Manual' or 'Auto', default is 'Manual'",
       type: "string",
       default: "Manual",
     })
@@ -50,6 +51,6 @@ export const handler = async (argv: Arguments) => {
     argv.public_input ? (argv.public_input as string) : "",
     argv.private_input ? (argv.private_input as string) : "",
     parseProofSubmitMode(argv.submit_mode),
-    argv.x as string
+    argv.x as string,
   );
 };

@@ -41,7 +41,7 @@ export const handler = async (argv: Arguments) => {
       argv.r as string,
       argv.p as string,
       argv.a as string,
-      argv.x as string
+      argv.x as string,
     );
   }
 };

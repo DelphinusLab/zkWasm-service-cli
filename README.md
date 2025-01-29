@@ -19,11 +19,12 @@ The following options are available for the `zkwasm-service-cli` command:
 ## Commands
 
 - [addimage](#command-addimage)
+- [resetimage](#command-resetimage)
 - [addprovingtask](#command-addprovingtask)
 - [adddeploytask](#command-adddeploytask)
 - [addpayment](#command-addpayment)
 - [pressuretest](#command-pressuretest)
-- [setmaintenancemode](#command-setmaintenancemode)
+- [querytask](#command-querytask)
 
 ## Command: addimage
 
@@ -31,7 +32,7 @@ Add a new wasm image.
 
 ### Usage
 
-`node dist/index.js addimage -r <resturl> -p <path> -u <address> -x <priv> [-n <name>] [-d <description>] [-c <circuit_size>] [--creator_paid_proof <true|false>] --auto_submit_network_ids x y z`
+`node dist/index.js addimage -r <resturl> -p <path> -u <address> -x <priv> [-n <name>] [-d <description>] [-c <circuit_size>] [--creator_paid_proof <true|false>] [--creator_only_add_prove_task <true|false>] --auto_submit_network_ids x y z`
 
 ### Options
 
@@ -45,6 +46,28 @@ The following options are available for the `addimage` command:
 - `-d, --description <description>`: The description of the image. If not specified, the name will be used.
 - `-c, --circuit_size <circuit_size>`: The circuit size of the image. If not specified, the default size is 18.
 - `--creator_paid_proof <true|false>`: Whether the proving fee is charged to the image creator or not. If not specified, the default is false.
+- `--creator_only_add_prove_task <true|false>`: Whether proofs for this image are restricted to only be added by the creator of the image. If not specified, the default is false.
+- `--auto_submit_network_ids <network_id1 network_id2 ...>`: List of network IDs to automatically submit the image to. If not specified, the image will not be automatically submitted to any networks.
+
+## Command: resetimage
+
+Add reset image task with the given parameters.
+
+### Usage
+
+`node dist/index.js resetimage -r <resturl> -u <address> -x <priv> -i <image_md5> [-c <circuit_size>] [--creator_paid_proof <true|false>] [--creator_only_add_prove_task <true|false>] --auto_submit_network_ids x y z`
+
+### Options
+
+The following options are available for the `resetimage` command:
+
+- `-r, --resturl <url>`: The rest url of zkwasm cloud service. This option is **required**.
+- `-u, --address <address>`: The user address which adding the image. This option is **required**.
+- `-x, --priv <priv>`: The private key of user address. This option is **required** for signing the message.
+- `-i, --image <image_md5>`: The MD5 to the wasm image. This option is **required**.
+- `-c, --circuit_size <circuit_size>`: The circuit size of the image. If not specified, the default size is 18.
+- `--creator_paid_proof <true|false>`: Whether the proving fee is charged to the image creator or not. If not specified, the default is false.
+- `--creator_only_add_prove_task <true|false>`: Whether proofs for this image are restricted to only be added by the creator of the image. If not specified, the default is false.
 - `--auto_submit_network_ids <network_id1 network_id2 ...>`: List of network IDs to automatically submit the image to. If not specified, the image will not be automatically submitted to any networks.
 
 ## Command: addprovingtask
@@ -161,7 +184,28 @@ The following options are available for the `prover-profile` command:
 - `--compare-with <file>`: The file to compare the current node statistics with. This option is required if `--report-out` is specified.
 - `--report-out <file>`: The file to output the node statistics to. This can be a .json or .csv file. This option is required if `--compare-with` is specified.
 
-## Command: setmaintenancemode
+## Command: querytask
+
+Query Task with given parameters.
+
+### Usage
+
+`node dist/index.js querytask -r <resturl> [--task_id <task_id>] [--user_address <user_address>] [--md5 <md5>] [--tasktype <Setup|Prove|Verify|Batch|Deploy|Reset>] [--taskstatus <Pending|DryRunSuccess|Processing|DryRunFailed|Done|Fail|Unprovable|Stale>] [--concise <true|false>] [--verbose <true|false>]`
+
+### Options
+
+The following options are available for the `addprovingtask` command:
+
+- `-r, --resturl <url>`: The rest url of zkwasm cloud service. This option is **required**.
+- `--task_id <task_id>`: The id of the task to query.
+- `--user_address <user_address>`: The user address of the task to query.
+- `--md5 <md5>`: The image MD5 of the task to query.
+- `--tasktype <tasktype>`: The type of the task to query, options: Setup|Prove|Verify|Batch|Deploy|Reset.
+- `--taskstatus <taskstatus>`: The status of the task to query, options: Pending|DryRunSuccess|Processing|DryRunFailed|Done|Fail|Unprovable|Stale.
+- `--concise <true|false>`: Print concise output or regular, default is false.
+- `--verbose <true|false>`: Enable task to be printed to stdout, default is true.
+
+## Command: setmaintenancemode (DEPRECATED)
 
 Set maintenance mode to active or inactive. Maintenance mode denies certain requests which allows the server to be safely shutdown.
 

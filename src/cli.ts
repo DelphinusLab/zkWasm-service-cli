@@ -13,6 +13,7 @@ export function createCLI() {
         type: "string",
       })
       .command(commands.addImage)
+      .command(commands.addResetImageTask)
       .command(commands.addProvingTask)
       .command(commands.addPayment)
       .command(commands.queryTask)
@@ -21,7 +22,7 @@ export function createCLI() {
       // Add other commands here as they are implemented
       .example(
         'node dist/index.js addimage -r "http://127.0.0.1:8080" -p "/home/username/arith.wasm" -u "0x278847f04E166451182dd30E33e09667bA31e6a8" -x "xxxxxxx" -n "myfirstimage" -d "My First Image" -c 18',
-        "Add wasm image in the specified path to zkwams cloud service."
+        "Add wasm image in the specified path to zkwams cloud service.",
       )
       .help()
   );

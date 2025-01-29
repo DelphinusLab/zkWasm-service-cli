@@ -43,7 +43,7 @@ export async function addNewWasmImage(
   creator_paid_proof: boolean,
   creator_only_add_prove_task: boolean,
   auto_submit_networks: number[],
-  inherited_merkle_data_md5: string | undefined
+  inherited_merkle_data_md5: string | undefined,
 ) {
   const filename = parse(absPath).base;
   let fileSelected: Buffer = fs.readFileSync(absPath);
@@ -110,7 +110,7 @@ export async function addProvingTask(
   proof_submit_mode: ProofSubmitMode,
   priv: string,
   enable_logs: boolean = true,
-  num: number = 0
+  num: number = 0,
 ): Promise<ProveTaskResponse> {
   let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
   let pb_inputs: Array<string> = ZkWasmUtil.validateInputs(public_inputs);
@@ -162,7 +162,7 @@ function sleep(ms: number): Promise<void> {
 
 async function runFuncAndGetExecTime(
   i: number,
-  func: (i: number) => Promise<void>
+  func: (i: number) => Promise<void>,
 ): Promise<number> {
   const start = new Date().getTime();
   await func(i);
@@ -176,7 +176,7 @@ async function sendIntervaledRequests(
   n_req: number,
   secs: { value: number },
   request_fn: (i: number) => Promise<void>,
-  finish_fn: () => void
+  finish_fn: () => void,
 ) {
   const start_t = Date.now();
   let req_cnt = 0;
@@ -211,7 +211,7 @@ async function runProveTasks(
   interval_ms: number,
   total_time_ms: number,
   original_interval_ms: number,
-  enable_logs: boolean
+  enable_logs: boolean,
 ) {
   let interval_succ_cnt = 0;
   let interval_fail_cnt = 0;
@@ -246,7 +246,7 @@ async function runProveTasks(
           submit_mode,
           priv,
           enable_logs,
-          i
+          i,
         );
         n_success++;
         interval_succ_cnt++;
@@ -263,16 +263,16 @@ async function runProveTasks(
         "\tNumber of successful prove tasks sent",
         n_success,
         "out of",
-        num_prove_tasks
+        num_prove_tasks,
       );
       console.log(
         "\tProve task success rate",
         (n_success / num_prove_tasks) * 100,
-        "%"
+        "%",
       );
 
       clearInterval(interval_id);
-    }
+    },
   );
 }
 
@@ -286,7 +286,7 @@ async function runQueryTasks(
   total_time_ms: number,
   original_interval_ms: number,
   enable_logs: boolean,
-  query_tasks_only: boolean
+  query_tasks_only: boolean,
 ) {
   let interval_succ_cnt = 0;
   let interval_fail_cnt = 0;
@@ -316,7 +316,7 @@ async function runQueryTasks(
         resturl,
         user_address,
         enable_logs,
-        query_tasks_only
+        query_tasks_only,
       );
       const success = await query_fn();
       if (success) {
@@ -334,22 +334,22 @@ async function runQueryTasks(
         "\tNumber of successful query tasks sent",
         n_success,
         "out of",
-        num_query_tasks
+        num_query_tasks,
       );
       console.log(
         "\tQuery task success rate",
         (n_success / num_query_tasks) * 100,
-        "%"
+        "%",
       );
 
       clearInterval(interval_id);
-    }
+    },
   );
 }
 
 async function getMd5sAndTaskIds(
   resturl: string,
-  user_addr: string
+  user_addr: string,
 ): Promise<[string[], string[]]> {
   const images_detail = await getAvailableImages(resturl, user_addr, false);
 
@@ -378,11 +378,19 @@ function getRandomQuery(
   resturl: string,
   user_addr: string,
   enable_logs: boolean,
-  query_tasks_only: boolean
+  query_tasks_only: boolean,
 ): () => Promise<boolean> {
   const fn_list = [
     () =>
-      queryTask(task_ids[getRandIdx(task_ids.length)], resturl, enable_logs),
+      queryTask(
+        task_ids[getRandIdx(task_ids.length)],
+        "",
+        "",
+        "",
+        "",
+        resturl,
+        enable_logs,
+      ),
     () => {
       const task_types = ["Setup", "Prove", "Reset"];
       const task_statuses = [
@@ -397,7 +405,7 @@ function getRandomQuery(
         task_types[getRandIdx(task_types.length)],
         task_statuses[getRandIdx(task_statuses.length)],
         resturl,
-        enable_logs
+        enable_logs,
       );
     },
   ];
@@ -409,7 +417,7 @@ function getRandomQuery(
           queryImage(
             image_md5s[getRandIdx(image_md5s.length)],
             resturl,
-            enable_logs
+            enable_logs,
           ),
         () => queryUser(user_addr, resturl, enable_logs),
         () => queryUserSubscription(user_addr, resturl, enable_logs),
@@ -417,7 +425,7 @@ function getRandomQuery(
         () => queryDispositHistory(user_addr, resturl, enable_logs),
         () => queryConfig(resturl, enable_logs),
         () => queryStatistics(resturl, enable_logs),
-      ]
+      ],
     );
   }
 
@@ -439,7 +447,7 @@ export async function pressureTest(
   total_time_sec: number,
   enable_logs: boolean,
   query_tasks_only: boolean,
-  image_md5s_in: string[]
+  image_md5s_in: string[],
 ) {
   const total_time_ms = total_time_sec * 1000;
   const total_prove_tasks =
@@ -448,10 +456,10 @@ export async function pressureTest(
     num_query_tasks * Math.floor(total_time_ms / interval_query_tasks_ms);
 
   const prove_interval_ms = Math.ceil(
-    interval_prove_tasks_ms / num_prove_tasks
+    interval_prove_tasks_ms / num_prove_tasks,
   );
   const query_interval_ms = Math.ceil(
-    interval_query_tasks_ms / num_query_tasks
+    interval_query_tasks_ms / num_query_tasks,
   );
 
   console.log("Total_time_ms", total_time_ms);
@@ -466,14 +474,14 @@ export async function pressureTest(
     num_prove_tasks,
     "\tper",
     interval_prove_tasks_ms,
-    "ms"
+    "ms",
   );
   console.log(
     "Query target:\tsucc =",
     num_query_tasks,
     "\tper",
     interval_query_tasks_ms,
-    "ms"
+    "ms",
   );
   console.log("-".repeat(72));
   console.log("Interval stats:");
@@ -481,7 +489,7 @@ export async function pressureTest(
 
   const [image_md5s_fetched, task_ids] = await getMd5sAndTaskIds(
     resturl,
-    user_addr
+    user_addr,
   );
   const image_md5s =
     image_md5s_in.length === 0 ? image_md5s_fetched : image_md5s_in;
@@ -499,7 +507,7 @@ export async function pressureTest(
       prove_interval_ms,
       total_time_ms,
       interval_prove_tasks_ms,
-      enable_logs
+      enable_logs,
     ),
     runQueryTasks(
       resturl,
@@ -511,7 +519,7 @@ export async function pressureTest(
       total_time_ms,
       interval_query_tasks_ms,
       enable_logs,
-      query_tasks_only
+      query_tasks_only,
     ),
   ];
 
@@ -554,7 +562,7 @@ export async function addNewPayment(
   resturl: string,
   providerUrl: string,
   amount: string,
-  priv: string
+  priv: string,
 ) {
   //Sign a transaction with the users private key, submit it on chain and wait for it to be mined.
   const provider = new ethers.JsonRpcProvider(providerUrl);
@@ -569,10 +577,10 @@ export async function addNewPayment(
   console.log("receiverAddress is:", receiverAddress);
   let ans = await askQuestion(
     "Are you sure you want to send " +
-    amount +
-    " ETH to " +
-    receiverAddress +
-    "? (y/n)"
+      amount +
+      " ETH to " +
+      receiverAddress +
+      "? (y/n)",
   );
   if (ans === "n" || ans === "N") {
     console.log("User cancelled the transaction.");
@@ -605,7 +613,7 @@ export async function addPaymentWithTx(txhash: string, resturl: string) {
 export async function setMaintenanceMode(
   resturl: string,
   priv: string,
-  active: boolean
+  active: boolean,
 ) {
   let params: SetMaintenanceModeParams = {
     mode: active ? MaintenanceModeType.Enabled : MaintenanceModeType.Disabled,
@@ -667,7 +675,7 @@ export async function addResetImageTask(
     user_address: user_addr.toLowerCase(),
     prove_payment_src: prove_payment_src,
     auto_submit_network_ids: auto_submit_networks,
-    add_prove_task_restrictions: add_prove_task_restrictions
+    add_prove_task_restrictions: add_prove_task_restrictions,
   };
   let msg = ZkWasmUtil.createResetImageMessage(info);
   let signature: string;
