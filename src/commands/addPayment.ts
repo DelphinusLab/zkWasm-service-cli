@@ -2,29 +2,29 @@ import { Arguments, Argv } from "yargs";
 import { addPaymentWithTx, addNewPayment } from "../task";
 
 export const command = "addpayment";
-export const desc = "Add payment";
+export const desc = "Add payment either by creating an new transaction or using a exiting one";
 
 export const builder = (yargs: Argv) => {
   return yargs
-    .option("t", {
-      alias: "tx",
-      describe: "transaction hash",
+    .option("x", {
+      alias: "priv",
+      describe: "The private key of user address, required only when creating a new transaction",
       type: "string",
     })
     .option("p", {
       alias: "provider",
       describe:
-        "Provider to connect to a network. Required to send transaction.",
-      type: "string",
-    })
-    .option("x", {
-      alias: "priv",
-      describe: "The priv of user address. Required to send transaction",
+        "The provider to connect to a network, required only when creating a new transaction",
       type: "string",
     })
     .option("a", {
       alias: "amount",
-      describe: "amount of payment. Required to send transaction",
+      describe: "The amount of payment, required only when creating a new transaction",
+      type: "string",
+    })
+    .option("t", {
+      alias: "tx",
+      describe: "The transaction hash. If provided, will use existing transaction hash to add the payment, no other options are required",
       type: "string",
     });
 };

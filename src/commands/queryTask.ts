@@ -7,53 +7,44 @@ export const desc = "Query task";
 export const builder = (yargs: Argv) => {
   return yargs
     .option("task_id", {
-      alias: "task_id",
       describe: "Id of the task to query",
       type: "string",
     })
     .option("user_address", {
-      alias: "user_address",
       describe: "User address of the task to query",
       type: "string",
     })
     .option("md5", {
-      alias: "md5",
       describe: "Image MD5 of the task to query",
       type: "string",
     })
     .option("tasktype", {
-      alias: "tasktype",
       describe:
         "Type of the task to query, options: Setup|Prove|Verify|Batch|Deploy|Reset",
       type: "string",
     })
     .option("taskstatus", {
-      alias: "taskstatus",
       describe:
         "Status of the task to query, options: Pending|DryRunSuccess|Processing|DryRunFailed|Done|Fail|Unprovable|Stale",
       type: "string",
     })
     .option("start", {
-      alias: "start",
       describe:
         "Number of tasks to skip before counting total number of tasks to output, default is 0",
       type: "number",
       default: 0,
     })
     .option("total", {
-      alias: "total",
       describe: "Total number of tasks to output, max is 100 and default is 1",
       type: "number",
       default: 1,
     })
     .option("concise", {
-      alias: "concise",
       describe: "Print concise output or regular, default is false",
       type: "boolean",
       default: false,
     })
     .option("verbose", {
-      alias: "verbose",
       describe: "Enable task to be printed to stdout, default is true",
       type: "boolean",
       default: true,

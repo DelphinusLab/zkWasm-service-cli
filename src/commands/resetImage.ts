@@ -9,25 +9,25 @@ export const builder = (yargs: Argv) => {
   return yargs
     .option("u", {
       alias: "address",
-      describe: "User address which adding the image",
+      describe: "User address which is adding the image",
       demandOption: "User address is required",
       type: "string",
     })
     .option("x", {
       alias: "priv",
-      describe: "The priv of user address.",
+      describe: "The private key of user address.",
       demandOption: "The priv is required for signing message.",
       type: "string",
     })
     .option("i", {
       alias: "image",
-      describe: "image md5",
-      demandOption: "The image md5 is required",
+      describe: "The MD5 of the wasm image",
+      demandOption: "The image MD5 is required",
       type: "string",
     })
     .option("c", {
       alias: "circuit_size",
-      describe: "image's circuits size, if not specified, default is 22",
+      describe: "The circuit size of the image. If not specified, the default size is 22",
       type: "number",
       default: 22,
     })

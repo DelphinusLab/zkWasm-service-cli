@@ -13,12 +13,12 @@ export const desc = "Profile Prover nodes statistics and generate report";
 export const builder = (yargs: Argv) => {
   return yargs
     .option("compare-with", {
-      describe: "Optional path to a JSON file containing other node statistics",
+      describe: "The file to compare the current node statistics with, this option is required if `--report-out` is specified",
       type: "string",
     })
     .option("report-out", {
       describe:
-        "Output file path for the report. This is only required if 'compare-with' is also provided",
+        "The file to output the node statistics to, this can be a .json or .csv file, this option is required if `--compare-with` is specified",
       type: "string",
     });
 };

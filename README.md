@@ -4,17 +4,25 @@ The `zkwasm-service-cli` is a command-line interface application that provides f
 
 ## Usage
 
-`npm install`
+Install dependancies:
+```bash 
+npm install
+```
 
 Then the application can be executed using the following command:
+```bash 
+node dist/index.js <command> <options>
+```
 
-`node dist/index.js <command> <options>`
+To view the available options, execute the following:
+```bash 
+node dist/index.js --help
+```
 
-## Options
-
-The following options are available for the `zkwasm-service-cli` command:
-
-- `-r, --resturl <url>`: The rest url of zkwasm cloud service. This option is **required**.
+To view the available options for each command, execute the following:
+```bash 
+node dist/index.js <command> --help
+```
 
 ## Commands
 
@@ -32,22 +40,74 @@ Add a new wasm image.
 
 ### Usage
 
-`node dist/index.js addimage -r <resturl> -p <path> -u <address> -x <priv> [-n <name>] [-d <description>] [-c <circuit_size>] [--creator_paid_proof <true|false>] [--creator_only_add_prove_task <true|false>] --auto_submit_network_ids x y z`
+```
+node dist/index.js addimage \
+    -r <resturl> \
+    -u <address> \
+    -x <priv> \
+    -p <path> \
+    [-n <name>] \
+    [-d <description>] \
+    [-c <circuit_size>] \
+    [--creator_paid_proof <true|false>] \
+    [--creator_only_add_prove_task <true|false>] \
+    [--auto_submit_network_ids x y z] \
+    [--import_data_image <image_md5>]
+```
+
+### Example
+
+```
+node dist/index.js addimage \
+    -r "http://localhost:8108" \
+    -u "0x000000..." \
+    -x "00000000..." \
+    --path "image.wasm" \
+    --name "Image name" \
+    -d "Image description" \
+    -c 22 \
+    --creator_paid_proof false \
+    --creator_only_add_prove_task false \
+    --auto_submit_network_ids 97 42 100 \
+    --import_data_image "9E3FD7F8B867F9CAE3494FA76F70E627"
+```
 
 ### Options
 
-The following options are available for the `addimage` command:
+Use the following to display options:
+```
+node dist/index.js addimage --help
+```
 
-- `-r, --resturl <url>`: The rest url of zkwasm cloud service. This option is **required**.
-- `-p, --path <path>`: The path to the wasm image. This option is **required**.
-- `-u, --address <address>`: The user address which adding the image. This option is **required**.
-- `-x, --priv <priv>`: The private key of user address. This option is **required** for signing the message.
-- `-n, --name <name>`: The name of the image (legacy and not using).
-- `-d, --description <description>`: The description of the image. If not specified, the name will be used.
-- `-c, --circuit_size <circuit_size>`: The circuit size of the image. If not specified, the default size is 18.
-- `--creator_paid_proof <true|false>`: Whether the proving fee is charged to the image creator or not. If not specified, the default is false.
-- `--creator_only_add_prove_task <true|false>`: Whether proofs for this image are restricted to only be added by the creator of the image. If not specified, the default is false.
-- `--auto_submit_network_ids <network_id1 network_id2 ...>`: List of network IDs to automatically submit the image to. If not specified, the image will not be automatically submitted to any networks.
+The following options are available for the `addimage` command:
+```
+  -r, --resturl                      The rest url of zkwasm cloud serivce.
+                                                             [string] [required]
+  -u, --address                      User address which is adding the image
+                                                             [string] [required]
+  -x, --priv                         The private key of user address.
+                                                             [string] [required]
+  -p, --path                         Wasm image path         [string] [required]
+  -n, --name                         The name of the image (legacy and not used)
+                                                          [string] [default: ""]
+  -c, --circuit_size                 The circuit size of the image. If not
+                                     specified, the default size is 22
+                                                          [number] [default: 22]
+  -d, --description                  The description of the image. If not
+                                     specified, the name will be used   [string]
+      --creator_paid_proof           Specify if proofs for this image will be
+                                     charged to the creator of the image
+                                                      [boolean] [default: false]
+      --creator_only_add_prove_task  Specify if proofs for this image are
+                                     restricted to only be added by the creator
+                                     of the image     [boolean] [default: false]
+      --auto_submit_network_ids      List of network ids to automatically submit
+                                     proofs to. If not specified, proofs will
+                                     not be automatically submitted.
+                                                           [array] [default: []]
+      --import_data_image            The MD5 in which to inherit merkle data
+                                     from                               [string]
+```
 
 ## Command: resetimage
 
@@ -55,20 +115,63 @@ Add reset image task with the given parameters.
 
 ### Usage
 
-`node dist/index.js resetimage -r <resturl> -u <address> -x <priv> -i <image_md5> [-c <circuit_size>] [--creator_paid_proof <true|false>] [--creator_only_add_prove_task <true|false>] --auto_submit_network_ids x y z`
+```
+node dist/index.js resetimage \
+    -r <resturl> \
+    -u <address> \
+    -x <priv> \
+    -i <image_md5> \
+    [-c <circuit_size>] \
+    [--creator_paid_proof <true|false>] \
+    [--creator_only_add_prove_task <true|false>] \
+    --auto_submit_network_ids x y z
+```
+
+### Example
+
+```
+node dist/index.js resetimage \
+    -r "http://localhost:8108" \
+    -u "0x000000..." \
+    -x "00000000..." \
+    -i "D2144252F3C9DDCA5CA86C23D2EE97E9" \
+    -c 22 \
+    --creator_paid_proof false \
+    --creator_only_add_prove_task false \
+    --auto_submit_network_ids 97 42 100
+```
 
 ### Options
 
-The following options are available for the `resetimage` command:
+Use the following to display options:
+```
+node dist/index.js resetimage --help
+```
 
-- `-r, --resturl <url>`: The rest url of zkwasm cloud service. This option is **required**.
-- `-u, --address <address>`: The user address which adding the image. This option is **required**.
-- `-x, --priv <priv>`: The private key of user address. This option is **required** for signing the message.
-- `-i, --image <image_md5>`: The MD5 to the wasm image. This option is **required**.
-- `-c, --circuit_size <circuit_size>`: The circuit size of the image. If not specified, the default size is 18.
-- `--creator_paid_proof <true|false>`: Whether the proving fee is charged to the image creator or not. If not specified, the default is false.
-- `--creator_only_add_prove_task <true|false>`: Whether proofs for this image are restricted to only be added by the creator of the image. If not specified, the default is false.
-- `--auto_submit_network_ids <network_id1 network_id2 ...>`: List of network IDs to automatically submit the image to. If not specified, the image will not be automatically submitted to any networks.
+The following options are available for the `resetimage` command:
+```
+  -r, --resturl                      The rest url of zkwasm cloud serivce.
+                                                             [string] [required]
+  -u, --address                      User address which is adding the image
+                                                             [string] [required]
+  -x, --priv                         The private key of user address.
+                                                             [string] [required]
+  -i, --image                        The MD5 of the wasm image
+                                                             [string] [required]
+  -c, --circuit_size                 The circuit size of the image. If not
+                                     specified, the default size is 22
+                                                          [number] [default: 22]
+      --creator_paid_proof           Specify if proofs for this image will be
+                                     charged to the creator of the image
+                                                      [boolean] [default: false]
+      --creator_only_add_prove_task  Specify if proofs for this image are
+                                     restricted to only be added by the creator
+                                     of the image     [boolean] [default: false]
+      --auto_submit_network_ids      List of network ids to automatically submit
+                                     proofs to. If not specified, proofs will
+                                     not be automatically submitted.
+                                                           [array] [default: []]
+```
 
 ## Command: addprovingtask
 
@@ -76,67 +179,106 @@ Add proving task.
 
 ### Usage
 
-`node dist/index.js addprovingtask -r <resturl> -i <image> -u <address> -x <priv> [--public_input <public_input>] [--private_input <private_input>]`
+```
+node dist/index.js addprovingtask \
+    -r <resturl> \
+    -u <address> \
+    -x <priv> \
+    -i <image> \
+    [--public_input <public_input>] \
+    [--private_input <private_input>] \
+    [--submit_mode <Manual|Auto>]
+```
+
+### Example
+
+```
+node dist/index.js addprovingtask \
+    -r "http://localhost:8108" \
+    -u "0x000000..." \
+    -x "00000000..." \
+    -i "D2144252F3C9DDCA5CA86C23D2EE97E9" \
+    --public_input "2:i64 1:i64" \
+    --submit_mode "Manual"
+```
 
 ### Options
+
+Use the following to display options:
+```
+node dist/index.js addprovingtask --help
+```
 
 The following options are available for the `addprovingtask` command:
-
-- `-r, --resturl <url>`: The rest url of zkwasm cloud service. This option is **required**.
-- `-i, --image <image>`: The md5 hash of the image to be used for the proving task. This option is **required**.
-- `-u, --address <address>`: The user address which adds the proving task. This option is **required**.
-- `-x, --priv <priv>`: The private key of user address. This option is **required** for signing the message.
-- `--public_input <public_input>`: The public input of the proof, inputs must have the format (0x)[0-f]\*:(i64|bytes|bytes-packed) and be separated by spaces (e.g.: 0x12:i64 44:i64 32:i64).
-- `--private_input <private_input>`: The private input of the proof. Currently not supported.
-- `--submit-mode <submit_mode>`: The submit mode of the proving task. Specify "Auto" or "Manual". If not specified, the default is "Manual".
-
-## Command: adddeploytask
-
-Adds a deploy task to the zkwasm cloud service.
-
-### Usage
-
-`node dist/index.js adddeploytask [options]`
-
-### Options
-
-- `-r, --resturl <string>` - The rest url of zkwasm cloud service. (required)
-- `-i, --image <string>` - Image md5. (required)
-- `-u, --address <string>` - User address which is deploying the contract. (required)
-- `-x, --priv <string>` - The priv of the user address for signing message. (required)
-- `-c, --chain_id <number>` - Chain ID of the network to deploy. (required)
-
-### Examples
-
-- Adds a deploy task:
-
-  ```
-  node dist/index.js adddeploytask -r "http://127.0.0.1:8080" -i "4CB1FBCCEC0C107C41405FC1FB380799" -u "0x278847f04E166451182dd30E33e09667bA31e6a8" -x "xxxxxxx" -c 5
-  ```
+```
+  -r, --resturl        The rest url of zkwasm cloud serivce. [string] [required]
+  -u, --address        User address which is adding the image[string] [required]
+  -x, --priv           The private key of user address.      [string] [required]
+  -i, --image          The MD5 of the wasm image             [string] [required]
+      --public_input   public input of the proof, inputs must have format
+                       (0x)[0-f]*:(i64|bytes|bytes-packed) and been separated by
+                       spaces (eg: 0x12:i64 44:i64 32:i64).             [string]
+      --private_input  The private input of the proof. Currently not supported.
+                                                                        [string]
+      --submit_mode    The submit mode of the proving task. Specify 'Auto' or
+                       'Manual'. If not specified, the default is 'Manual'
+                                                    [string] [default: "Manual"]
+```
 
 ## Command: addpayment
 
-Add payment.
+Add payment either by creating an new transaction or using a exiting one.
 
 ### Usage
 
-`node dist/index.js addpayment -r <resturl> [-t <tx>] [-p <provider>] [-x <priv>] [-a <amount>]`
+```
+node dist/index.js addpayment \
+     -r <resturl> \
+     [-t <tx>] \
+     [-p <provider>] \
+     [-x <priv>] \
+     [-a <amount>] 
+```
+
+### Example
+
+Existing Tx hash:
+```
+node dist/index.js addpayment \
+    -r "http://localhost:8108" \
+    -t "00000000..."
+```
+
+New transaction:
+```
+node dist/index.js addpayment \
+    -r "http://localhost:8108" \
+    -u "0x000000..." \
+    -x "00000000..." \
+    -a "0.00001" \
+    -p "https://goerli.infura.io/v3/xxxxxxx"
+```
 
 ### Options
 
+Use the following to display options:
+```
+node dist/index.js addpayment --help
+```
+
 The following options are available for the `addpayment` command:
-
-- `-r, --resturl <url>`: The rest url of zkwasm cloud service. This option is **required**.
-- `-t, --tx <tx>`: The transaction hash. If provided, this option will be used to add the payment.
-- `-p, --provider <provider>`: The provider to connect to a network. Required to send transaction.
-- `-x, --priv <priv>`: The private key of user address. Required to send transaction.
-- `-a, --amount <amount>`: The amount of payment. Required to send transaction.
-
-### Examples
-
-Existing Tx hash - `node dist/index.js addpayment -r "http://127.0.0.1:8080" -t "<transactionhash>"`
-
-Create a new transaction - `node dist/index.js addpayment -r "http://127.0.0.1:8080" -p "https://goerli.infura.io/v3/xxxxxxx" -u "YOUR_ADDRESS" -x "YOUR_PRIVATE_KEY" -a "0.00001"`
+```
+  -r, --resturl   The rest url of zkwasm cloud serivce.      [string] [required]
+  -x, --priv      The private key of user address, required only when creating a
+                  new transaction                                       [string]
+  -p, --provider  The provider to connect to a network, required only when
+                  creating a new transaction                            [string]
+  -a, --amount    The amount of payment, required only when creating a new
+                  transaction                                           [string]
+  -t, --tx        The transaction hash. If provided, will use existing
+                  transaction hash to add the payment, no other options are
+                  required                                              [string]
+```
 
 ## Command: pressuretest
 
@@ -144,25 +286,84 @@ Run pressure test of zkwasm playground: send prove request and query requests in
 
 ### Usage
 
-`node dist/index.js pressuretest -r <resturl> -u <address> -x <priv> [--public_input <public_input>] [--private_input <private_input>] --num_prove_tasks <number> --interval_prove_tasks_ms <number> --num_query_tasks <number> --interval_query_tasks_ms <number> --total_time_sec <number>`
+```
+node dist/index.js pressuretest \
+    -r <resturl> \
+    -u <address> \
+    -x <priv> \
+    [--public_input <public_input>] \
+    [--private_input <private_input>] \
+    --num_prove_tasks <number> \
+    --interval_prove_tasks_ms <number> \
+    --num_query_tasks <number> \
+    --interval_query_tasks_ms <number> \
+    --total_time_sec <number>
+```
+
+### Example
+
+```
+node dist/index.js pressuretest \
+    -r "http://localhost:8108" \
+    -u "0x000000..." \
+    -x "00000000..." \
+    -i "D2144252F3C9DDCA5CA86C23D2EE97E9" \
+    --public_input "2:i64 1:i64" \
+    --num_prove_tasks 1 \
+    --interval_prove_tasks_ms 1000 \
+    --num_query_tasks 10 \
+    --interval_query_tasks_ms 1000 \
+    --total_time_sec 10
+```
 
 ### Options
 
-The following options are available for the `pressuretest` command:
+Use the following to display options:
+```
+node dist/index.js pressuretest --help
+```
 
-- `-r, --resturl <url>`: The rest url of zkwasm cloud service. This option is **required**.
-- `-u, --address <address>`: The user address which adds the proving task. This option is **required**.
-- `-x, --priv <priv>`: The private key of user address. This option is **required** for signing the message.
-- `--public_input <public_input>`: The public input of the proof, inputs must have the format (0x)[0-f]\*:(i64|bytes|bytes-packed) and be separated by spaces (e.g.: 0x12:i64 44:i64 32:i64).
-- `--private_input <private_input>`: The private input of the proof. Currently not supported.
-- `--num_prove_tasks <number>`: Number of prove tasks to run during a single interval in the pressure test.
-- `--interval_prove_tasks_ms <number>`: Interval (msec) in which to run prove tasks during pressure test.
-- `--num_query_tasks <number>`: Number of query tasks to run during a single interval in the pressure test.
-- `--interval_query_tasks_ms <number>`: Interval (msec) in which to run query tasks during pressure test, default is 100".
-- `--total_time_sec <number>`: Total time of pressure test (sec).
-- `--verbose <true|false>`: Whether or not to print every request response to the console.
-- `--query_task_only <true|false>`: When generating random queries for pressure test, only generate ones that query 'task' collection.
-- `--image_md5s <image0_md5,image1_md5,...>: List of image md5s (one or more, comma seperated) to use for prove tasks. Overrides original behaviour of randomly selectly available images.
+The following options are available for the `pressuretest` command:
+```
+  -r, --resturl                  The rest url of zkwasm cloud serivce.
+                                                             [string] [required]
+  -u, --address                  The user address which adds the proving task
+                                                             [string] [required]
+  -x, --priv                     The private key of user address
+                                                             [string] [required]
+      --public_input             The public input of the proof, inputs must have
+                                 format (0x)[0-f]*:(i64|bytes|bytes-packed) and
+                                 been separated by spaces (eg: 0x12:i64 44:i64
+                                 32:i64).                 [string] [default: ""]
+      --private_input            The private input of the proof. Currently not
+                                 supported                [string] [default: ""]
+      --submit_mode              The submit mode of the proving task. Specify
+                                 'Auto' or 'Manual'. If not specified, the
+                                 default is 'Manual'[string] [default: "Manual"]
+      --num_prove_tasks          Number of prove tasks to run during a single
+                                 interval in the pressure test, default is 1
+                                                           [number] [default: 1]
+      --interval_prove_tasks_ms  Interval (msec) in which to run prove tasks
+                                 during pressure test, default is 5000
+                                                        [number] [default: 5000]
+      --num_query_tasks          Number of query tasks to run during a single
+                                 interval in the pressure test, default is 1
+                                                           [number] [default: 1]
+      --interval_query_tasks_ms  Interval (msec) in which to run query tasks
+                                 during pressure test, default is 100
+                                                         [number] [default: 100]
+      --total_time_sec           Total time of pressure test (sec), default is
+                                 10                       [number] [default: 10]
+      --verbose                  Enable verbose logging, default is false.
+                                                      [boolean] [default: false]
+      --image_md5s               List of image md5s (one or more, comma
+                                 seperated) to use for prove tasks. Overrides
+                                 original behaviour of randomly selectly
+                                 available images.                      [string]
+      --query_tasks_only         When generating random queries for pressure
+                                 test, only generate ones that query 'task'
+                                 collection.          [boolean] [default: false]
+```
 
 ## Command: prover-profile
 
@@ -174,15 +375,37 @@ If you want to add tasks to force value updates, you can use `addProvingTask` or
 
 ### Usage
 
-`node dist/index.js prover-profile -r <resturl> --compare-with <file> --report-out <file>`
+```
+node dist/index.js prover-profile \
+     -r <resturl> \
+     --compare-with <file> \
+     --report-out <file>
+```
+
+### Example
+
+```
+node dist/index.js prover-profile \
+    -r "http://localhost:8108" \
+    --compare-with "compare.json" \
+    --report-out "report.json"
+```
 
 ### Options
+Use the following to display options:
+```
+node dist/index.js prover-profile --help
+```
 
 The following options are available for the `prover-profile` command:
-
-- `-r, --resturl <url>`: The rest url of zkwasm cloud service. This option is **required**.
-- `--compare-with <file>`: The file to compare the current node statistics with. This option is required if `--report-out` is specified.
-- `--report-out <file>`: The file to output the node statistics to. This can be a .json or .csv file. This option is required if `--compare-with` is specified.
+```
+  -r, --resturl       The rest url of zkwasm cloud serivce.  [string] [required]
+      --compare-with  The file to compare the current node statistics with, this
+                      option is required if `--report-out` is specified [string]
+      --report-out    The file to output the node statistics to, this can be a
+                      .json or .csv file, this option is required if
+                      `--compare-with` is specified                     [string]
+```
 
 ## Command: querytask
 
@@ -190,35 +413,58 @@ Query Task with given parameters.
 
 ### Usage
 
-`node dist/index.js querytask -r <resturl> [--task_id <task_id>] [--user_address <user_address>] [--md5 <md5>] [--tasktype <Setup|Prove|Verify|Batch|Deploy|Reset>] [--taskstatus <Pending|DryRunSuccess|Processing|DryRunFailed|Done|Fail|Unprovable|Stale>] [--concise <true|false>] [--verbose <true|false>]`
+```
+node dist/index.js querytask \
+     -r <resturl> \
+     [--task_id <task_id>] \
+     [--user_address <user_address>] \
+     [--md5 <md5>] \
+     [--tasktype <Setup|Prove|Verify|Batch|Deploy|Reset>] \
+     [--taskstatus <Pending|DryRunSuccess|Processing|DryRunFailed|Done|Fail|Unprovable|Stale>] \
+     [--start <start_n>] \
+     [--total <total_n>] \
+     [--concise <true|false>] \
+     [--verbose <true|false>]
+```
+
+### Example
+
+Find most recent 10 finished proof associate with D2144252F3C9DDCA5CA86C23D2EE97E9 image:
+```
+node dist/index.js querytask \
+    -r "http://localhost:8108" \
+    --md5 D2144252F3C9DDCA5CA86C23D2EE97E9 \
+    --tasktype Prove \
+    --taskstatus Done \
+    --start 0 \
+    --total 10 \
+    --concise true
+```
 
 ### Options
+
+Use the following to display options:
+```
+node dist/index.js querytask --help
+```
 
 The following options are available for the `querytask` command:
-
-- `-r, --resturl <url>`: The rest url of zkwasm cloud service. This option is **required**.
-- `--task_id <task_id>`: The id of the task to query.
-- `--user_address <user_address>`: The user address of the task to query.
-- `--md5 <md5>`: The image MD5 of the task to query.
-- `--tasktype <tasktype>`: The type of the task to query, options: Setup|Prove|Verify|Batch|Deploy|Reset.
-- `--taskstatus <taskstatus>`: The status of the task to query, options: Pending|DryRunSuccess|Processing|DryRunFailed|Done|Fail|Unprovable|Stale.
-- `--start <0|1|..|u64::MAX>`: The number of tasks to skip before counting total number of tasks to output, default is 0.
-- `--total <0|1|..|100>`: The total number of tasks to output, max is 100 and default is 1.
-- `--concise <true|false>`: Print concise output or regular, default is false.
-- `--verbose <true|false>`: Enable task to be printed to stdout, default is true.
-
-## Command: setmaintenancemode (DEPRECATED)
-
-Set maintenance mode to active or inactive. Maintenance mode denies certain requests which allows the server to be safely shutdown.
-
-### Usage
-
-`node dist/index.js setmaintenancemode -r <resturl> -x <priv> --active <true|false>`
-
-### Options
-
-The following options are available for the `pressuretest` command:
-
-- `-r, --resturl <url>`: The rest url of zkwasm cloud service. This option is **required**.
-- `-x, --priv <priv>`: The private key of the address of the administrator sending maintenance mode request.
-- `--active <true|false>`: True or False, determines if maintenance mode should be activated or deactivated.
+```
+  -r, --resturl       The rest url of zkwasm cloud serivce.  [string] [required]
+      --task_id       Id of the task to query                           [string]
+      --user_address  User address of the task to query                 [string]
+      --md5           Image MD5 of the task to query                    [string]
+      --tasktype      Type of the task to query, options:
+                      Setup|Prove|Verify|Batch|Deploy|Reset             [string]
+      --taskstatus    Status of the task to query, options: Pending|DryRunSucces
+                      s|Processing|DryRunFailed|Done|Fail|Unprovable|Stale
+                                                                        [string]
+      --start         Number of tasks to skip before counting total number of
+                      tasks to output, default is 0        [number] [default: 0]
+      --total         Total number of tasks to output, max is 100 and default is
+                      1                                    [number] [default: 1]
+      --concise       Print concise output or regular, default is false
+                                                      [boolean] [default: false]
+      --verbose       Enable task to be printed to stdout, default is true
+                                                       [boolean] [default: true]
+```

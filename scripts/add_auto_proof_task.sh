@@ -4,7 +4,7 @@ node dist/index.js addprovingtask \
     -x "private_key" \
     --image "Image MD5" \
     --public_input "input_0 input_1 ..." \
-    --submit_mode "Manual"
+    --submit_mode "Auto"
 
 # Example:
 # node dist/index.js addprovingtask \
@@ -13,4 +13,4 @@ node dist/index.js addprovingtask \
 #     -x "00000000..." \
 #     -i "D2144252F3C9DDCA5CA86C23D2EE97E9" \
 #     --public_input "2:i64 1:i64" \
-#     --submit_mode "Manual"
+#     --submit_mode "Auto"

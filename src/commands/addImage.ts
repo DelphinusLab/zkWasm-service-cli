@@ -8,39 +8,39 @@ export const desc = "Add wasm image";
 
 export const builder = (yargs: Argv) => {
   return yargs
+    .option("u", {
+      alias: "address",
+      describe: "User address which is adding the image",
+      demandOption: "User address is required",
+      type: "string",
+    })
+    .option("x", {
+      alias: "priv",
+      describe: "The private key of user address.",
+      demandOption: "The priv is required for signing message.",
+      type: "string",
+    })
     .option("p", {
       alias: "path",
       describe: "Wasm image path",
       demandOption: "The wasm image path is required",
       type: "string",
     })
-    .option("u", {
-      alias: "address",
-      describe: "User address which adding the image",
-      demandOption: "User address is required",
-      type: "string",
-    })
-    .option("x", {
-      alias: "priv",
-      describe: "The priv of user address.",
-      demandOption: "The priv is required for signing message.",
-      type: "string",
-    })
     .option("n", {
       alias: "name",
-      describe: "image's name",
-      demandOption: "The image name is required.",
+      describe: "The name of the image (legacy and not used)",
       type: "string",
+      default: "",
     })
     .option("c", {
       alias: "circuit_size",
-      describe: "image's circuits size, if not specified, default is 22",
+      describe: "The circuit size of the image. If not specified, the default size is 22",
       type: "number",
       default: 22,
     })
     .option("d", {
       alias: "description",
-      describe: "image's description, if not specifed, will use name",
+      describe: "The description of the image. If not specified, the name will be used",
       type: "string",
     })
     .option("creator_paid_proof", {

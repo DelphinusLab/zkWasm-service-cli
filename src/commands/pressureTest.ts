@@ -3,36 +3,36 @@ import { pressureTest } from "../task";
 import { parseProofSubmitMode } from "../util";
 
 export const command = "pressuretest";
-export const desc = "Pressure test";
+export const desc = "Run pressure test of zkwasm playground: send prove request and query requests in parallel over their respective intervals.";
 
 export const builder = (yargs: Argv) => {
   return yargs
     .option("u", {
       alias: "address",
-      describe: "User address which adding the image",
+      describe: "The user address which adds the proving task",
       demandOption: "User address is required",
       type: "string",
     })
     .option("x", {
       alias: "priv",
-      describe: "The priv of user address.",
+      describe: "The private key of user address",
       demandOption: "The priv is required for signing message.",
       type: "string",
     })
     .option("public_input", {
       describe:
-        "public input of the proof, inputs must have format (0x)[0-f]*:(i64|bytes|bytes-packed) and been separated by spaces (eg: 0x12:i64 44:i64 32:i64).",
+        "The public input of the proof, inputs must have format (0x)[0-f]*:(i64|bytes|bytes-packed) and been separated by spaces (eg: 0x12:i64 44:i64 32:i64).",
       type: "string",
       default: "",
     })
     .option("private_input", {
-      describe: "private currently not supported",
+      describe: "The private input of the proof. Currently not supported",
       type: "string",
       default: "",
     })
     .option("submit_mode", {
       describe:
-        "Submit mode for the proof, either 'Manual' or 'Auto', default is 'Manual'",
+        "The submit mode of the proving task. Specify 'Auto' or 'Manual'. If not specified, the default is 'Manual'",
       type: "string",
       default: "Manual",
     })
