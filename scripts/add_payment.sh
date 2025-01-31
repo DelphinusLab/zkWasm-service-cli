@@ -3,7 +3,7 @@ node dist/index.js addpayment \
     -u "user_address" \
     -x "private_key" \
     --amount "NUM" \
-    --provider "rpc_url" \
+    --provider "rpc_url"
 
 # Example:
 # node dist/index.js addpayment \
