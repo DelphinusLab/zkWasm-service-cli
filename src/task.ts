@@ -35,7 +35,7 @@ export async function addNewWasmImage(
   resturl: string,
   absPath: string,
   user_addr: string,
-  imageName: string,
+  _imageName: string,
   description_url: string,
   avator_url: string,
   circuit_size: number,
@@ -558,29 +558,47 @@ export async function addDeployTask(
   console.log("Finish addDeployTask!");
 }*/
 
+const parseInputPayAmount = (
+  value: string,
+  decimals: number,
+): bigint | undefined => {
+  const re = /^\d+\.?\d*$/;
+
+  if (value === "" || re.test(value)) {
+    let split = value.split(".");
+    let decimalPart = split[1];
+    if (decimalPart && decimalPart.length > decimals) {
+      return undefined;
+    }
+    if (ethers.parseEther(value || "0") > 0) {
+      return ethers.parseUnits(value, decimals);
+    }
+    return undefined;
+  }
+};
+
 export async function addNewPayment(
   resturl: string,
   providerUrl: string,
   amount: string,
   priv: string,
 ) {
-  //Sign a transaction with the users private key, submit it on chain and wait for it to be mined.
+  let config = await new ZkWasmServiceHelper(resturl, "", "").queryConfig();
+  let decimals = config.topup_token_data.decimals;
+  let tokenAddress = config.topup_token_params.token_address;
+  let receiverAddress = config.receiver_address;
+
+  // Sign a transaction with the users private key, submit it on chain and wait for it to be mined.
   const provider = new ethers.JsonRpcProvider(providerUrl);
   const wallet = new ethers.Wallet(priv, provider);
-  const parsedAmount = ethers.parseEther(amount);
-  console.log("Depositing " + parsedAmount + " ETH for user " + wallet.address);
-  //create the transaction and sign it
-  //Get the receiver address from the zkWasm service.
-  let helper = new ZkWasmServiceHelper(resturl, "", "");
-  let config = (await helper.queryConfig()) as AppConfig;
-  let receiverAddress = config.receiver_address;
-  console.log("receiverAddress is:", receiverAddress);
+  const contract = ZkWasmUtil.ERC20Contract(tokenAddress, wallet);
+  const parsedAmount = parseInputPayAmount(amount, decimals);
+  console.log("Token decimals:", decimals);
+  console.log("Token address:", tokenAddress);
+  console.log("Receiver Address is:", receiverAddress);
+
   let ans = await askQuestion(
-    "Are you sure you want to send " +
-      amount +
-      " ETH to " +
-      receiverAddress +
-      "? (y/n)",
+    `Are you sure you want to send ${amount} USDT to ${receiverAddress}? (y/n)`,
   );
   if (ans === "n" || ans === "N") {
     console.log("User cancelled the transaction.");
@@ -590,25 +608,19 @@ export async function addNewPayment(
     console.log("Invalid input, please input y or n.");
     return;
   }
-  console.log("Waiting for transaction to be mined...");
-  const tx = await wallet.sendTransaction({
-    to: receiverAddress,
-    value: parsedAmount,
-  });
-  // wait for the transaction to be mined
-  await tx.wait();
-  console.log("Transaction hash:", tx.hash);
-  console.log("Sending transaction hash to zkWasm service...");
-  //Then submit the confirmed transaction hash to the zkWasm service.
-  await helper.addPayment({ txhash: tx.hash });
 
-  console.log("Finish addPayment!");
+  console.log(
+    `Waiting for transaction to ${receiverAddress} for amount ${amount} USDT`,
+  );
+  const tx = await contract.transfer(receiverAddress, parsedAmount);
+  await tx.wait();
+  await addPaymentWithTx(tx.hash as string, resturl);
 }
 
 export async function addPaymentWithTx(txhash: string, resturl: string) {
-  let helper = new ZkWasmServiceHelper(resturl, "", "");
-  console.log("Sending transaction hash " + txhash + " to zkWasm service...");
-  await helper.addPayment({ txhash: txhash });
+  console.log(`Sending transaction hash ${txhash} to zkWasm service...`);
+  await new ZkWasmServiceHelper(resturl, "", "").addPayment({ txhash: txhash });
+  console.log("Finished addPayment!");
 }
 
 export async function setMaintenanceMode(
