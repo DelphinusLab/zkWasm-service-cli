@@ -597,6 +597,7 @@ export async function addNewPayment(
   });
   // wait for the transaction to be mined
   await tx.wait();
+  console.log("Transaction hash:", tx.hash);
   console.log("Sending transaction hash to zkWasm service...");
   //Then submit the confirmed transaction hash to the zkWasm service.
   await helper.addPayment({ txhash: tx.hash });
