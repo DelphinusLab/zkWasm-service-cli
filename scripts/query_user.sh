@@ -1,4 +1,4 @@
-node dist/index.js querytask \
+node dist/index.js queryuser \
     -r "service-endpoint" \
     --user_address "User address"
 

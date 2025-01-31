@@ -248,7 +248,6 @@ The following options are available for the `addpayment` command:
                   required                                              [string]
 ```
 
-
 ## Command: prover-profile
 
 This command will fetch the node statistics from the server and save it to a local `node_statistics_{timestamp}.json` file. If the `--compare-with` option is specified, the command will compare the current node statistics with the specified file and output the differences to the specified `--report-out` file.
@@ -321,8 +320,6 @@ node dist/index.js querytask \
 
 - [Query with all parameters specified](scripts/query_task.sh)
 - [Find most recent 10 finished proof associate with D2144252F3C9DDCA5CA86C23D2EE97E9 image](scripts/query_prove_done_task.sh)
-- [Query all tasks associated with D2144252F3C9DDCA5CA86C23D2EE97E9 image](scripts/query_task_with_image.sh)
-- [Query all tasks associated with user address](scripts/query_task_with_user_address.sh)
 
 ### Options
 
@@ -352,4 +349,66 @@ The following options are available for the `querytask` command:
                                                       [boolean] [default: false]
       --verbose       Enable task to be printed to stdout, default is true
                                                        [boolean] [default: true]
+```
+
+## Command: queryimage
+
+Query Image with given parameters.
+
+### Usage
+
+```
+node dist/index.js queryimage \
+     -r <resturl> \
+     --md5 <Image MD5>
+```
+
+### Example
+
+- [Query image with MD5](scripts/query_image.sh)
+
+### Options
+
+Use the following to display options:
+
+```
+node dist/index.js queryimage --help
+```
+
+The following options are available for the `queryimage` command:
+
+```
+  -r, --resturl  The rest url of zkwasm cloud serivce.       [string] [required]
+      --md5      MD5 of the image to query                   [string] [required]
+```
+
+## Command: querytask
+
+Query user with given parameters.
+
+### Usage
+
+```
+node dist/index.js querytask \
+     -r <resturl> \
+     --user_address <user_address>
+```
+
+### Example
+
+- [Query user with address](scripts/query_user.sh)
+
+### Options
+
+Use the following to display options:
+
+```
+node dist/index.js queryuser --help
+```
+
+The following options are available for the `queryuser` command:
+
+```
+  -r, --resturl       The rest url of zkwasm cloud serivce.  [string] [required]
+      --user_address  Address of the user to query           [string] [required]
 ```

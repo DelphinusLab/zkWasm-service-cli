@@ -17,6 +17,8 @@ export function createCLI() {
       .command(commands.addProvingTask)
       .command(commands.addPayment)
       .command(commands.queryTask)
+      .command(commands.queryImage)
+      .command(commands.queryUser)
       .command(commands.pressureTest)
       .command(commands.proverProfile)
       // Add other commands here as they are implemented
