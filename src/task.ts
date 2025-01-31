@@ -564,16 +564,17 @@ const parseInputPayAmount = (
 ): bigint | undefined => {
   const re = /^\d+\.?\d*$/;
 
-  if (value === "" || re.test(value)) {
-    let split = value.split(".");
-    let decimalPart = split[1];
-    if (decimalPart && decimalPart.length > decimals) {
-      return undefined;
-    }
-    if (ethers.parseEther(value || "0") > 0) {
-      return ethers.parseUnits(value, decimals);
-    }
+  if (!re.test(value)) {
     return undefined;
+  }
+
+  let split = value.split(".");
+  let decimalPart = split[1];
+  if (decimalPart && decimalPart.length > decimals) {
+    return undefined;
+  }
+  if (ethers.parseEther(value) > 0) {
+    return ethers.parseUnits(value, decimals);
   }
 };
 
