@@ -8,7 +8,6 @@ import {
   ProvingParams,
   AddImageParams,
   ZkWasmUtil,
-  AppConfig,
   ProofSubmitMode,
   ProvePaymentSrc,
   MaintenanceModeType,
@@ -30,6 +29,7 @@ import {
   queryUserSubscription,
   queryTaskByTypeAndStatus,
 } from "./query";
+import { exit } from "process";
 
 export async function addNewWasmImage(
   resturl: string,
@@ -585,7 +585,9 @@ export async function addNewPayment(
 ) {
   let config = await new ZkWasmServiceHelper(resturl, "", "").queryConfig();
   let decimals = config.topup_token_data.decimals;
+  let symbol = config.topup_token_data.symbol;
   let tokenAddress = config.topup_token_params.token_address;
+  let conversionRate = config.topup_token_params.topup_conversion_rate!;
   let receiverAddress = config.receiver_address;
 
   // Sign a transaction with the users private key, submit it on chain and wait for it to be mined.
@@ -593,9 +595,15 @@ export async function addNewPayment(
   const wallet = new ethers.Wallet(priv, provider);
   const contract = ZkWasmUtil.ERC20Contract(tokenAddress, wallet);
   const parsedAmount = parseInputPayAmount(amount, decimals);
+  if (!parsedAmount) {
+    console.log("Failed parsing input amount:", amount);
+    exit(1);
+  }
   console.log("Token decimals:", decimals);
+  console.log("Token symbol:", symbol);
   console.log("Token address:", tokenAddress);
   console.log("Receiver Address is:", receiverAddress);
+  console.log(`Top up amount is ${parseInt(amount) * conversionRate} tokens`);
 
   let ans = await askQuestion(
     `Are you sure you want to send ${amount} USDT to ${receiverAddress}? (y/n)`,
