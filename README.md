@@ -28,6 +28,8 @@ To view the available options for each command, execute the following:
 node dist/index.js <command> --help
 ```
 
+All example usages of the cli are available in the [scripts folder](scripts).
+
 ## Commands
 
 - [addimage](#command-addimage)
@@ -57,22 +59,9 @@ node dist/index.js addimage \
     [--import_data_image <image_md5>]
 ```
 
-### Example
+### Examples
 
-```
-node dist/index.js addimage \
-    -r "http://localhost:8108" \
-    -u "0x000000..." \
-    -x "00000000..." \
-    --path "image.wasm" \
-    --name "Image name" \
-    -d "Image description" \
-    -c 22 \
-    --creator_paid_proof false \
-    --creator_only_add_prove_task false \
-    --auto_submit_network_ids 97 42 100 \
-    --import_data_image "9E3FD7F8B867F9CAE3494FA76F70E627"
-```
+- [Add image command with all parameters specified](scripts/add_image.sh)
 
 ### Options
 
@@ -131,19 +120,9 @@ node dist/index.js resetimage \
     --auto_submit_network_ids x y z
 ```
 
-### Example
+### Examples
 
-```
-node dist/index.js resetimage \
-    -r "http://localhost:8108" \
-    -u "0x000000..." \
-    -x "00000000..." \
-    -i "D2144252F3C9DDCA5CA86C23D2EE97E9" \
-    -c 22 \
-    --creator_paid_proof false \
-    --creator_only_add_prove_task false \
-    --auto_submit_network_ids 97 42 100
-```
+- [Reset image command with all parameters specified](scripts/reset_image.sh)
 
 ### Options
 
@@ -198,15 +177,8 @@ node dist/index.js addprovingtask \
 
 ### Example
 
-```
-node dist/index.js addprovingtask \
-    -r "http://localhost:8108" \
-    -u "0x000000..." \
-    -x "00000000..." \
-    -i "D2144252F3C9DDCA5CA86C23D2EE97E9" \
-    --public_input "2:i64 1:i64" \
-    --submit_mode "Manual"
-```
+- [Add proving task command with manual submit mode](scripts/add_manual_proof_task.sh)
+- [Add proving task command with auto submit mode](scripts/add_auto_proof_task.sh)
 
 ### Options
 
@@ -248,26 +220,10 @@ node dist/index.js addpayment \
      [-a <amount>]
 ```
 
-### Example
+### Examples
 
-Existing Tx hash:
-
-```
-node dist/index.js addpayment \
-    -r "http://localhost:8108" \
-    -t "00000000..."
-```
-
-New transaction:
-
-```
-node dist/index.js addpayment \
-    -r "http://localhost:8108" \
-    -u "0x000000..." \
-    -x "00000000..." \
-    -a "0.00001" \
-    -p "https://goerli.infura.io/v3/xxxxxxx"
-```
+- [Add payment with new transaction](scripts/add_payment.sh)
+- [Add payment using existing transaction hash](scripts/add_payment_with_tx.sh)
 
 ### Options
 
@@ -310,7 +266,10 @@ node dist/index.js prover-profile \
      --report-out <file>
 ```
 
-### Example
+### Examples
+
+- [Generate prover profile report](scripts/generate_prover_profile_report.sh)
+- [Generate current node statistics file](scripts/generate_current_node_stats.sh)
 
 ```
 node dist/index.js prover-profile \
@@ -360,18 +319,10 @@ node dist/index.js querytask \
 
 ### Example
 
-Find most recent 10 finished proof associate with D2144252F3C9DDCA5CA86C23D2EE97E9 image:
-
-```
-node dist/index.js querytask \
-    -r "http://localhost:8108" \
-    --md5 D2144252F3C9DDCA5CA86C23D2EE97E9 \
-    --tasktype Prove \
-    --taskstatus Done \
-    --start 0 \
-    --total 10 \
-    --concise true
-```
+- [Query with all parameters specified](scripts/query_task.sh)
+- [Find most recent 10 finished proof associate with D2144252F3C9DDCA5CA86C23D2EE97E9 image](scripts/query_prove_done_task.sh)
+- [Query all tasks associated with D2144252F3C9DDCA5CA86C23D2EE97E9 image](scripts/query_task_with_image.sh)
+- [Query all tasks associated with user address](scripts/query_task_with_user_address.sh)
 
 ### Options
 
