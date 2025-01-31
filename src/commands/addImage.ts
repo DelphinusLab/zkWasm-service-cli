@@ -34,13 +34,15 @@ export const builder = (yargs: Argv) => {
     })
     .option("c", {
       alias: "circuit_size",
-      describe: "The circuit size of the image. If not specified, the default size is 22",
+      describe:
+        "The circuit size of the image. If not specified, the default size is 22",
       type: "number",
       default: 22,
     })
     .option("d", {
       alias: "description",
-      describe: "The description of the image. If not specified, the name will be used",
+      describe:
+        "The description of the image. If not specified, the name will be used",
       type: "string",
     })
     .option("creator_paid_proof", {

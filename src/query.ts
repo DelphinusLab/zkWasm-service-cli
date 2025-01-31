@@ -61,7 +61,7 @@ export async function queryTask(
         if (enable_logs) {
           const tasks = res as PaginationResult<Task[]>;
           const ts: Task[] = tasks.data;
-          console.log("Concise Task details:");
+          console.log("Task details:");
           for (const [i, task] of ts.entries()) {
             let aggregate_proof = ZkWasmUtil.bytesToBN(task.proof);
             let instances = ZkWasmUtil.bytesToBN(task.instances);

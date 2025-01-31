@@ -13,7 +13,8 @@ export const desc = "Profile Prover nodes statistics and generate report";
 export const builder = (yargs: Argv) => {
   return yargs
     .option("compare-with", {
-      describe: "The file to compare the current node statistics with, this option is required if `--report-out` is specified",
+      describe:
+        "The file to compare the current node statistics with, this option is required if `--report-out` is specified",
       type: "string",
     })
     .option("report-out", {

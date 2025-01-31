@@ -27,7 +27,8 @@ export const builder = (yargs: Argv) => {
     })
     .option("c", {
       alias: "circuit_size",
-      describe: "The circuit size of the image. If not specified, the default size is 22",
+      describe:
+        "The circuit size of the image. If not specified, the default size is 22",
       type: "number",
       default: 22,
     })

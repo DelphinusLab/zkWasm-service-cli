@@ -3,7 +3,8 @@ import { pressureTest } from "../task";
 import { parseProofSubmitMode } from "../util";
 
 export const command = "pressuretest";
-export const desc = "Run pressure test of zkwasm playground: send prove request and query requests in parallel over their respective intervals.";
+export const desc =
+  "Run pressure test of zkwasm playground: send prove request and query requests in parallel over their respective intervals.";
 
 export const builder = (yargs: Argv) => {
   return yargs

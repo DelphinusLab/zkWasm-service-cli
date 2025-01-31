@@ -5,22 +5,26 @@ The `zkwasm-service-cli` is a command-line interface application that provides f
 ## Usage
 
 Install dependancies:
-```bash 
+
+```bash
 npm install
 ```
 
 Then the application can be executed using the following command:
-```bash 
+
+```bash
 node dist/index.js <command> <options>
 ```
 
 To view the available options, execute the following:
-```bash 
+
+```bash
 node dist/index.js --help
 ```
 
 To view the available options for each command, execute the following:
-```bash 
+
+```bash
 node dist/index.js <command> --help
 ```
 
@@ -75,11 +79,13 @@ node dist/index.js addimage \
 ### Options
 
 Use the following to display options:
+
 ```
 node dist/index.js addimage --help
 ```
 
 The following options are available for the `addimage` command:
+
 ```
   -r, --resturl                      The rest url of zkwasm cloud serivce.
                                                              [string] [required]
@@ -144,11 +150,13 @@ node dist/index.js resetimage \
 ### Options
 
 Use the following to display options:
+
 ```
 node dist/index.js resetimage --help
 ```
 
 The following options are available for the `resetimage` command:
+
 ```
   -r, --resturl                      The rest url of zkwasm cloud serivce.
                                                              [string] [required]
@@ -205,11 +213,13 @@ node dist/index.js addprovingtask \
 ### Options
 
 Use the following to display options:
+
 ```
 node dist/index.js addprovingtask --help
 ```
 
 The following options are available for the `addprovingtask` command:
+
 ```
   -r, --resturl        The rest url of zkwasm cloud serivce. [string] [required]
   -u, --address        User address which is adding the image[string] [required]
@@ -237,12 +247,13 @@ node dist/index.js addpayment \
      [-t <tx>] \
      [-p <provider>] \
      [-x <priv>] \
-     [-a <amount>] 
+     [-a <amount>]
 ```
 
 ### Example
 
 Existing Tx hash:
+
 ```
 node dist/index.js addpayment \
     -r "http://localhost:8108" \
@@ -250,6 +261,7 @@ node dist/index.js addpayment \
 ```
 
 New transaction:
+
 ```
 node dist/index.js addpayment \
     -r "http://localhost:8108" \
@@ -262,11 +274,13 @@ node dist/index.js addpayment \
 ### Options
 
 Use the following to display options:
+
 ```
 node dist/index.js addpayment --help
 ```
 
 The following options are available for the `addpayment` command:
+
 ```
   -r, --resturl   The rest url of zkwasm cloud serivce.      [string] [required]
   -x, --priv      The private key of user address, required only when creating a
@@ -319,11 +333,13 @@ node dist/index.js pressuretest \
 ### Options
 
 Use the following to display options:
+
 ```
 node dist/index.js pressuretest --help
 ```
 
 The following options are available for the `pressuretest` command:
+
 ```
   -r, --resturl                  The rest url of zkwasm cloud serivce.
                                                              [string] [required]
@@ -392,12 +408,15 @@ node dist/index.js prover-profile \
 ```
 
 ### Options
+
 Use the following to display options:
+
 ```
 node dist/index.js prover-profile --help
 ```
 
 The following options are available for the `prover-profile` command:
+
 ```
   -r, --resturl       The rest url of zkwasm cloud serivce.  [string] [required]
       --compare-with  The file to compare the current node statistics with, this
@@ -430,6 +449,7 @@ node dist/index.js querytask \
 ### Example
 
 Find most recent 10 finished proof associate with D2144252F3C9DDCA5CA86C23D2EE97E9 image:
+
 ```
 node dist/index.js querytask \
     -r "http://localhost:8108" \
@@ -444,11 +464,13 @@ node dist/index.js querytask \
 ### Options
 
 Use the following to display options:
+
 ```
 node dist/index.js querytask --help
 ```
 
 The following options are available for the `querytask` command:
+
 ```
   -r, --resturl       The rest url of zkwasm cloud serivce.  [string] [required]
       --task_id       Id of the task to query                           [string]
