@@ -3,7 +3,7 @@ node dist/index.js addpayment \
     -u "user_address" \
     -x "private_key" \
     --amount "NUM" \
-    --provider "provider_url" \
+    --provider "rpc_url" \
 
 # Example:
 # node dist/index.js addpayment \
@@ -11,4 +11,4 @@ node dist/index.js addpayment \
 #     -u "0x000000..." \
 #     -x "00000000..." \
 #     -a "0.00001" \
-#     -p "https://goerli.infura.io/v3/xxxxxxx"
+#     -p "https://sepolia-rpc.scroll.io"
