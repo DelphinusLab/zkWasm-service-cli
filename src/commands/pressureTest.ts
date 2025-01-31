@@ -1,39 +1,41 @@
 import { Arguments, Argv } from "yargs";
 import { pressureTest } from "../task";
-import { ProofSubmitMode } from "zkwasm-service-helper";
+import { parseProofSubmitMode } from "../util";
 
 export const command = "pressuretest";
-export const desc = "Pressure test";
+export const desc =
+  "Run pressure test of zkwasm playground: send prove request and query requests in parallel over their respective intervals.";
 
 export const builder = (yargs: Argv) => {
   return yargs
     .option("u", {
       alias: "address",
-      describe: "User address which adding the image",
+      describe: "The user address which adds the proving task",
       demandOption: "User address is required",
       type: "string",
     })
     .option("x", {
       alias: "priv",
-      describe: "The priv of user address.",
+      describe: "The private key of user address",
       demandOption: "The priv is required for signing message.",
       type: "string",
     })
     .option("public_input", {
       describe:
-        "public input of the proof, inputs must have format (0x)[0-f]*:(i64|bytes|bytes-packed) and been separated by spaces (eg: 0x12:i64 44:i64 32:i64).",
+        "The public input of the proof, inputs must have format (0x)[0-f]*:(i64|bytes|bytes-packed) and been separated by spaces (eg: 0x12:i64 44:i64 32:i64).",
       type: "string",
       default: "",
     })
     .option("private_input", {
-      describe: "private currently not supported",
+      describe: "The private input of the proof. Currently not supported",
       type: "string",
       default: "",
     })
     .option("submit_mode", {
-      describe: "Submit mode for the proof, default is manual",
+      describe:
+        "The submit mode of the proving task. Specify 'Auto' or 'Manual'. If not specified, the default is 'Manual'",
       type: "string",
-      default: "manual",
+      default: "Manual",
     })
     .option("num_prove_tasks", {
       describe:
@@ -92,18 +94,13 @@ export const handler = async (argv: Arguments) => {
     console.log("Using input image md5s", image_mds_in);
   }
 
-  const proof_submit_mode =
-    argv.submit_mode === "Auto" || argv.submit_mode === "auto"
-      ? ProofSubmitMode.Auto
-      : ProofSubmitMode.Manual;
-
   await pressureTest(
     argv.r as string,
     argv.u as string,
     argv.x as string,
     argv.public_input as string,
     argv.private_input as string,
-    proof_submit_mode,
+    parseProofSubmitMode(argv.submit_mode),
     argv.num_prove_tasks as number,
     argv.interval_prove_tasks_ms as number,
     argv.num_query_tasks as number,
@@ -111,6 +108,6 @@ export const handler = async (argv: Arguments) => {
     argv.total_time_sec as number,
     argv.verbose as boolean,
     argv.query_tasks_only as boolean,
-    image_mds_in
+    image_mds_in,
   );
 };

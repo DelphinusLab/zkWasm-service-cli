@@ -1,4 +1,3 @@
-
 node dist/index.js prover-profile \
     -r "service-endpoint" \
     --compare-with "<node statistics file>" \
