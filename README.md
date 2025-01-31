@@ -33,7 +33,6 @@ node dist/index.js <command> --help
 - [addimage](#command-addimage)
 - [resetimage](#command-resetimage)
 - [addprovingtask](#command-addprovingtask)
-- [adddeploytask](#command-adddeploytask)
 - [addpayment](#command-addpayment)
 - [pressuretest](#command-pressuretest)
 - [querytask](#command-querytask)
