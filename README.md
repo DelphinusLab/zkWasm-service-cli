@@ -4,7 +4,7 @@ The `zkwasm-service-cli` is a command-line interface application that provides f
 
 ## Usage
 
-Install dependancies:
+Install dependencies:
 
 ```bash
 npm install
@@ -50,7 +50,6 @@ node dist/index.js addimage \
     -u <address> \
     -x <priv> \
     -p <path> \
-    [-n <name>] \
     [-d <description>] \
     [-c <circuit_size>] \
     [--creator_paid_proof <true|false>] \
@@ -82,7 +81,7 @@ The following options are available for the `addimage` command:
                                                              [string] [required]
   -p, --path                         Wasm image path         [string] [required]
   -n, --name                         The name of the image (legacy and not used)
-                                                          [string] [default: ""]
+                                             [deprecated] [string] [default: ""]
   -c, --circuit_size                 The circuit size of the image. If not
                                      specified, the default size is 22
                                                           [number] [default: 22]

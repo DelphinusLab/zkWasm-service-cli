@@ -30,6 +30,7 @@ export const builder = (yargs: Argv) => {
       alias: "name",
       describe: "The name of the image (legacy and not used)",
       type: "string",
+      deprecated: true,
       default: "",
     })
     .option("c", {

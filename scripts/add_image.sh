@@ -3,7 +3,6 @@ node dist/index.js addimage \
     -u "user_address" \
     -x "private_key" \
     --path "image.wasm" \
-    --name "Image name" \
     -d "Image description" \
     -c 22 \
     --creator_paid_proof false \
@@ -23,7 +22,6 @@ node dist/index.js addimage \
 #     -u "0x000000..." \
 #     -x "00000000..." \
 #     --path "image.wasm" \
-#     --name "Image name" \
 #     -d "Image description" \
 #     -c 22 \
 #     --creator_paid_proof false \

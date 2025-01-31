@@ -3,6 +3,6 @@ node dist/index.js queryuser \
     --user_address "User address"
 
 # Example:
-# node dist/index.js querytask \
+# node dist/index.js queryuser \
 #     -r "http://localhost:8108" \
-#    --user_address "0x000000..."
+#     --user_address "0x000000..."
