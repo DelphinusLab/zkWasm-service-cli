@@ -604,11 +604,13 @@ export async function addNewPayment(
   console.log("Token symbol:", symbol);
   console.log("Token address:", tokenAddress);
   console.log("Receiver Address is:", receiverAddress);
-  console.log(`Top up amount is ${parseFloat(amount) * conversionRate} tokens`);
+  console.log(
+    `Top up amount is ${parseFloat(amount) * conversionRate} credits`,
+  );
   console.log(`Parsed amount is ${parsedAmount} ${symbol}`);
 
   let ans = await askQuestion(
-    `Are you sure you want to send ${amount} USDT to ${receiverAddress}? (y/n)`,
+    `Are you sure you want to send ${parsedAmount} ${symbol} to ${receiverAddress}? (y/n)`,
   );
   if (ans === "n" || ans === "N") {
     console.log("User cancelled the transaction.");
