@@ -354,7 +354,7 @@ export async function getTaskExternalHostTable(
   // to be fixed later.
   // https://delphinuslab.atlassian.net/browse/ZKWAS-361
   const externalHostFileBytes = new Uint8Array(externalHostTable);
-  const filename = `external_host_table.${compressionType === CompressionType.GZip ? "gzip" : "txt"}`;
+  const filename = `external_host_table${compressionType === CompressionType.GZip ? ".tar.gz" : ".json"}`;
   fs.writeFileSync(filename, externalHostFileBytes);
   console.log(`External host table file is ${filename}`);
   return response;
