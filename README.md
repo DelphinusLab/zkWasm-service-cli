@@ -426,7 +426,7 @@ node dist/index.js gettaskexternalhosttable \
 
 ### Example
 
-- [Query user with address](scripts/get_task_external_host_table.sh)
+- [Get task external host table file](scripts/get_task_external_host_table.sh)
 
 ### Options
 
