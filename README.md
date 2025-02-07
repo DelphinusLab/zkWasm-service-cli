@@ -116,7 +116,7 @@ node dist/index.js resetimage \
     [-c <circuit_size>] \
     [--creator_paid_proof <true|false>] \
     [--creator_only_add_prove_task <true|false>] \
-    --auto_submit_network_ids x y z
+    [--auto_submit_network_ids x y z]
 ```
 
 ### Examples
@@ -381,7 +381,7 @@ The following options are available for the `queryimage` command:
       --md5      MD5 of the image to query                   [string] [required]
 ```
 
-## Command: querytask
+## Command: queryuser
 
 Query user with given parameters.
 
@@ -410,4 +410,35 @@ The following options are available for the `queryuser` command:
 ```
   -r, --resturl       The rest url of zkwasm cloud serivce.  [string] [required]
       --user_address  Address of the user to query           [string] [required]
+```
+
+## Command: gettaskexternalhosttable
+
+Get task's external host table file.
+
+### Usage
+
+```
+node dist/index.js gettaskexternalhosttable \
+     -r <resturl> \
+     --task_id <task_id>
+```
+
+### Example
+
+- [Get task external host table file](scripts/get_task_external_host_table.sh)
+
+### Options
+
+Use the following to display options:
+
+```
+node dist/index.js gettaskexternalhosttable --help
+```
+
+The following options are available for the `gettaskexternalhosttable` command:
+
+```
+  -r, --resturl  The rest url of zkwasm cloud serivce.       [string] [required]
+      --task_id  Id of the task to query                                [string]
 ```

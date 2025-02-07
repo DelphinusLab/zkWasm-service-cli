@@ -21,6 +21,7 @@ export function createCLI() {
       .command(commands.queryUser)
       .command(commands.pressureTest)
       .command(commands.proverProfile)
+      .command(commands.getTaskExternalHostTable)
       // Add other commands here as they are implemented
       .example(
         '-r "http://127.0.0.1:8108" -u "0x000000..." -x "00000000..." --path "/home/username/arith.wasm" -d "My First Image" -c 22 ',

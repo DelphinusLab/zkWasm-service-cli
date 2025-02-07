@@ -9,8 +9,12 @@ import {
   NodeStatisticsQueryParams,
   NodeStatistics,
   ConciseTask,
+  TaskExternalHostTableParams,
+  TaskExternalHostTable,
+  CompressionType,
 } from "zkwasm-service-helper";
 import BN from "bn.js";
+import * as fs from "fs";
 
 export async function queryTask(
   taskid: string,
@@ -331,4 +335,27 @@ export async function getProverNodeList(
         console.log("Finish GetProverNodeList");
       }
     });
+}
+
+export async function getTaskExternalHostTable(
+  resturl: string,
+  id: string,
+  enable_logs: boolean = true,
+) {
+  let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
+  const queryParams: TaskExternalHostTableParams = { id: id };
+  const response: TaskExternalHostTable = await helper.getTaskExternalHostTable(queryParams);
+  const externalHostTable = response.external_host_table;
+  const compressionType = response.compression;
+
+  console.log("Compression type of external host table json:", compressionType);
+  // Wrap this in Uint8Array because it's "real" type is a number array.
+  // There's no logic impact but the change to the API is big so it will have
+  // to be fixed later.
+  // https://delphinuslab.atlassian.net/browse/ZKWAS-361
+  const externalHostFileBytes = new Uint8Array(externalHostTable);
+  const filename = `external_host_table${compressionType === CompressionType.GZip ? ".tar.gz" : ".json"}`;
+  fs.writeFileSync(filename, externalHostFileBytes);
+  console.log(`External host table file is ${filename}`);
+  return response;
 }
