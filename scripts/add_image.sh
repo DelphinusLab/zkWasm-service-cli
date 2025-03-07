@@ -2,7 +2,8 @@ node dist/index.js addimage \
     -r "service-endpoint" \
     -u "user_address" \
     -x "private_key" \
-    --path "image.wasm"
+    --path "image.wasm" \
+    --description "Image description"
 
 # Optional: add this param to specify the name of the image    
 # --name "Image name"
