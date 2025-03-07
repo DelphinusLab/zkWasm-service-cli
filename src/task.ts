@@ -34,7 +34,7 @@ export async function addNewWasmImage(
   resturl: string,
   absPath: string,
   user_addr: string,
-  imageName: string,
+  imageName: string | undefined,
   description_url: string,
   avator_url: string,
   circuit_size: number,
@@ -46,6 +46,7 @@ export async function addNewWasmImage(
 ) {
   const filename = parse(absPath).base;
   let fileSelected: Buffer = fs.readFileSync(absPath);
+  let name = imageName ? imageName : filename;
 
   let md5 = ZkWasmUtil.convertToMd5(new Uint8Array(fileSelected));
 
@@ -57,7 +58,7 @@ export async function addNewWasmImage(
     : AddProveTaskRestrictions.Anyone;
 
   let info: AddImageParams = {
-    name: filename,
+    name: name,
     image_md5: md5,
     image: fileSelected,
     user_address: user_addr.toLowerCase(),
