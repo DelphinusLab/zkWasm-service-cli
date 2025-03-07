@@ -28,7 +28,6 @@ export const builder = (yargs: Argv) => {
     .option("n", {
       alias: "name",
       describe: "image's name",
-      demandOption: "The image name is required.",
       type: "string",
     })
     .option("c", {
@@ -69,14 +68,16 @@ export const builder = (yargs: Argv) => {
 export const handler = async (argv: Arguments) => {
   const absolutePath = resolve(argv.p as string);
   console.log("Begin adding image for ", absolutePath);
-  let desc = argv.d ? (argv.d as string) : (argv.n as string);
-  let image_data_image = argv.import_data_image ? argv.import_data_image as string : undefined;
+  let desc = argv.d ? (argv.d as string) : "";
+  let image_data_image = argv.import_data_image
+    ? (argv.import_data_image as string)
+    : undefined;
 
   await addNewWasmImage(
     argv.r as string,
     absolutePath,
     argv.u as string,
-    argv.n as string,
+    argv.n as string | undefined,
     desc,
     "",
     argv.circuit_size as number,
