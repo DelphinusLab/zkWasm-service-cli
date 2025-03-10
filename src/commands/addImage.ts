@@ -59,8 +59,8 @@ export const builder = (yargs: Argv) => {
       type: "array",
       default: [],
     })
-    .option("share_image_data_md5", {
-      describe: "The MD5 in which to get merkle data from",
+    .option("import_data_image", {
+      describe: "The MD5 in which to share merkle data from",
       type: "string",
     });
 };
@@ -69,8 +69,8 @@ export const handler = async (argv: Arguments) => {
   const absolutePath = resolve(argv.p as string);
   console.log("Begin adding image for ", absolutePath);
   let desc = argv.d ? (argv.d as string) : "";
-  let share_image_data_md5 = argv.share_image_data_md5
-    ? (argv.share_image_data_md5 as string)
+  let share_image_data_md5 = argv.import_data_image
+    ? (argv.import_data_image as string)
     : undefined;
 
   await addNewWasmImage(
