@@ -734,13 +734,13 @@ export async function addResetImageTask(
 export async function resubmitTaskWithSameInputs(
   resturl: string,
   priv: string,
+  srcurl: string,
   taskids: string[],
 ) {
   console.log("Running resubmit for ids", taskids);
-  let helper = new ZkWasmServiceHelper(resturl, "", "", false);
   for (const taskid of taskids.reverse()) {
     console.log(`Resubmitting task with id ${taskid} ...`);
-    let task = await helper
+    let task = await new ZkWasmServiceHelper(srcurl, "", "", false)
       .loadTasks({
         id: taskid,
         user_address: "",
@@ -780,7 +780,9 @@ export async function resubmitTaskWithSameInputs(
       ...params,
       signature: signature,
     };
-    await helper.addProvingTask(proving_params);
+    await new ZkWasmServiceHelper(resturl, "", "", false).addProvingTask(
+      proving_params,
+    );
 
     console.log(`... finished`);
   }

@@ -47,7 +47,9 @@ export function parseProofSubmitMode(submit_mode: any) {
   }
 }
 
-export function parseAutoSubmitNetworkIds(auto_submit_network_ids: any) : number[] {
+export function parseAutoSubmitNetworkIds(
+  auto_submit_network_ids: any,
+): number[] {
   return (auto_submit_network_ids as any[]).map((it) => {
     if (typeof it === "number" && !Number.isNaN(it) && Number.isFinite(it)) {
       return it as number;
