@@ -1,6 +1,5 @@
 import { Arguments, Argv } from "yargs";
 import { resubmitTaskWithSameInputs } from "../task";
-import { parseTasksIds } from "../util";
 
 export const command = "resubmittasks";
 export const desc = "Resubmit Task With Same Inputs";
