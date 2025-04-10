@@ -27,6 +27,6 @@ export const handler = async (argv: Arguments) => {
   await resubmitTaskWithSameInputs(
     argv.r as string,
     argv.x as string,
-    parseTasksIds(argv.taskids),
+    argv.taskids as string[],
   );
 };

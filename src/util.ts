@@ -60,17 +60,3 @@ export function parseAutoSubmitNetworkIds(auto_submit_network_ids: any) : number
     }
   });
 }
-
-export function parseTasksIds(taskids: any) : string[] {
-  return (taskids as any[]).map((it) => {
-    if (typeof it === "string" && it.length === 24) {
-      return it as string;
-    } else {
-      console.log(
-        "Invalid type detected in taskids, must be strings of length 24, input:",
-        it,
-      );
-      exit(1);
-    }
-  });
-}

@@ -736,6 +736,7 @@ export async function resubmitTaskWithSameInputs(
   priv: string,
   taskids: string[],
 ) {
+  console.log("Running resubmit for ids", taskids);
   let helper = new ZkWasmServiceHelper(resturl, "", "", false);
   for (const taskid of taskids) {
     console.log(`Resubmitting task with id ${taskid} ...`);
