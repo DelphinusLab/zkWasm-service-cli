@@ -772,7 +772,10 @@ export async function resubmitTaskWithSameInputs(
       };
       params = { ...params, ...context_info };
       console.log(`\tCreated custom input context params`);
-    } else {
+    } else if (
+      task.input_context_type === InputContextType.ImageCurrent ||
+      task.input_context_type === InputContextType.ImageInitial
+    ) {
       params = {
         ...params,
         input_context_type: task.input_context_type,
