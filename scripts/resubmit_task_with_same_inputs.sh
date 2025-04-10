@@ -1,7 +1,7 @@
 node dist/index.js resubmittasks \
     -r "service-endpoint" \
     -x "private_key" \
-    --taskids "task_0 task_1 task_2 ..."
+    --taskids task_0 task_1 task_2 ...
 
 # Example:
 # node dist/index.js resubmittasks \
