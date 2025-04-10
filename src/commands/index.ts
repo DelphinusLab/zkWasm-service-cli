@@ -8,3 +8,4 @@ export * as pressureTest from "./pressureTest";
 export * as proverProfile from "./proverProfile";
 export * as addResetImageTask from "./resetImage";
 export * as getTaskExternalHostTable from "./getTaskExternalHostTable";
+export * as resubmitTaskWithSameInputs from "./resubmitTaskWithSameInputs";
