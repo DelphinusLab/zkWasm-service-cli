@@ -754,7 +754,7 @@ export async function resubmitTaskWithSameInputs(
     sleep(1000);
 
     let params: ProvingParams = {
-      user_address: task.user_address,
+      user_address: await new Wallet(priv, null).getAddress(),
       md5: task.md5,
       public_inputs: task.public_inputs,
       private_inputs: task.private_inputs,
