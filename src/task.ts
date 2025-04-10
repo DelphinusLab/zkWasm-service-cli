@@ -752,7 +752,7 @@ export async function resubmitTaskWithSameInputs(
     console.log(`\tFetched task ${task._id["$oid"]} with md5 ${task.md5}`);
 
     // Sleep to ensure we don't overload server
-    sleep(1000);
+    await sleep(1000);
 
     let params: ProvingParams = {
       user_address: await new Wallet(priv, null).getAddress(),
