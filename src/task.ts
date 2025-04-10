@@ -15,6 +15,8 @@ import {
   AdminRequestType,
   AddProveTaskRestrictions,
   ResetImageParams,
+  InputContextType,
+  WithCustomInputContextType,
 } from "zkwasm-service-helper";
 
 import {
@@ -727,4 +729,70 @@ export async function addResetImageTask(
       console.log("Add Reset Image Error", err);
     })
     .finally(() => console.log("Finish addResetImageTask!"));
+}
+
+export async function resubmitTaskWithSameInputs(
+  resturl: string,
+  priv: string,
+  srcurl: string,
+  taskids: string[],
+) {
+  console.log("Running resubmit for ids", taskids);
+  for (const taskid of taskids.reverse()) {
+    console.log(`Resubmitting task with id ${taskid} ...`);
+    let task = await new ZkWasmServiceHelper(srcurl, "", "", false)
+      .loadTasks({
+        id: taskid,
+        user_address: "",
+        md5: "",
+        tasktype: "",
+        taskstatus: "",
+      })
+      .then((tasks) => tasks.data[0]);
+    console.log(`\tFetched task ${task._id["$oid"]} with md5 ${task.md5}`);
+
+    // Sleep to ensure we don't overload server
+    await sleep(1000);
+
+    let params: ProvingParams = {
+      user_address: await new Wallet(priv, null).getAddress(),
+      md5: task.md5,
+      public_inputs: task.public_inputs,
+      private_inputs: task.private_inputs,
+      proof_submit_mode: task.proof_submit_mode!,
+    };
+
+    if (task.input_context_type === InputContextType.Custom) {
+      const contextBytes = task.input_context;
+      ZkWasmUtil.validateContextBytes(contextBytes);
+      let context_info: WithCustomInputContextType = {
+        input_context: await ZkWasmUtil.bytesToTempFile(contextBytes),
+        input_context_md5: ZkWasmUtil.convertToMd5(contextBytes),
+        input_context_type: InputContextType.Custom,
+      };
+      params = { ...params, ...context_info };
+      console.log(`\tCreated custom input context params`);
+    } else if (
+      task.input_context_type === InputContextType.ImageCurrent ||
+      task.input_context_type === InputContextType.ImageInitial
+    ) {
+      params = {
+        ...params,
+        input_context_type: task.input_context_type,
+      };
+      console.log(`\tCreated params without input context`);
+    }
+
+    const msgString = ZkWasmUtil.createProvingSignMessage(params);
+    const signature = await signMessage(msgString, priv);
+    let proving_params: WithSignature<ProvingParams> = {
+      ...params,
+      signature: signature,
+    };
+    await new ZkWasmServiceHelper(resturl, "", "", false).addProvingTask(
+      proving_params,
+    );
+    console.log(`\tSubmitted new proving task`);
+    console.log(`\t... finished`);
+  }
 }

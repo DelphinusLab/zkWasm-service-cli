@@ -344,7 +344,8 @@ export async function getTaskExternalHostTable(
 ) {
   let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
   const queryParams: TaskExternalHostTableParams = { id: id };
-  const response: TaskExternalHostTable = await helper.getTaskExternalHostTable(queryParams);
+  const response: TaskExternalHostTable =
+    await helper.getTaskExternalHostTable(queryParams);
   const externalHostTable = response.external_host_table;
   const compressionType = response.compression;
 
