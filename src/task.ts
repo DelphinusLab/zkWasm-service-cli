@@ -750,6 +750,9 @@ export async function resubmitTaskWithSameInputs(
       })
       .then((tasks) => tasks.data[0]);
 
+    // Sleep to ensure we don't overload server
+    sleep(1000);
+
     let params: ProvingParams = {
       user_address: task.user_address,
       md5: task.md5,
