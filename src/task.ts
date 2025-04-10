@@ -15,6 +15,8 @@ import {
   AdminRequestType,
   AddProveTaskRestrictions,
   ResetImageParams,
+  InputContextType,
+  WithCustomInputContextType,
 } from "zkwasm-service-helper";
 
 import {
@@ -727,4 +729,58 @@ export async function addResetImageTask(
       console.log("Add Reset Image Error", err);
     })
     .finally(() => console.log("Finish addResetImageTask!"));
+}
+
+export async function resubmitTaskWithSameInputs(
+  resturl: string,
+  priv: string,
+  taskids: string[],
+) {
+  let helper = new ZkWasmServiceHelper(resturl, "", "", false);
+  for (const taskid of taskids) {
+    console.log(`Resubmitting task with id ${taskid} ...`);
+    let task = await helper
+      .loadTasks({
+        id: taskid,
+        user_address: "",
+        md5: "",
+        tasktype: "",
+        taskstatus: "",
+      })
+      .then((tasks) => tasks.data[0]);
+
+    let params: ProvingParams = {
+      user_address: task.user_address,
+      md5: task.md5,
+      public_inputs: task.public_inputs,
+      private_inputs: task.private_inputs,
+      proof_submit_mode: task.proof_submit_mode!,
+    };
+
+    if (task.input_context_type === InputContextType.Custom) {
+      const contextBytes = task.input_context;
+      ZkWasmUtil.validateContextBytes(contextBytes);
+      let context_info: WithCustomInputContextType = {
+        input_context: await ZkWasmUtil.bytesToTempFile(contextBytes),
+        input_context_md5: ZkWasmUtil.convertToMd5(contextBytes),
+        input_context_type: InputContextType.Custom,
+      };
+      params = { ...params, ...context_info };
+    } else {
+      params = {
+        ...params,
+        input_context_type: task.input_context_type,
+      };
+    }
+
+    const msgString = ZkWasmUtil.createProvingSignMessage(params);
+    const signature = await signMessage(msgString, priv);
+    let proving_params: WithSignature<ProvingParams> = {
+      ...params,
+      signature: signature,
+    };
+    await helper.addProvingTask(proving_params);
+
+    console.log(`... finished`);
+  }
 }

@@ -47,7 +47,7 @@ export function parseProofSubmitMode(submit_mode: any) {
   }
 }
 
-export function parseAutoSubmitNetworkIds(auto_submit_network_ids: any) {
+export function parseAutoSubmitNetworkIds(auto_submit_network_ids: any) : number[] {
   return (auto_submit_network_ids as any[]).map((it) => {
     if (typeof it === "number" && !Number.isNaN(it) && Number.isFinite(it)) {
       return it as number;
@@ -55,6 +55,20 @@ export function parseAutoSubmitNetworkIds(auto_submit_network_ids: any) {
       console.log(
         "Invalid type detected in auto_submit_network_ids, must only contain network ids, input:",
         auto_submit_network_ids,
+      );
+      exit(1);
+    }
+  });
+}
+
+export function parseTasksIds(taskids: any) : string[] {
+  return (taskids as any[]).map((it) => {
+    if (typeof it === "string" && it.length === 24) {
+      return it as string;
+    } else {
+      console.log(
+        "Invalid type detected in taskids, must be strings of length 24, input:",
+        it,
       );
       exit(1);
     }
