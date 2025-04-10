@@ -750,8 +750,11 @@ export async function resubmitTaskWithSameInputs(
       })
       .then((tasks) => tasks.data[0]);
 
+    console.log(`\tFetched task ${task._id} with md5 ${task._id}`);
+
     // Sleep to ensure we don't overload server
     sleep(1000);
+    console.log(`\tFinished sleeping for 1 sec`);
 
     let params: ProvingParams = {
       user_address: await new Wallet(priv, null).getAddress(),
@@ -776,6 +779,7 @@ export async function resubmitTaskWithSameInputs(
         input_context_type: task.input_context_type,
       };
     }
+    console.log(`\tCreated params`);
 
     const msgString = ZkWasmUtil.createProvingSignMessage(params);
     const signature = await signMessage(msgString, priv);
@@ -786,7 +790,8 @@ export async function resubmitTaskWithSameInputs(
     await new ZkWasmServiceHelper(resturl, "", "", false).addProvingTask(
       proving_params,
     );
+    console.log(`\tSubmitted new proving task`);
 
-    console.log(`... finished`);
+    console.log(`\t... finished`);
   }
 }
