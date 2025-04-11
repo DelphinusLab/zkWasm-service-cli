@@ -738,6 +738,7 @@ export async function resubmitTaskWithSameInputs(
   taskids: string[],
 ) {
   console.log("Running resubmit for ids", taskids);
+  let idmap: string[][] = [];
   for (const taskid of taskids) {
     console.log(`Resubmitting task with id ${taskid} ...`);
     let task = await new ZkWasmServiceHelper(srcurl, "", "", false)
@@ -789,10 +790,16 @@ export async function resubmitTaskWithSameInputs(
       ...params,
       signature: signature,
     };
-    await new ZkWasmServiceHelper(resturl, "", "", false)
+    const id = await new ZkWasmServiceHelper(resturl, "", "", false)
       .addProvingTask(proving_params)
-      .then((res) => console.log(res));
-    console.log(`\tSubmitted new proving task`);
+      .then((res) => res["id"] as string);
+    console.log(`\tSubmitted new proving task ${id}`);
     console.log(`\t... finished`);
+    idmap.push([taskid, id]);
+  }
+
+  console.log("Input task Id, New task Id");
+  for (const it of idmap) {
+    console.log(`${it[0]}, ${it[1]}`);
   }
 }
