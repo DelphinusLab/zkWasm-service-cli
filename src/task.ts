@@ -798,7 +798,7 @@ export async function resubmitTaskWithSameInputs(
     idmap.push([taskid, id]);
   }
 
-  console.log("Input task Id, New task Id");
+  console.log("Input task Id             , New task Id");
   for (const it of idmap) {
     console.log(`${it[0]}, ${it[1]}`);
   }

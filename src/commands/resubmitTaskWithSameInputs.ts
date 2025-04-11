@@ -20,7 +20,8 @@ export const builder = (yargs: Argv) => {
       type: "string",
     })
     .option("taskids", {
-      describe: "List of task ids to resubmit proofs for.",
+      describe:
+        "List of task IDs to resubmit proofs for. Tasks are resubmitted based on input order, e.g. task0 task1 task2 - will be submitted in that order. Therefore, to maintain the same order, task list inputs should be oldest to youngest.",
       demandOption: "The task ids are required.",
       type: "array",
       string: true,
