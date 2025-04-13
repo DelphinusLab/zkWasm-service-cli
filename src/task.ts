@@ -15,6 +15,8 @@ import {
   AdminRequestType,
   AddProveTaskRestrictions,
   ResetImageParams,
+  ForceUnproveableToReprocessParams,
+  ForceDryrunFailsToReprocessParams,
 } from "zkwasm-service-helper";
 
 import {
@@ -727,4 +729,86 @@ export async function addResetImageTask(
       console.log("Add Reset Image Error", err);
     })
     .finally(() => console.log("Finish addResetImageTask!"));
+}
+
+export async function forceUnproveableToReprocess(
+  resturl: string,
+  priv: string,
+  task_id: string,
+  enable_logs: boolean = true,
+) {
+  const params: ForceUnproveableToReprocessParams = {
+    task_id: task_id,
+    // TODO: update with real values once nonce verification is implemented
+    nonce: 0,
+    request_type: AdminRequestType.ForceTaskToReprocess,
+    user_address: await new Wallet(priv, null).getAddress(),
+  };
+
+  let msg = ZkWasmUtil.createForceUnproveableToReprocessSignMessage(params);
+  let signature: string;
+  try {
+    console.log("msg is:", msg);
+    signature = await signMessage(msg, priv);
+    console.log("signature is:", signature);
+  } catch (e: unknown) {
+    console.log("sign error: ", e);
+    return;
+  }
+  let task: WithSignature<ForceUnproveableToReprocessParams> = {
+    ...params,
+    signature,
+  };
+
+  console.log(`Forcing unproveable task to reprocess ${params.task_id}`);
+  await new ZkWasmServiceHelper(resturl, "", "", enable_logs)
+    .forceUnproveableToReprocess(task)
+    .then((res) => {
+      console.log("Force unproveable to reprocess success", res);
+    })
+    .catch((err) => {
+      console.log("Force unproveable to reprocess error", err);
+    })
+    .finally(() => console.log("Finish force unproveable to reprocess!"));
+}
+
+export async function forceDryrunFailsToReprocess(
+  resturl: string,
+  priv: string,
+  task_ids: string[],
+  enable_logs: boolean = true,
+) {
+  const params: ForceDryrunFailsToReprocessParams = {
+    task_ids: task_ids,
+    // TODO: update with real values once nonce verification is implemented
+    nonce: 0,
+    request_type: AdminRequestType.ForceTaskToReprocess,
+    user_address: await new Wallet(priv, null).getAddress(),
+  };
+
+  let msg = ZkWasmUtil.createForceDryrunFailsToReprocessSignMessage(params);
+  let signature: string;
+  try {
+    console.log("msg is:", msg);
+    signature = await signMessage(msg, priv);
+    console.log("signature is:", signature);
+  } catch (e: unknown) {
+    console.log("sign error: ", e);
+    return;
+  }
+  let task: WithSignature<ForceDryrunFailsToReprocessParams> = {
+    ...params,
+    signature,
+  };
+
+  console.log(`Forcing dry run fail tasks to reprocess ${params.task_ids}`);
+  await new ZkWasmServiceHelper(resturl, "", "", enable_logs)
+    .forceDryrunFailsToReprocess(task)
+    .then((res) => {
+      console.log("Force dry run fails to reprocess success", res);
+    })
+    .catch((err) => {
+      console.log("Force dry run fails to reprocess error", err);
+    })
+    .finally(() => console.log("Finish force dry run fails to reprocess!"));
 }
