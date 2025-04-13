@@ -1,4 +1,4 @@
-import { forceDryrunFailsToReprocess } from "task";
+import { forceDryrunFailsToReprocess } from "../task";
 import { Arguments, Argv } from "yargs";
 
 export const command = "forcedryrunfailstoreprocess";
@@ -15,6 +15,8 @@ export const builder = (yargs: Argv) => {
     })
     .option("task_ids", {
       describe: "Id of the tasks to reprocess",
+      demandOption:
+        "The task_ids list is required for reprocessing dryrun failed task.",
       type: "array",
       default: [],
     });

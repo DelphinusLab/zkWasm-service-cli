@@ -471,7 +471,9 @@ node dist/index.js forceunproveabletoreprocess --help
 The following options are available for the `forceunproveabletoreprocess` command:
 
 ```
-todo
+  -r, --resturl  The rest url of zkwasm cloud serivce.       [string] [required]
+  -x, --priv     The private key of user address.            [string] [required]
+      --task_id  Id of the task to reprocess                 [string] [required]
 ```
 
 ## Command: forcedryrunfailstoreprocess
@@ -502,5 +504,7 @@ node dist/index.js forcedryrunfailstoreprocess --help
 The following options are available for the `forcedryrunfailstoreprocess` command:
 
 ```
-todo
+  -r, --resturl   The rest url of zkwasm cloud serivce.      [string] [required]
+  -x, --priv      The private key of user address.           [string] [required]
+      --task_ids  Id of the tasks to reprocess  [array] [required] [default: []]
 ```

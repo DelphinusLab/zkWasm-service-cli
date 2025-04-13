@@ -1,4 +1,4 @@
-import { forceUnproveableToReprocess } from "task";
+import { forceUnproveableToReprocess } from "../task";
 import { Arguments, Argv } from "yargs";
 
 export const command = "forceunproveabletoreprocess";
@@ -15,6 +15,8 @@ export const builder = (yargs: Argv) => {
     })
     .option("task_id", {
       describe: "Id of the task to reprocess",
+      demandOption:
+        "The task_id is required for reprocessing unproveable task.",
       type: "string",
     });
 };
