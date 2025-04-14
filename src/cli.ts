@@ -22,7 +22,7 @@ export function createCLI() {
       .command(commands.pressureTest)
       .command(commands.proverProfile)
       .command(commands.getTaskExternalHostTable)
-      .command(commands.forceUnproveableToReprocess)
+      .command(commands.forceUnprovableToReprocess)
       .command(commands.forceDryrunFailsToReprocess)
       // Add other commands here as they are implemented
       .example(

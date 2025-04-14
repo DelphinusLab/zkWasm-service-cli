@@ -443,37 +443,37 @@ The following options are available for the `gettaskexternalhosttable` command:
       --task_id  Id of the task to query                                [string]
 ```
 
-## Command: forceunproveabletoreprocess
+## Command: forceunprovabletoreprocess
 
-Force an `Unproveable` task into a `Fail` state to allow it's proof to be retried.
+Force an `Unprovable` task into a `Fail` state to allow it's proof to be retried.
 
 ### Usage
 
 ```
-node dist/index.js forceunproveabletoreprocess \
+node dist/index.js forceunprovabletoreprocess \
      -r <resturl> \
      -x <priv> \
-     --task_id <task_id>
+     --task_ids <task_id_0> <task_id_1> <task_id_1>
 ```
 
 ### Example
 
-- [Force unproveable to reprocess file](scripts/force_unproveable_to_reprocess.sh)
+- [Force unprovable to reprocess file](scripts/force_unprovable_to_reprocess.sh)
 
 ### Options
 
 Use the following to display options:
 
 ```
-node dist/index.js forceunproveabletoreprocess --help
+node dist/index.js forceunprovabletoreprocess --help
 ```
 
-The following options are available for the `forceunproveabletoreprocess` command:
+The following options are available for the `forceunprovabletoreprocess` command:
 
 ```
   -r, --resturl  The rest url of zkwasm cloud serivce.       [string] [required]
-  -x, --priv     The private key of user address.            [string] [required]
-      --task_id  Id of the task to reprocess                 [string] [required]
+  -x, --priv      The private key of user address.           [string] [required]
+      --task_ids  Id of the task to reprocess                [string] [required]
 ```
 
 ## Command: forcedryrunfailstoreprocess

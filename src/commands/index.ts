@@ -8,5 +8,5 @@ export * as pressureTest from "./pressureTest";
 export * as proverProfile from "./proverProfile";
 export * as addResetImageTask from "./resetImage";
 export * as getTaskExternalHostTable from "./getTaskExternalHostTable";
-export * as forceUnproveableToReprocess from "./forceUnproveableToReprocess";
+export * as forceUnprovableToReprocess from "./forceUnprovableToReprocess";
 export * as forceDryrunFailsToReprocess from "./forceDryrunFailsToReprocess";

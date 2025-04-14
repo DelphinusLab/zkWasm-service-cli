@@ -1,9 +1,9 @@
-import { forceUnproveableToReprocess } from "../task";
+import { forceUnprovableToReprocess } from "../task";
 import { Arguments, Argv } from "yargs";
 
-export const command = "forceunproveabletoreprocess";
+export const command = "forceunprovabletoreprocess";
 export const desc =
-  "Force an `Unproveable` task into a `Fail` state to allow it's proof to be retried";
+  "Force an `Unprovable` task into a `Fail` state to allow it's proof to be retried";
 
 export const builder = (yargs: Argv) => {
   return yargs
@@ -13,19 +13,18 @@ export const builder = (yargs: Argv) => {
       demandOption: "The priv is required for signing message.",
       type: "string",
     })
-    .option("task_id", {
+    .option("task_ids", {
       describe: "Id of the task to reprocess",
-      demandOption:
-        "The task_id is required for reprocessing unproveable task.",
+      demandOption: "The task_ids list is required for reprocessing unprovable task.",
       type: "string",
     });
 };
 
 export const handler = async (argv: Arguments) => {
-  console.log("Forcing an unproveable task to reprocess ...");
-  await forceUnproveableToReprocess(
+  console.log("Forcing an unprovable task to reprocess ...");
+  await forceUnprovableToReprocess(
     argv.r as string,
     argv.x as string,
-    argv.task_id as string,
+    argv.task_id as string[],
   );
 };
