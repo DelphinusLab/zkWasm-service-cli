@@ -442,3 +442,69 @@ The following options are available for the `gettaskexternalhosttable` command:
   -r, --resturl  The rest url of zkwasm cloud serivce.       [string] [required]
       --task_id  Id of the task to query                                [string]
 ```
+
+## Command: forceunprovabletoreprocess
+
+Force an `Unprovable` task into a `Fail` state to allow it's proof to be retried.
+
+### Usage
+
+```
+node dist/index.js forceunprovabletoreprocess \
+     -r <resturl> \
+     -x <priv> \
+     --task_ids <task_id_0> <task_id_1> <task_id_1>
+```
+
+### Example
+
+- [Force unprovable to reprocess file](scripts/force_unprovable_to_reprocess.sh)
+
+### Options
+
+Use the following to display options:
+
+```
+node dist/index.js forceunprovabletoreprocess --help
+```
+
+The following options are available for the `forceunprovabletoreprocess` command:
+
+```
+  -r, --resturl  The rest url of zkwasm cloud serivce.       [string] [required]
+  -x, --priv      The private key of user address.           [string] [required]
+      --task_ids  Id of the task to reprocess                [string] [required]
+```
+
+## Command: forcedryrunfailstoreprocess
+
+Force an `DryRunFailed` task into a `Pending` state to allow it's dry run to be retried.
+
+### Usage
+
+```
+node dist/index.js forcedryrunfailstoreprocess \
+     -r <resturl> \
+     -x <priv> \
+     --task_ids <task_id_0> <task_id_1> <task_id_1>
+```
+
+### Example
+
+- [Force dry run fails to reprocess file](scripts/force_dryrun_fails_to_reprocess.sh)
+
+### Options
+
+Use the following to display options:
+
+```
+node dist/index.js forcedryrunfailstoreprocess --help
+```
+
+The following options are available for the `forcedryrunfailstoreprocess` command:
+
+```
+  -r, --resturl   The rest url of zkwasm cloud serivce.      [string] [required]
+  -x, --priv      The private key of user address.           [string] [required]
+      --task_ids  Id of the tasks to reprocess  [array] [required] [default: []]
+```
