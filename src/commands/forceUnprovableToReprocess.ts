@@ -25,6 +25,6 @@ export const handler = async (argv: Arguments) => {
   await forceUnprovableToReprocess(
     argv.r as string,
     argv.x as string,
-    argv.task_id as string[],
+    argv.task_ids as string[],
   );
 };
