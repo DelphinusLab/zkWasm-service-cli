@@ -3,12 +3,7 @@ node dist/index.js addimage \
     -u "user_address" \
     -x "private_key" \
     --path "image.wasm" \
-    -d "Image description" \
-    -c 22 \
-    --creator_paid_proof false \
-    --creator_only_add_prove_task false \
-    --auto_submit_network_ids x y z \
-    --import_data_image "Image md5"
+    --description "Image description"
     
 # Optional: add this param to import merkle data from image by specifying md5, e.g.
 # --import_data_image "9E3FD7F8B867F9CAE3494FA76F70E627"
