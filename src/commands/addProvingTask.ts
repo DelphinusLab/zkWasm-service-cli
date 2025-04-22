@@ -1,28 +1,28 @@
 import { Arguments, Argv } from "yargs";
 import { addProvingTask } from "../task";
-import { ProofSubmitMode } from "zkwasm-service-helper";
+import { parseProofSubmitMode } from "../util";
 
 export const command = "addprovingtask";
 export const desc = "Add proving task";
 
 export const builder = (yargs: Argv) => {
   return yargs
-    .option("i", {
-      alias: "image",
-      describe: "image md5",
-      demandOption: "The image md5 is required",
-      type: "string",
-    })
     .option("u", {
       alias: "address",
-      describe: "User address which adding the image",
+      describe: "User address which is adding the image",
       demandOption: "User address is required",
       type: "string",
     })
     .option("x", {
       alias: "priv",
-      describe: "The priv of user address.",
+      describe: "The private key of user address.",
       demandOption: "The priv is required for signing message.",
+      type: "string",
+    })
+    .option("i", {
+      alias: "image",
+      describe: "The MD5 of the wasm image",
+      demandOption: "The image MD5 is required",
       type: "string",
     })
     .option("public_input", {
@@ -30,14 +30,15 @@ export const builder = (yargs: Argv) => {
         "public input of the proof, inputs must have format (0x)[0-f]*:(i64|bytes|bytes-packed) and been separated by spaces (eg: 0x12:i64 44:i64 32:i64).",
       type: "string",
     })
-    .option("submit_mode", {
-      describe: "Submit mode for the proof, default is manual",
-      type: "string",
-      default: "manual",
-    })
     .option("private_input", {
-      describe: "private currently not supported",
+      describe: "The private input of the proof. Currently not supported.",
       type: "string",
+    })
+    .option("submit_mode", {
+      describe:
+        "The submit mode of the proving task. Specify 'Auto' or 'Manual'. If not specified, the default is 'Manual'",
+      type: "string",
+      default: "Manual",
     });
 };
 
@@ -49,7 +50,7 @@ export const handler = async (argv: Arguments) => {
     argv.i as string,
     argv.public_input ? (argv.public_input as string) : "",
     argv.private_input ? (argv.private_input as string) : "",
-    argv.submit_mode as ProofSubmitMode,
-    argv.x as string
+    parseProofSubmitMode(argv.submit_mode),
+    argv.x as string,
   );
 };
