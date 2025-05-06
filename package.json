@@ -9,7 +9,7 @@
     "ethers": "^6.2.3",
     "form-data": "^4.0.0",
     "yargs": "17.6.2",
-    "zkwasm-service-helper": "git+https://github.com/DelphinusLab/zkWasm-service-helper.git"
+    "zkwasm-service-helper": "git+https://github.com/DelphinusLab/zkWasm-service-helper.git#feature/NewZkwasm2025"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
