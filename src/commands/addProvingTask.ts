@@ -31,7 +31,8 @@ export const builder = (yargs: Argv) => {
       type: "string",
     })
     .option("private_input", {
-      describe: "The private input of the proof. Currently not supported.",
+      describe:
+        "The private input of the proof. Can be a string or a filename (filename must have '.txt' extension)",
       type: "string",
     })
     .option("submit_mode", {

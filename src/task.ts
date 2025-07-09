@@ -115,9 +115,15 @@ export async function addProvingTask(
   enable_logs: boolean = true,
   num: number = 0,
 ): Promise<ProveTaskResponse> {
+  let priv_inputs_parsed = private_inputs;
+  if (private_inputs.includes(".txt")) {
+    priv_inputs_parsed = fs.readFileSync(private_inputs, "utf8");
+  }
+
   let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
   let pb_inputs: Array<string> = ZkWasmUtil.validateInputs(public_inputs);
-  let priv_inputs: Array<string> = ZkWasmUtil.validateInputs(private_inputs);
+  let priv_inputs: Array<string> =
+    ZkWasmUtil.validateInputs(priv_inputs_parsed);
 
   let info: ProvingParams = {
     user_address: user_addr.toLowerCase(),
