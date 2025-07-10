@@ -262,6 +262,7 @@ async function runProveTasks(
           image_md5s[i % image_md5s.length],
           public_inputs,
           private_inputs,
+          undefined,
           submit_mode,
           priv,
           enable_logs,
