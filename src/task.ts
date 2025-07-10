@@ -17,6 +17,8 @@ import {
   ResetImageParams,
   ForceUnprovableToReprocessParams,
   ForceDryrunFailsToReprocessParams,
+  InputContextType,
+  WithCustomInputContextType,
 } from "zkwasm-service-helper";
 
 import {
@@ -110,20 +112,15 @@ export async function addProvingTask(
   image_md5: string,
   public_inputs: string,
   private_inputs: string,
+  context_file: string | undefined,
   proof_submit_mode: ProofSubmitMode,
   priv: string,
   enable_logs: boolean = true,
   num: number = 0,
 ): Promise<ProveTaskResponse> {
-  let priv_inputs_parsed = private_inputs;
-  if (private_inputs.includes(".txt")) {
-    priv_inputs_parsed = fs.readFileSync(private_inputs, "utf8");
-  }
-
   let helper = new ZkWasmServiceHelper(resturl, "", "", enable_logs);
   let pb_inputs: Array<string> = ZkWasmUtil.validateInputs(public_inputs);
-  let priv_inputs: Array<string> =
-    ZkWasmUtil.validateInputs(priv_inputs_parsed);
+  let priv_inputs: Array<string> = ZkWasmUtil.validateInputs(private_inputs);
 
   let info: ProvingParams = {
     user_address: user_addr.toLowerCase(),
@@ -132,6 +129,19 @@ export async function addProvingTask(
     private_inputs: priv_inputs,
     proof_submit_mode: proof_submit_mode,
   };
+
+  if (context_file) {
+    let contextBytes: Buffer = fs.readFileSync(context_file);
+    let context_info: WithCustomInputContextType = {
+      input_context: contextBytes,
+      input_context_md5: ZkWasmUtil.convertToMd5(contextBytes),
+      input_context_type: InputContextType.Custom,
+    };
+    info = { ...info, ...context_info };
+  } else {
+    info = { ...info, input_context_type: InputContextType.ImageCurrent };
+  }
+
   let msgString = ZkWasmUtil.createProvingSignMessage(info);
 
   let signature: string;
