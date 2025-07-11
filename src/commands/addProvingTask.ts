@@ -48,13 +48,13 @@ export const builder = (yargs: Argv) => {
     .option("context_file", {
       describe: "File path of file containing context.",
       type: "string",
+      implies: "input_context_type",
     })
     .option("input_context_type", {
       describe:
-        "Type of context use by the image, `Custom`, `ImageInitial` or `ImageCurrent` (default).",
+        "Type of context use by the image, `Custom`, `ImageInitial` or `ImageCurrent`.",
       type: "string",
       default: "ImageCurrent",
-      implies: "context_file",
     })
     .option("submit_mode", {
       describe:
