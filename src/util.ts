@@ -81,12 +81,12 @@ export function parsePrivateInputOrFilename(
 }
 
 export function parseInputContextType(input_context_type: any) {
-  const psm = (input_context_type as string).toLowerCase();
-  if (psm === "custom") {
+  const ict = (input_context_type as string).toLowerCase();
+  if (ict === "custom") {
     return InputContextType.Custom;
-  } else if (psm === "imageinitial") {
+  } else if (ict === "imageinitial") {
     return InputContextType.ImageInitial;
-  } else if (psm === "imagecurrent") {
+  } else if (ict === "imagecurrent") {
     return InputContextType.ImageCurrent;
   } else {
     console.log(
