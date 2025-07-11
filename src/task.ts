@@ -132,7 +132,6 @@ export async function addProvingTask(
   };
 
   if (context_file) {
-    let contextBytes: Buffer = fs.readFileSync(context_file);
     if (input_context_type !== InputContextType.Custom) {
       console.log(
         "input_context_type must be 'Custom' if specifying context_file",
@@ -140,6 +139,7 @@ export async function addProvingTask(
       );
       exit(1);
     }
+    let contextBytes: Buffer = fs.readFileSync(context_file);
     let context_info: WithCustomInputContextType = {
       input_context: contextBytes,
       input_context_md5: ZkWasmUtil.convertToMd5(contextBytes),
