@@ -1,7 +1,10 @@
-import fs from "fs";
 import { Arguments, Argv } from "yargs";
 import { addProvingTask } from "../task";
-import { parseProofSubmitMode } from "../util";
+import {
+  parseInputContextType,
+  parsePrivateInputOrFilename,
+  parseProofSubmitMode,
+} from "../util";
 
 export const command = "addprovingtask";
 export const desc = "Add proving task";
@@ -32,8 +35,7 @@ export const builder = (yargs: Argv) => {
       type: "string",
     })
     .option("private_input", {
-      describe:
-        "The private input of the proof. Can be a string or a filename (filename must have '.txt' extension)",
+      describe: "The private input of the proof.",
       type: "string",
       conflicts: "private_input_file",
     })
@@ -47,6 +49,13 @@ export const builder = (yargs: Argv) => {
       describe: "File path of file containing context.",
       type: "string",
     })
+    .option("input_context_type", {
+      describe:
+        "Type of context use by the image, `Custom`, `ImageInitial` or `ImageCurrent` (default).",
+      type: "string",
+      default: "ImageCurrent",
+      implies: "context_file",
+    })
     .option("submit_mode", {
       describe:
         "The submit mode of the proving task. Specify 'Auto' or 'Manual'. If not specified, the default is 'Manual'",
@@ -58,23 +67,14 @@ export const builder = (yargs: Argv) => {
 export const handler = async (argv: Arguments) => {
   console.log("Begin adding prove task for ", argv.i, argv.public_input);
 
-  let priv_inputs_parsed = argv.private_input
-    ? (argv.private_input as string)
-    : "";
-  let priv_inputs_filename = argv.private_input_file
-    ? (argv.private_input_file as string)
-    : undefined;
-  if (priv_inputs_filename) {
-    priv_inputs_parsed = fs.readFileSync(priv_inputs_filename, "utf8");
-  }
-
   await addProvingTask(
     argv.r as string,
     argv.u as string,
     argv.i as string,
     argv.public_input ? (argv.public_input as string) : "",
-    priv_inputs_parsed,
+    parsePrivateInputOrFilename(argv.private_input, argv.private_input_file),
     argv.context_file ? (argv.context_file as string) : undefined,
+    parseInputContextType(argv.input_context_type),
     parseProofSubmitMode(argv.submit_mode),
     argv.x as string,
   );

@@ -1,7 +1,12 @@
+import fs from "fs";
 import EthCrypto from "eth-crypto";
 import { exit } from "process";
 import readline from "readline";
-import { ProofSubmitMode, ZkWasmUtil } from "zkwasm-service-helper";
+import {
+  InputContextType,
+  ProofSubmitMode,
+  ZkWasmUtil,
+} from "zkwasm-service-helper";
 
 export async function signMessage(message: string, priv: string) {
   return await ZkWasmUtil.signMessage(message, priv);
@@ -59,4 +64,35 @@ export function parseAutoSubmitNetworkIds(auto_submit_network_ids: any) {
       exit(1);
     }
   });
+}
+
+export function parsePrivateInputOrFilename(
+  private_input: any,
+  private_input_file: any,
+) {
+  let priv_inputs_parsed = private_input ? (private_input as string) : "";
+  let priv_inputs_filename = private_input_file
+    ? (private_input_file as string)
+    : undefined;
+  if (priv_inputs_filename) {
+    priv_inputs_parsed = fs.readFileSync(priv_inputs_filename, "utf8");
+  }
+  return priv_inputs_parsed;
+}
+
+export function parseInputContextType(input_context_type: any) {
+  const psm = (input_context_type as string).toLowerCase();
+  if (psm === "custom") {
+    return InputContextType.Custom;
+  } else if (psm === "imageinitial") {
+    return InputContextType.ImageInitial;
+  } else if (psm === "imagecurrent") {
+    return InputContextType.ImageCurrent;
+  } else {
+    console.log(
+      "Invalid option for input_context_type, must be either 'Custom' or 'ImageInitial', ImageCurrent.",
+      input_context_type,
+    );
+    exit(1);
+  }
 }

@@ -113,6 +113,7 @@ export async function addProvingTask(
   public_inputs: string,
   private_inputs: string,
   context_file: string | undefined,
+  input_context_type: InputContextType,
   proof_submit_mode: ProofSubmitMode,
   priv: string,
   enable_logs: boolean = true,
@@ -132,6 +133,13 @@ export async function addProvingTask(
 
   if (context_file) {
     let contextBytes: Buffer = fs.readFileSync(context_file);
+    if (input_context_type !== InputContextType.Custom) {
+      console.log(
+        "input_context_type must be 'Custom' if specifying context_file",
+        input_context_type,
+      );
+      exit(1);
+    }
     let context_info: WithCustomInputContextType = {
       input_context: contextBytes,
       input_context_md5: ZkWasmUtil.convertToMd5(contextBytes),
@@ -139,7 +147,14 @@ export async function addProvingTask(
     };
     info = { ...info, ...context_info };
   } else {
-    info = { ...info, input_context_type: InputContextType.ImageCurrent };
+    if (input_context_type === InputContextType.Custom) {
+      console.log(
+        "input_context_type must not be 'Custom' if not specifying context_file",
+        input_context_type,
+      );
+      exit(1);
+    }
+    info = { ...info, input_context_type: input_context_type };
   }
 
   let msgString = ZkWasmUtil.createProvingSignMessage(info);
@@ -263,6 +278,7 @@ async function runProveTasks(
           public_inputs,
           private_inputs,
           undefined,
+          InputContextType.ImageCurrent,
           submit_mode,
           priv,
           enable_logs,
