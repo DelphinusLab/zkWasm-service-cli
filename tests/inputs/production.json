@@ -1,6 +1,38 @@
 {
   "tests": [
     {
+      "md5": "7F62EDBF6DEAE3B6D037CCDF16C41926",
+      "pub": "1652630409651631447:i64 5428469742604488862:i64 3498389678465334990:i64 2538597870736229007:i64",
+      "pri": "private_7F62EDBF6DEAE3B6D037CCDF16C41926.txt",
+      "comment": "Sample production image #1. Inputs from https://explorer.zkwasmhub.com/task/686c45848dab19c15ee32e4e"
+    },
+    {
+      "md5": "8C6B6D73D5DB3BE316D30FBC2EAA1BBE",
+      "pub": "13880408259591585589:i64 15976049725348277857:i64 2301386418804311555:i64 1882675217952803684:i64",
+      "pri": "private_8C6B6D73D5DB3BE316D30FBC2EAA1BBE.txt",
+      "comment": "Sample production image #2. Inputs from https://explorer.zkwasmhub.com/task/686c41fa8dab19c15ee32e30"
+    },
+    {
+      "md5": "C5F295871C0C879A4FEA47904ADAC1A0",
+      "pub": "159283806455967554:i64 6115801264300533556:i64 1142107609782064062:i64 763966832004419628:i64",
+      "pri": "private_C5F295871C0C879A4FEA47904ADAC1A0.txt",
+      "comment": "Sample production image #3. Inputs from https://explorer.zkwasmhub.com/task/686c4d848dab19c15ee32e8f",
+      "import_data_image": ""
+    },
+    {
+      "md5": "D31C587D1AE72B29C30705098CE50009",
+      "pub": "4352978476346530504:i64 12371517568592369193:i64 9174216774273931553:i64 694120130623208810:i64",
+      "pri": "private_D31C587D1AE72B29C30705098CE50009.txt",
+      "comment": "Sample production image #4. Inputs from https://explorer.zkwasmhub.com/task/686374c08dab19c15ee2e635"
+    },
+    {
+      "md5": "CFDCBB1AC82A6CEF491F329DA175658E",
+      "pub": "7641417957418691554:i64 16425275285716893312:i64 10855185197115893958:i64 676424384880060983:i64",
+      "pri": "private_CFDCBB1AC82A6CEF491F329DA175658E.txt",
+      "comment": "Sample production image with shared image data. Inputs from https://explorer.zkwasmhub.com/task/686b5c718dab19c15ee3262d",
+      "import_data_image": "D31C587D1AE72B29C30705098CE50009"
+    },
+    {
       "md5": "A8B4386A48A4DAD3947833041333FCB8",
       "pub": "6407895042814680319:i64 1242311961487967236:i64 7791072194592000474:i64 1411319745989579005:i64 ",
       "pri": "private_A8B4386A48A4DAD3947833041333FCB8.txt",
