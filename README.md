@@ -2,7 +2,57 @@
 
 The `zkwasm-service-cli` is a command-line interface application that provides functionalities to interact with the `zkwasm` cloud service. This application can be executed using the `node` command.
 
-## Usage
+## Table of Contents
+
+- [General Usage](#general-usage)
+- [Commands](#commands)
+  - [addimage](#addimage)
+    - [Usage](#usage)
+    - [Example](#example)
+    - [Options](#options)
+  - [resetimage](#resetimage)
+    - [Usage](#usage-1)
+    - [Example](#example-1)
+    - [Options](#options-1)
+  - [addprovingtask](#addprovingtask)
+    - [Usage](#usage-2)
+    - [Example](#example-2)
+    - [Options](#options-2)
+  - [addpayment](#addpayment)
+    - [Usage](#usage-3)
+    - [Example](#example-3)
+    - [Options](#options-3)
+  - [prover-profile](#prover-profile)
+    - [Usage](#usage-4)
+    - [Example](#example-4)
+    - [Options](#options-4)
+  - [querytask](#querytask)
+    - [Usage](#usage-5)
+    - [Example](#example-5)
+    - [Options](#options-5)
+  - [queryimage](#queryimage)
+    - [Usage](#usage-6)
+    - [Example](#example-6)
+    - [Options](#options-6)
+  - [queryuser](#queryuser)
+    - [Usage](#usage-7)
+    - [Example](#example-7)
+    - [Options](#options-7)
+  - [gettaskexternalhosttable](#gettaskexternalhosttable)
+    - [Usage](#usage-8)
+    - [Example](#example-8)
+    - [Options](#options-8)
+  - [forceunprovabletoreprocess](#forceunprovabletoreprocess)
+    - [Usage](#usage-9)
+    - [Example](#example-9)
+    - [Options](#options-9)
+  - [forcedryrunfailstoreprocess](#forcedryrunfailstoreprocess)
+    - [Usage](#usage-10)
+    - [Example](#example-10)
+    - [Options](#options-10)
+- [Testing](#testing)
+
+## General Usage
 
 Install dependencies:
 
@@ -32,17 +82,11 @@ All example usages of the cli are available in the [scripts folder](scripts).
 
 ## Commands
 
-- [addimage](#command-addimage)
-- [resetimage](#command-resetimage)
-- [addprovingtask](#command-addprovingtask)
-- [addpayment](#command-addpayment)
-- [querytask](#command-querytask)
-
-## Command: addimage
+### addimage
 
 Add a new wasm image.
 
-### Usage
+#### Usage
 
 ```
 node dist/index.js addimage \
@@ -58,11 +102,11 @@ node dist/index.js addimage \
     [--import_data_image <image_md5>]
 ```
 
-### Examples
+#### Example
 
 - [Add image command with all parameters specified](scripts/add_image.sh)
 
-### Options
+#### Options
 
 Use the following to display options:
 
@@ -101,11 +145,11 @@ The following options are available for the `addimage` command:
                                      from                               [string]
 ```
 
-## Command: resetimage
+### resetimage
 
 Add reset image task with the given parameters.
 
-### Usage
+#### Usage
 
 ```
 node dist/index.js resetimage \
@@ -119,11 +163,11 @@ node dist/index.js resetimage \
     [--auto_submit_network_ids x y z]
 ```
 
-### Examples
+#### Example
 
 - [Reset image command with all parameters specified](scripts/reset_image.sh)
 
-### Options
+#### Options
 
 Use the following to display options:
 
@@ -157,11 +201,11 @@ The following options are available for the `resetimage` command:
                                                            [array] [default: []]
 ```
 
-## Command: addprovingtask
+### addprovingtask
 
 Add proving task.
 
-### Usage
+#### Usage
 
 ```
 node dist/index.js addprovingtask \
@@ -174,12 +218,12 @@ node dist/index.js addprovingtask \
     [--submit_mode <Manual|Auto>]
 ```
 
-### Example
+#### Example
 
 - [Add proving task command with manual submit mode](scripts/add_manual_proof_task.sh)
 - [Add proving task command with auto submit mode](scripts/add_auto_proof_task.sh)
 
-### Options
+#### Options
 
 Use the following to display options:
 
@@ -204,11 +248,11 @@ The following options are available for the `addprovingtask` command:
                                                     [string] [default: "Manual"]
 ```
 
-## Command: addpayment
+### addpayment
 
 Add payment either by creating an new transaction or using a exiting one.
 
-### Usage
+#### Usage
 
 ```
 node dist/index.js addpayment \
@@ -219,12 +263,12 @@ node dist/index.js addpayment \
      [-a <amount>]
 ```
 
-### Examples
+#### Example
 
 - [Add payment with new transaction](scripts/add_payment.sh)
 - [Add payment using existing transaction hash](scripts/add_payment_with_tx.sh)
 
-### Options
+#### Options
 
 Use the following to display options:
 
@@ -247,7 +291,7 @@ The following options are available for the `addpayment` command:
                   required                                              [string]
 ```
 
-## Command: prover-profile
+### prover-profile
 
 This command will fetch the node statistics from the server and save it to a local `node_statistics_{timestamp}.json` file. If the `--compare-with` option is specified, the command will compare the current node statistics with the specified file and output the differences to the specified `--report-out` file.
 
@@ -255,7 +299,7 @@ We do not require any user information as this is purely querying the server for
 
 If you want to add tasks to force value updates, you can use `addProvingTask` or `pressuretest` commands.
 
-### Usage
+#### Usage
 
 ```
 node dist/index.js prover-profile \
@@ -264,7 +308,7 @@ node dist/index.js prover-profile \
      --report-out <file>
 ```
 
-### Examples
+#### Example
 
 - [Generate prover profile report](scripts/generate_prover_profile_report.sh)
 - [Generate current node statistics file](scripts/generate_current_node_stats.sh)
@@ -276,7 +320,7 @@ node dist/index.js prover-profile \
     --report-out "report.json"
 ```
 
-### Options
+#### Options
 
 Use the following to display options:
 
@@ -295,11 +339,11 @@ The following options are available for the `prover-profile` command:
                       `--compare-with` is specified                     [string]
 ```
 
-## Command: querytask
+### querytask
 
 Query Task with given parameters.
 
-### Usage
+#### Usage
 
 ```
 node dist/index.js querytask \
@@ -315,12 +359,12 @@ node dist/index.js querytask \
      [--verbose <true|false>]
 ```
 
-### Example
+#### Example
 
 - [Query with all parameters specified](scripts/query_task.sh)
 - [Find most recent 10 finished proof associate with D2144252F3C9DDCA5CA86C23D2EE97E9 image](scripts/query_prove_done_task.sh)
 
-### Options
+#### Options
 
 Use the following to display options:
 
@@ -350,11 +394,11 @@ The following options are available for the `querytask` command:
                                                        [boolean] [default: true]
 ```
 
-## Command: queryimage
+### queryimage
 
 Query Image with given parameters.
 
-### Usage
+#### Usage
 
 ```
 node dist/index.js queryimage \
@@ -362,11 +406,11 @@ node dist/index.js queryimage \
      --md5 <Image MD5>
 ```
 
-### Example
+#### Example
 
 - [Query image with MD5](scripts/query_image.sh)
 
-### Options
+#### Options
 
 Use the following to display options:
 
@@ -381,11 +425,11 @@ The following options are available for the `queryimage` command:
       --md5      MD5 of the image to query                   [string] [required]
 ```
 
-## Command: queryuser
+### queryuser
 
 Query user with given parameters.
 
-### Usage
+#### Usage
 
 ```
 node dist/index.js querytask \
@@ -393,11 +437,11 @@ node dist/index.js querytask \
      --user_address <user_address>
 ```
 
-### Example
+#### Example
 
 - [Query user with address](scripts/query_user.sh)
 
-### Options
+#### Options
 
 Use the following to display options:
 
@@ -412,11 +456,11 @@ The following options are available for the `queryuser` command:
       --user_address  Address of the user to query           [string] [required]
 ```
 
-## Command: gettaskexternalhosttable
+### gettaskexternalhosttable
 
 Get task's external host table file.
 
-### Usage
+#### Usage
 
 ```
 node dist/index.js gettaskexternalhosttable \
@@ -424,11 +468,11 @@ node dist/index.js gettaskexternalhosttable \
      --task_id <task_id>
 ```
 
-### Example
+#### Example
 
 - [Get task external host table file](scripts/get_task_external_host_table.sh)
 
-### Options
+#### Options
 
 Use the following to display options:
 
@@ -443,11 +487,11 @@ The following options are available for the `gettaskexternalhosttable` command:
       --task_id  Id of the task to query                                [string]
 ```
 
-## Command: forceunprovabletoreprocess
+### forceunprovabletoreprocess
 
 Force an `Unprovable` task into a `Fail` state to allow it's proof to be retried.
 
-### Usage
+#### Usage
 
 ```
 node dist/index.js forceunprovabletoreprocess \
@@ -456,11 +500,11 @@ node dist/index.js forceunprovabletoreprocess \
      --task_ids <task_id_0> <task_id_1> <task_id_1>
 ```
 
-### Example
+#### Example
 
 - [Force unprovable to reprocess file](scripts/force_unprovable_to_reprocess.sh)
 
-### Options
+#### Options
 
 Use the following to display options:
 
@@ -476,11 +520,11 @@ The following options are available for the `forceunprovabletoreprocess` command
       --task_ids  Id of the task to reprocess                [string] [required]
 ```
 
-## Command: forcedryrunfailstoreprocess
+### forcedryrunfailstoreprocess
 
 Force an `DryRunFailed` task into a `Pending` state to allow it's dry run to be retried.
 
-### Usage
+#### Usage
 
 ```
 node dist/index.js forcedryrunfailstoreprocess \
@@ -489,11 +533,11 @@ node dist/index.js forcedryrunfailstoreprocess \
      --task_ids <task_id_0> <task_id_1> <task_id_1>
 ```
 
-### Example
+#### Example
 
 - [Force dry run fails to reprocess file](scripts/force_dryrun_fails_to_reprocess.sh)
 
-### Options
+#### Options
 
 Use the following to display options:
 
@@ -507,4 +551,28 @@ The following options are available for the `forcedryrunfailstoreprocess` comman
   -r, --resturl   The rest url of zkwasm cloud serivce.      [string] [required]
   -x, --priv      The private key of user address.           [string] [required]
       --task_ids  Id of the tasks to reprocess  [array] [required] [default: []]
+```
+
+## Testing
+
+First, update the `tests/.env` with your specific details.
+
+Note: Server must be up and running with some valid data.
+
+Run CLI tests for setup/reset image, prove auto/manual task, and query functionality:
+
+```
+bash tests/run_cli_tests.sh
+```
+
+Run multiple sample proofs (simple checks and merkle functionality tested):
+
+```
+bash tests/run_simple_proof_samples.sh
+```
+
+Run multiple production sample proofs (production merkle functionality tested):
+
+```
+bash tests/run_production_proof_samples.sh
 ```

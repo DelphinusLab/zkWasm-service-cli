@@ -1,0 +1,100 @@
+{
+  "tests": [
+    {
+      "md5": "10A3C29C7C936048C203304570224D24",
+      "pub": "72:i64 81:i64",
+      "pri": "546183:i64",
+      "comment": "Simple private input example"
+    },
+    {
+      "md5": "705D9EDF2732971F9580FA74C3329E1A",
+      "pub": "0x3:i64 0x2:i64",
+      "pri": "",
+      "comment": "Basic 'greater than' example test code"
+    },
+    {
+      "md5": "930E1B5C985AF50DED7FCBD53AC5CA04",
+      "pub": "43:i64 78:i64",
+      "pri": "63310104:i64",
+      "comment": "Simple private input example"
+    },
+    {
+      "md5": "843EF120A12E14D14D325A389EAC2BE2",
+      "pub": "17:i64 24:i64",
+      "pri": "33432:i64",
+      "comment": "Simple private input example"
+    },
+    {
+      "md5": "D2144252F3C9DDCA5CA86C23D2EE97E9",
+      "pub": "46:i64 32:i64",
+      "pri": "",
+      "comment": "Basic 'greater than' example test code"
+    },
+    {
+      "md5": "46D187A87BA20FD04B082BAE1EF83860",
+      "pub": "0:i64",
+      "pri": "1:i64",
+      "comment": "Example merkle code from zkWasm-rust repo richard/test-merkle branch (write version)"
+    },
+    {
+      "md5": "46D187A87BA20FD04B082BAE1EF83860",
+      "pub": "1:i64",
+      "pri": "1:i64",
+      "comment": "Example merkle code from zkWasm-rust repo richard/test-merkle branch (read version)"
+    },
+    {
+      "md5": "D79D1761FE72064B59F03D8457EF987C",
+      "pub": "",
+      "pri": "",
+      "comment": "Example merkle code from zkWasm-rust repo"
+    },
+    {
+      "md5": "BF1018BEE621B1A8A3B4B4C5622BB3BD",
+      "pub": "0:i64 14789582351289948625:i64 10919489180071018470:i64 10309858136294505219:i64 2839580074036780766:i64",
+      "pri": "1:i64 1:i64 2:i64 3:i64 4:i64",
+      "comment": "Set a leaf on a merkle tree given a root hash"
+    },
+    {
+      "md5": "BF1018BEE621B1A8A3B4B4C5622BB3BD",
+      "pub": "1:i64 14789582351289948625:i64 10919489180071018470:i64 10309858136294505219:i64 2839580074036780766:i64",
+      "pri": "1:i64",
+      "comment": "Overwrite a leaf on a merkle tree given a root hash. Writes default DATA hard coded in wasm."
+    },
+    {
+      "md5": "BF1018BEE621B1A8A3B4B4C5622BB3BD",
+      "pub": "2:i64 14789582351289948625:i64 10919489180071018470:i64 10309858136294505219:i64 2839580074036780766:i64",
+      "pri": "3:i64",
+      "comment": "Loops and writes data to 3 leaves."
+    },
+    {
+      "md5": "BF1018BEE621B1A8A3B4B4C5622BB3BD",
+      "pub": "2:i64 14789582351289948625:i64 10919489180071018470:i64 10309858136294505219:i64 2839580074036780766:i64",
+      "pri": "100:i64",
+      "comment": "Loops and writes data to 100 leaves."
+    },
+    {
+      "md5": "BF1018BEE621B1A8A3B4B4C5622BB3BD",
+      "pub": "2:i64 14789582351289948625:i64 10919489180071018470:i64 10309858136294505219:i64 2839580074036780766:i64",
+      "pri": "1000:i64",
+      "comment": "Loops and writes data to 1000 leaves."
+    },
+    {
+      "md5": "BF1018BEE621B1A8A3B4B4C5622BB3BD",
+      "pub": "3:i64",
+      "pri": "1000:i64",
+      "comment": "Loops and writes 1000 times, but will start from the default root hash each time."
+    },
+    {
+      "md5": "BF1018BEE621B1A8A3B4B4C5622BB3BD",
+      "pub": "4:i64 14789582351289948625:i64 10919489180071018470:i64 10309858136294505219:i64 2839580074036780766:i64",
+      "pri": "123456789:i64",
+      "comment": "Reads a leaf given a root hash and leaf index (private input)"
+    },
+    {
+      "md5": "BF1018BEE621B1A8A3B4B4C5622BB3BD",
+      "pub": "999:i64",
+      "pri": "",
+      "comment": "Basic merkle set with some default values"
+    }
+  ]
+}
