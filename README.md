@@ -4,55 +4,68 @@ The `zkwasm-service-cli` is a command-line interface application that provides f
 
 ## Table of Contents
 
-- [General Usage](#general-usage)
+- [Usage](#usage)
 - [Commands](#commands)
   - [addimage](#addimage)
-    - [Usage](#usage)
+    - [Usage](#usage-1)
     - [Example](#example)
     - [Options](#options)
   - [resetimage](#resetimage)
-    - [Usage](#usage-1)
+    - [Usage](#usage-2)
     - [Example](#example-1)
     - [Options](#options-1)
   - [addprovingtask](#addprovingtask)
-    - [Usage](#usage-2)
+    - [Usage](#usage-3)
     - [Example](#example-2)
     - [Options](#options-2)
   - [addpayment](#addpayment)
-    - [Usage](#usage-3)
+    - [Usage](#usage-4)
     - [Example](#example-3)
     - [Options](#options-3)
   - [prover-profile](#prover-profile)
-    - [Usage](#usage-4)
+    - [Usage](#usage-5)
     - [Example](#example-4)
     - [Options](#options-4)
   - [querytask](#querytask)
-    - [Usage](#usage-5)
+    - [Usage](#usage-6)
     - [Example](#example-5)
     - [Options](#options-5)
   - [queryimage](#queryimage)
-    - [Usage](#usage-6)
+    - [Usage](#usage-7)
     - [Example](#example-6)
     - [Options](#options-6)
   - [queryuser](#queryuser)
-    - [Usage](#usage-7)
+    - [Usage](#usage-8)
     - [Example](#example-7)
     - [Options](#options-7)
   - [gettaskexternalhosttable](#gettaskexternalhosttable)
-    - [Usage](#usage-8)
+    - [Usage](#usage-9)
     - [Example](#example-8)
     - [Options](#options-8)
   - [forceunprovabletoreprocess](#forceunprovabletoreprocess)
-    - [Usage](#usage-9)
+    - [Usage](#usage-10)
     - [Example](#example-9)
     - [Options](#options-9)
   - [forcedryrunfailstoreprocess](#forcedryrunfailstoreprocess)
-    - [Usage](#usage-10)
+    - [Usage](#usage-11)
     - [Example](#example-10)
     - [Options](#options-10)
 - [Testing](#testing)
+  - [Config for CLI Tests](#config-for-cli-tests)
+  - [Quick Start](#quick-start)
+  - [Details on scripts for CLI Tests](#details-on-scripts-for-cli-tests)
+    - [Add image](#add-image)
+    - [Add proof](#add-proof)
+    - [Queries](#queries)
+    - [Test all](#test-all)
+    - [Multi-Prove Sample Wasm Tests](#multi-prove-sample-wasm-tests)
+    - [Custom Multi-Prove Tests](#custom-multi-prove-tests)
+    - [Extreme pressure test](#extreme-pressure-test)
+      - [Start script](#start-script)
+      - [Stop script](#stop-script)
+  - [Debugging output](#debugging-output)
 
-## General Usage
+## Usage
 
 Install dependencies:
 
@@ -555,24 +568,205 @@ The following options are available for the `forcedryrunfailstoreprocess` comman
 
 ## Testing
 
-First, update the `tests/.env` with your specific details.
+### Config for CLI Tests
 
-Note: Server must be up and running with some valid data.
+User specific config values must be provided in the [.env](tests/.env) file:
 
-Run CLI tests for setup/reset image, prove auto/manual task, and query functionality:
+- Change the values of `SERVER_URL`, `USER_ADDRESS`, and `PRIVATE_KEY` to your own.
+- Update the `CHAIN_IDS` to only include network chain ids which have been deployed on the server.
+
+### Quick Start
+
+1. Run CLI tests for setup/reset image, prove auto/manual task, and query functionality:
+   ```
+   bash tests/run_cli_tests.sh
+   ```
+2. Run multiple sample proofs (simple checks and merkle functionality tested):
+   ```
+   bash tests/run_simple_proof_samples.sh
+   ```
+3. Run multiple production sample proofs (production merkle functionality tested):
+   ```
+   bash tests/run_production_proof_samples.sh
+   ```
+
+### Details on scripts for CLI Tests
+
+#### Add image
+
+[Add image script](tests/scripts/add_image.sh) creates a new image or resets an existing one given a wasm image.
+
+Usage:
+
+```bash
+# <install_and_build_cli> : true or false; setup the zkWasm service cli submodule; download, installs and builds.
+# <wasm_path> : path to wasm file under test.
+# <wasm_md5> : MD5 of wasm image.
+# <import_data_image> : MD5 of image of which merkle data will be imported from.
+# <poll> : true or false; enable waiting for task to successfully finish.
+
+bash tests/scripts/add_image.sh <install_and_build_cli> <wasm_path> <wasm_md5> <import_data_image> <poll>
+```
+
+Example with defaults:
+
+```bash
+bash tests/scripts/add_image.sh true "wasms/equality.wasm" F7D4555F3368026CDA92FB611EB9AEA2 None true
+```
+
+#### Add proof
+
+[Add proof script](tests/scripts/add_proof.sh) creates a proof task for image.
+
+Usage:
+
+```bash
+# <install_and_build_cli> : true or false; setup the zkWasm service cli submodule; download, installs and builds.
+# <mode> : "Auto" or "Manual"; whether to use proof batching or not.
+# <wasm_md5> : MD5 of wasm image.
+# <pub> : Public inputs for the proof.
+# <pri> : Private inputs for the proof.
+# <context_file> : Binary file containing context input for proof.
+# <poll> : true or false; enable waiting for task to successfully finish.
+
+bash tests/scripts/add_proof.sh <install_and_build_cli> <mode> <wasm_md5> <pub> <pri> <context_file> <poll>
+```
+
+Example with defaults:
+
+```bash
+bash tests/scripts/add_proof.sh true Manual F7D4555F3368026CDA92FB611EB9AEA2 "" "0:i64 0:i64" None true
+```
+
+- [default manual script example](tests/scripts/add_manual_proving_task.sh)
+- [default auto script example](tests/scripts/add_auto_proving_task.sh)
+
+#### Queries
+
+[Query script](tests/scripts/query.sh) runs get requests for task, image and user.
+
+Usage:
+
+```bash
+# <install_and_build_cli> : true or false; setup the zkWasm service cli submodule; download, installs and builds.
+# <wasm_md5> : MD5 of wasm image.
+
+bash tests/scripts/query.sh <install_and_build_cli> <wasm_md5>
+```
+
+Example with defaults:
+
+```bash
+bash tests/scripts/query.sh true F7D4555F3368026CDA92FB611EB9AEA2
+```
+
+#### Test all
+
+[Test all script](tests/run_cli_tests.sh) runs each cli test sequentially with default arguments to the scripts.
+
+Usage:
+
+```bash
+# <install_and_build_cli> : true or false; setup the zkWasm service cli by installing and building.
+
+bash tests/run_cli_tests.sh <install_and_build_cli>
+```
+
+Example with defaults:
+
+```bash
+bash tests/run_cli_tests.sh true
+```
+
+#### Multi-Prove Sample Wasm Tests
+
+[Simple multi-prove sample test script](tests/run_simple_proof_samples.sh) Creates/reset a series of different images and runs various proofs.
+The file [simple.json](tests/inputs/simple.json) contains the inputs for "simple" proofs (this includes the merkle benchmark image and zkWasm-rust image) and [production.json](tests/inputs/production.json) contains the inputs for proofs that use production merkle data.
+
+Please note production merkle data is required for `production.json` it can be installed by untarring the tar file located
+the server 138.217.142.94 here: `/home/yymone/yyu/ExplorerServerBackup/RocksDB/e2e/rocksdb-production-samples-for-e2e.tar.gz`.
+It must be installed in your `rocksdb` folder and the ownership of the untarred folder should be changed the be owned by you.
+E.g.
 
 ```
-bash tests/run_cli_tests.sh
+sudo tar xzf /home/yymone/yyu/ExplorerServerBackup/RocksDB/e2e/rocksdb-production-samples-for-e2e.tar.gz
+sudo chown -R username:username ./rocksdb
 ```
 
-Run multiple sample proofs (simple checks and merkle functionality tested):
+Usage:
 
-```
-bash tests/run_simple_proof_samples.sh
+```bash
+# <install_and_build_cli> : true or false; setup the zkWasm service cli submodule; download, installs and builds.
+# <inputs_json> : Json file containing md5 and proof inputs.
+# <add_image> : true or false; adds create/reset image task before proof is run.
+# <poll_add_image> : true or false; enable waiting for image task to successfully finish.
+# <poll_add_prove> : true or false; enable waiting for proof task to successfully finish.
+
+bash tests/run_simple_proof_samples.sh <install_and_build_cli> <inputs_json> <add_image> <poll_add_image> <poll_add_prove>
 ```
 
-Run multiple production sample proofs (production merkle functionality tested):
+Example with defaults:
 
+```bash
+bash tests/run_simple_proof_samples.sh true "tests/inputs/simple.json" true true true
 ```
-bash tests/run_production_proof_samples.sh
+
+- [Simple multi-prove sample test script](tests/run_simple_proof_samples.sh) runs a number of proofs for different images.
+- [Production multi-prove sample test script](tests/run_production_proof_samples.sh) runs a number of proofs for different images with merkle data.
+
+#### Custom Multi-Prove Tests
+
+[`run_production_proof_samples.sh`](tests/run_production_proof_samples.sh) is designed to showcase how to leverage the cli e2e framework
+for your own testing purposes. You can modify the json file to include your own test cases.
+In [production.json](tests/inputs/production.json), the first example shows a simple prove and the second shows how to specify
+`import_data_image` and `context_file`. Inputs must be stored under `tests/inputs/` and wasm files must be stored under `wasms/`.
+
+#### Extreme pressure test
+
+The "extreme" pressure test runs 100 tmux sessions each with a individual pressure test. It tests how the server handles the load of many simultaneous requests.
+Each session gets its own socket connection to the server and this simulates what 100 clients sending requests all at once would be like.
+Each session sends 20 requests per second to test burst handling, and then the request number averages to about 4 requests per second for each session.
+
+##### Start script
+
+[Start script](tests/scripts/pressure_test/start.sh) Creates 100 sessions each with a pressure test.
+
+Usage:
+
+```bash
+# <install_and_build_cli> : true or false; setup the zkWasm service cli submodule; download, installs and builds.
+
+bash tests/scripts/pressure_test/start.sh <install_and_build_cli>
+```
+
+Example with defaults:
+
+```bash
+bash tests/scripts/pressure_test/start.sh true
+```
+
+##### Stop script
+
+[Stop script](tests/scripts/pressure_test/stop.sh) Kills all the running sessions of the test.
+
+Usage:
+
+```bash
+bash tests/scripts/pressure_test/stop.sh
+```
+
+Example with defaults:
+
+```bash
+bash tests/scripts/pressure_test/stop.sh
+```
+
+### Debugging output
+
+To enable debugging output, which can be useful for showing the commands being executed, use the `-x` bash arg. Note that this must be passed into the script itself, not the `run_cli_tests.sh` script.
+
+Example:
+
+```bash
+bash -x tests/scripts/add_image.sh
 ```
