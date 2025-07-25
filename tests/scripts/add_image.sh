@@ -1,7 +1,7 @@
 #!/bin/bash
 
 cli_setup=${1:-"true"}
-wasm=${2:-"wasms/equality.wasm"}
+wasm=${2:-"tests/wasms/equality.wasm"}
 md5=${3:-"F7D4555F3368026CDA92FB611EB9AEA2"}
 import_data_image=${4:-"None"}
 poll=${5:-"true"}

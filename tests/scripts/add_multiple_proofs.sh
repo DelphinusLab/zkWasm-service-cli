@@ -34,7 +34,7 @@ if [[ "$add_image" == "true" ]]; then
     for md5 in $(jq -r '.tests[].md5' "$json" ); do
         import_data_image=$(jq -r ".tests[$idx].import_data_image // \"None\"" "$json")
         echo "Add/Reset image $md5 ..."
-        bash tests/scripts/add_image.sh "false" "wasms/$md5.wasm" "$md5" "$import_data_image" "$poll_add_image" || exit 1
+        bash tests/scripts/add_image.sh "false" "tests/wasms/$md5.wasm" "$md5" "$import_data_image" "$poll_add_image" || exit 1
         ((idx++))
     done
 fi
