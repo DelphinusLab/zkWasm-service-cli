@@ -20,7 +20,7 @@
     "module": "CommonJS",
     "outDir": "dist",
     "target": "es6",
-    "types": ["node"]
+    "types": ["node", "jest"]
   },
   "compileOnSave": false,
   "exclude": ["node_modules", "dist"],

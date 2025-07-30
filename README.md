@@ -4,55 +4,22 @@ The `zkwasm-service-cli` is a command-line interface application that provides f
 
 ## Table of Contents
 
-- [General Usage](#general-usage)
+- [Usage](#usage)
 - [Commands](#commands)
   - [addimage](#addimage)
-    - [Usage](#usage)
-    - [Example](#example)
-    - [Options](#options)
   - [resetimage](#resetimage)
-    - [Usage](#usage-1)
-    - [Example](#example-1)
-    - [Options](#options-1)
   - [addprovingtask](#addprovingtask)
-    - [Usage](#usage-2)
-    - [Example](#example-2)
-    - [Options](#options-2)
   - [addpayment](#addpayment)
-    - [Usage](#usage-3)
-    - [Example](#example-3)
-    - [Options](#options-3)
   - [prover-profile](#prover-profile)
-    - [Usage](#usage-4)
-    - [Example](#example-4)
-    - [Options](#options-4)
   - [querytask](#querytask)
-    - [Usage](#usage-5)
-    - [Example](#example-5)
-    - [Options](#options-5)
   - [queryimage](#queryimage)
-    - [Usage](#usage-6)
-    - [Example](#example-6)
-    - [Options](#options-6)
   - [queryuser](#queryuser)
-    - [Usage](#usage-7)
-    - [Example](#example-7)
-    - [Options](#options-7)
   - [gettaskexternalhosttable](#gettaskexternalhosttable)
-    - [Usage](#usage-8)
-    - [Example](#example-8)
-    - [Options](#options-8)
   - [forceunprovabletoreprocess](#forceunprovabletoreprocess)
-    - [Usage](#usage-9)
-    - [Example](#example-9)
-    - [Options](#options-9)
   - [forcedryrunfailstoreprocess](#forcedryrunfailstoreprocess)
-    - [Usage](#usage-10)
-    - [Example](#example-10)
-    - [Options](#options-10)
 - [Testing](#testing)
 
-## General Usage
+## Usage
 
 Install dependencies:
 
@@ -555,24 +522,18 @@ The following options are available for the `forcedryrunfailstoreprocess` comman
 
 ## Testing
 
-First, update the `tests/.env` with your specific details.
+First, update the `tests/config.json` with your specific details.
 
 Note: Server must be up and running with some valid data.
 
-Run CLI tests for setup/reset image, prove auto/manual task, and query functionality:
+Test the query commands:
 
-```
-bash tests/run_cli_tests.sh
-```
-
-Run multiple sample proofs (simple checks and merkle functionality tested):
-
-```
-bash tests/run_simple_proof_samples.sh
+```bash
+npm run test queries
 ```
 
-Run multiple production sample proofs (production merkle functionality tested):
+Test the task commands:
 
-```
-bash tests/run_production_proof_samples.sh
+```bash
+npm run test tasks
 ```

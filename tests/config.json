@@ -1,0 +1,11 @@
+{
+    "details": {
+        "server_url": "SERVER_URL",
+        "private_key": "PRIVATE_KEY",
+        "chain_ids": "CHAIN_ID_0 CHAIN_ID_1 CHAIN_ID_2 ... "
+    },
+    "query": {
+        "task_id": "TASK_ID_TO_QUERY",
+        "md5": "MD5_TO_QUERY"
+    }
+}
