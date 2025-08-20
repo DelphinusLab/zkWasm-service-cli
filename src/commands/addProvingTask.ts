@@ -1,6 +1,10 @@
 import { Arguments, Argv } from "yargs";
 import { addProvingTask } from "../task";
-import { parseProofSubmitMode } from "../util";
+import {
+  parseInputContextType,
+  parsePrivateInputOrFilename,
+  parseProofSubmitMode,
+} from "../util";
 
 export const command = "addprovingtask";
 export const desc = "Add proving task";
@@ -31,8 +35,26 @@ export const builder = (yargs: Argv) => {
       type: "string",
     })
     .option("private_input", {
-      describe: "The private input of the proof. Currently not supported.",
+      describe: "The private input of the proof.",
       type: "string",
+      conflicts: "private_input_file",
+    })
+    .option("private_input_file", {
+      describe:
+        "File path of file containing private input. Cannot be specified if `private_input` is used.",
+      type: "string",
+      conflicts: "private_input",
+    })
+    .option("context_file", {
+      describe: "File path of file containing context.",
+      type: "string",
+      implies: "input_context_type",
+    })
+    .option("input_context_type", {
+      describe:
+        "Type of context use by the image, `Custom`, `ImageInitial` or `ImageCurrent`.",
+      type: "string",
+      default: "ImageCurrent",
     })
     .option("submit_mode", {
       describe:
@@ -44,12 +66,15 @@ export const builder = (yargs: Argv) => {
 
 export const handler = async (argv: Arguments) => {
   console.log("Begin adding prove task for ", argv.i, argv.public_input);
+
   await addProvingTask(
     argv.r as string,
     argv.u as string,
     argv.i as string,
     argv.public_input ? (argv.public_input as string) : "",
-    argv.private_input ? (argv.private_input as string) : "",
+    parsePrivateInputOrFilename(argv.private_input, argv.private_input_file),
+    argv.context_file ? (argv.context_file as string) : undefined,
+    parseInputContextType(argv.input_context_type),
     parseProofSubmitMode(argv.submit_mode),
     argv.x as string,
   );

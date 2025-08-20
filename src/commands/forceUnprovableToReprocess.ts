@@ -15,7 +15,8 @@ export const builder = (yargs: Argv) => {
     })
     .option("task_ids", {
       describe: "Id of the task to reprocess",
-      demandOption: "The task_ids list is required for reprocessing unprovable task.",
+      demandOption:
+        "The task_ids list is required for reprocessing unprovable task.",
       type: "string",
     });
 };

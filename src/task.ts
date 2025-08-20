@@ -17,6 +17,8 @@ import {
   ResetImageParams,
   ForceUnprovableToReprocessParams,
   ForceDryrunFailsToReprocessParams,
+  InputContextType,
+  WithCustomInputContextType,
 } from "zkwasm-service-helper";
 
 import {
@@ -110,6 +112,8 @@ export async function addProvingTask(
   image_md5: string,
   public_inputs: string,
   private_inputs: string,
+  context_file: string | undefined,
+  input_context_type: InputContextType,
   proof_submit_mode: ProofSubmitMode,
   priv: string,
   enable_logs: boolean = true,
@@ -126,6 +130,33 @@ export async function addProvingTask(
     private_inputs: priv_inputs,
     proof_submit_mode: proof_submit_mode,
   };
+
+  if (context_file) {
+    if (input_context_type !== InputContextType.Custom) {
+      console.log(
+        "input_context_type must be 'Custom' if specifying context_file",
+        input_context_type,
+      );
+      exit(1);
+    }
+    let contextBytes: Buffer = fs.readFileSync(context_file);
+    let context_info: WithCustomInputContextType = {
+      input_context: contextBytes,
+      input_context_md5: ZkWasmUtil.convertToMd5(contextBytes),
+      input_context_type: InputContextType.Custom,
+    };
+    info = { ...info, ...context_info };
+  } else {
+    if (input_context_type === InputContextType.Custom) {
+      console.log(
+        "input_context_type must not be 'Custom' if not specifying context_file",
+        input_context_type,
+      );
+      exit(1);
+    }
+    info = { ...info, input_context_type: input_context_type };
+  }
+
   let msgString = ZkWasmUtil.createProvingSignMessage(info);
 
   let signature: string;
@@ -246,6 +277,8 @@ async function runProveTasks(
           image_md5s[i % image_md5s.length],
           public_inputs,
           private_inputs,
+          undefined,
+          InputContextType.ImageCurrent,
           submit_mode,
           priv,
           enable_logs,
