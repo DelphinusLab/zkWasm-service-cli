@@ -183,7 +183,7 @@ export const handler = async (argv: Arguments) => {
 async function getAllNodeAddresses(helper: ZkWasmServiceHelper): Promise<string[]> {
   try {
     let args: NodeStatisticsQueryParams = {
-      total: 10000,
+      total: 2000,
     };
     const result = await helper.queryNodeStatistics(args);
     const nodeStatistics: NodeStatistics[] = result.data;
