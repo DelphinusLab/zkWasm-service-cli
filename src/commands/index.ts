@@ -10,3 +10,4 @@ export * as addResetImageTask from "./resetImage";
 export * as getTaskExternalHostTable from "./getTaskExternalHostTable";
 export * as forceUnprovableToReprocess from "./forceUnprovableToReprocess";
 export * as forceDryrunFailsToReprocess from "./forceDryrunFailsToReprocess";
+export * as queryNodesTasksTimeRangeStat from "./queryNodesTasksTimeRangeStat";
