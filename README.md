@@ -17,6 +17,7 @@ The `zkwasm-service-cli` is a command-line interface application that provides f
   - [gettaskexternalhosttable](#gettaskexternalhosttable)
   - [forceunprovabletoreprocess](#forceunprovabletoreprocess)
   - [forcedryrunfailstoreprocess](#forcedryrunfailstoreprocess)
+  - [query_nodes_tasks_time_range_stat](#query_nodes_tasks_time_range_stat)
 - [Testing](#testing)
 
 ## Usage
@@ -518,6 +519,12 @@ The following options are available for the `forcedryrunfailstoreprocess` comman
   -r, --resturl   The rest url of zkwasm cloud serivce.      [string] [required]
   -x, --priv      The private key of user address.           [string] [required]
       --task_ids  Id of the tasks to reprocess  [array] [required] [default: []]
+```
+
+### query_nodes_tasks_time_range_stat
+```
+npm install
+bash scripts/query_nodes_tasks_time_range_stat.sh
 ```
 
 ## Testing
